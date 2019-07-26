@@ -5,7 +5,7 @@ The main differences are:
 
 * Testing can also be done during training
 * Logging is improved so we can either log at the end of one epoch or at the end of each batch
-* More models
+* More models + configs (with new to come, feel free to add any)
 
 
 
@@ -164,7 +164,7 @@ Add addional configurations if you need.
 Modify the configurations in `.json` config files, then run:
 
   ```
-  python train.py --config config.json
+  python train.py --config configs/example_config.json
   ```
 
 ### Resuming from checkpoints
