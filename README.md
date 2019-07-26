@@ -1,4 +1,4 @@
-# PyTorch Template Project
+# PyTorch Experimental Template
 This project is inspired py [pytorch-template](https://github.com/victoresque/pytorch-template)
 
 The main differences are:
