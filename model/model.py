@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
+from .resnet import *
 
 
 class MnistModel(BaseModel):
@@ -20,3 +21,28 @@ class MnistModel(BaseModel):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+
+
+class ResNet18(ResNet):
+    def __init__(self, num_channels=1, num_classes=10):
+        super(ResNet18, self).__init__(BasicBlock, [2, 2, 2, 2], num_channels, num_classes)
+
+
+class ResNet34(ResNet):
+    def __init__(self, num_channels=1, num_classes=10):
+        super(ResNet34, self).__init__(BasicBlock, [3, 4, 6, 3], num_channels, num_classes)
+
+
+class ResNet50(ResNet):
+    def __init__(self, num_channels=1, num_classes=10):
+        super(ResNet50, self).__init__(Bottleneck, [3, 4, 6, 3], num_channels, num_classes)
+
+
+class ResNet101(ResNet):
+    def __init__(self, num_channels=1, num_classes=10):
+        super(ResNet101, self).__init__(Bottleneck, [3, 4, 23, 3], num_channels, num_classes)
+
+
+class ResNet152(ResNet):
+    def __init__(self, num_channels=1, num_classes=10):
+        super(ResNet152, self).__init__(Bottleneck, [3, 8, 36, 3], num_channels, num_classes)
