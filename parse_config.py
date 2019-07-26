@@ -54,7 +54,7 @@ class ConfigParser:
 
     def initialize(self, name, module, *args, **kwargs):
         """
-        finds a function handle with the name given as 'type' in config, and returns the 
+        finds a function handle with the name given as 'type' in config, and returns the
         instance initialized with corresponding keyword args given as 'args'.
         """
         module_name = self[name]['type']
@@ -67,7 +67,8 @@ class ConfigParser:
         return self.config[name]
 
     def get_logger(self, name, verbosity=2):
-        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(verbosity, self.log_levels.keys())
+        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(
+            verbosity, self.log_levels.keys())
         assert verbosity in self.log_levels, msg_verbosity
         logger = logging.getLogger(name)
         logger.setLevel(self.log_levels[verbosity])
@@ -86,6 +87,7 @@ class ConfigParser:
     def log_dir(self):
         return self._log_dir
 
+
 # helper functions used to update config dict with custom cli options
 def _update_config(config, options, args):
     for opt in options:
@@ -94,15 +96,18 @@ def _update_config(config, options, args):
             _set_by_path(config, opt.target, value)
     return config
 
+
 def _get_opt_name(flags):
     for flg in flags:
         if flg.startswith('--'):
             return flg.replace('--', '')
     return flags[0].replace('--', '')
 
+
 def _set_by_path(tree, keys, value):
     """Set a value in a nested object in tree by sequence of keys."""
     _get_by_path(tree, keys[:-1])[keys[-1]] = value
+
 
 def _get_by_path(tree, keys):
     """Access a nested object in tree by sequence of keys."""

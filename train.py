@@ -13,8 +13,20 @@ def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    data_loader = config.initialize('data_loader', module_data)
-    valid_data_loader = data_loader.split_validation()
+    train_data_loader = config.initialize('train_data_loader', module_data)
+    valid_data_loader = train_data_loader.split_validation()
+
+    if config["test"]["do"]:
+        test_data_loader = getattr(module_data, config['train_data_loader']['type'])(
+            config['train_data_loader']['args']['data_dir'],
+            batch_size=config['test']['test_batch_size'],
+            shuffle=False,
+            validation_split=0.0,
+            training=False,
+            num_workers=config['train_data_loader']['args']['num_workers']
+        )
+    else:
+        test_data_loader = None
 
     # build model architecture, then print to console
     model = config.initialize('arch', module_arch)
@@ -32,8 +44,9 @@ def main(config):
 
     trainer = Trainer(model, loss, metrics, optimizer,
                       config=config,
-                      data_loader=data_loader,
+                      train_data_loader=train_data_loader,
                       valid_data_loader=valid_data_loader,
+                      test_data_loader=test_data_loader,
                       lr_scheduler=lr_scheduler)
 
     trainer.train()

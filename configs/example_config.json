@@ -1,0 +1,69 @@
+{
+  "name": "CIFAR_ResNet_18",
+  "n_gpu": 2,
+  "arch": {
+    "type": "ResNet18",
+    "args": {
+      "num_channels": 3,
+      "num_classes": 10
+    }
+  },
+  "train_data_loader": {
+    "type": "CIFAR10Loader",
+    "args": {
+      "data_dir": "data/",
+      "batch_size": 128,
+      "shuffle": true,
+      "validation_split": 0.1,
+      "num_workers": 2
+    }
+  },
+  "optimizer": {
+    "type": "Adam",
+    "args": {
+      "lr": 0.001,
+      "weight_decay": 0,
+      "amsgrad": true
+    }
+  },
+  "loss": "nll_loss",
+  "metrics": [
+    "my_metric",
+    "my_metric2"
+  ],
+  "lr_scheduler": {
+    "type": "StepLR",
+    "args": {
+      "step_size": 50,
+      "gamma": 0.1
+    }
+  },
+  "trainer": {
+    "epochs": 100,
+    "save_dir": "saved/",
+    "save_period": 1,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 10,
+    "train_log_step": 10,
+    "tensorboard": {
+      "enabled": true,
+      "modules": [
+        "torch.utils.tensorboard",
+        "tensorboardX"
+      ]
+    },
+    "tensorboard_logs": {
+      "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
+      "index_batches": true,
+      "log_params": true,
+      "log_train_images": true,
+      "log_test_images": true
+    }
+  },
+  "test": {
+    "do": true,
+    "test_epochs_interval": 1,
+    "test_batch_size": 100
+  }
+}
