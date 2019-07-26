@@ -3,7 +3,7 @@ This project is inspired py [pytorch-template](https://github.com/victoresque/py
 
 The main differences are:
 
-* Testing can be done during training
+* Testing can also be done during training
 * Logging is improved so we can either log at the end of one epoch or at the end of each batch
 * More models
 
