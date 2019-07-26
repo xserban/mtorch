@@ -1,5 +1,14 @@
 # PyTorch Template Project
-PyTorch deep learning project made easy.
+This project is inspired py [pytorch-template](https://github.com/victoresque/pytorch-template)
+
+The main differences are:
+
+* Testing can be done during training
+* Logging is improved so we can either log at the end of one epoch or at the end of each batch
+* More models
+
+
+Below, the original documentation:
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
@@ -24,11 +33,6 @@ PyTorch deep learning project made easy.
 		* [Additional logging](#additional-logging)
 		* [Validation data](#validation-data)
 		* [Checkpoints](#checkpoints)
-    * [Tensorboard Visualization](#tensorboard-visualization)
-	* [Contributing](#contributing)
-	* [TODOs](#todos)
-	* [License](#license)
-	* [Acknowledgments](#acknowledgments)
 
 <!-- /code_chunk_output -->
 
@@ -386,18 +390,6 @@ Feel free to contribute any kind of function or enhancement, here the coding sty
 
 Code should pass the [Flake8](http://flake8.pycqa.org/en/latest/) check before committing.
 
-## TODOs
-
-- [ ] Using fixed random seed
-- [ ] Check pytorch 1.1
-- [ ] Multiple optimizers
-- [ ] Support pytorch native tensorboard
-- [ ] Support more tensorboard functions
-- [x] `tensorboardX` logger support
-- [x] Configurable logging layout, checkpoint naming
-- [x] Iteration-based training (instead of epoch-based)
-- [x] Adding command line option for fine-tuning
-- [x] Multi-GPU support
 
 ## License
 This project is licensed under the MIT License. See  LICENSE for more details
