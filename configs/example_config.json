@@ -11,7 +11,7 @@
   "train_data_loader": {
     "type": "CIFAR10Loader",
     "args": {
-      "data_dir": "data/",
+      "data_dir": "downloaded-data/",
       "batch_size": 128,
       "shuffle": true,
       "validation_split": 0.1,
@@ -26,10 +26,15 @@
       "amsgrad": true
     }
   },
-  "loss": "nll_loss",
+  "loss_function": {
+    "type": "NLL",
+    "args": {}
+  },
   "metrics": [
-    "my_metric",
-    "my_metric2"
+    {
+      "type": "Accuracy",
+      "args": {}
+    }
   ],
   "lr_scheduler": {
     "type": "StepLR",
