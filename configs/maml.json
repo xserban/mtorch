@@ -1,0 +1,76 @@
+{
+  "name": "MAML",
+  "n_gpu": 2,
+  "arch": {
+    "type": "OmniNet",
+    "args": {
+      "inpt_c": 3,
+      "num_classes": 10
+    }
+  },
+  "optimizer": {
+    "type": "Adam",
+    "args": {
+      "lr": 0.001,
+      "weight_decay": 0,
+      "amsgrad": true
+    }
+  },
+  "loss_function": {
+    "type": "CrossEntropy",
+    "args": {}
+  },
+  "metrics": [
+    {
+      "type": "Accuracy",
+      "args": {}
+    }
+  ],
+  "lr_scheduler": {
+    "type": "StepLR",
+    "args": {
+      "step_size": 50,
+      "gamma": 0.1
+    }
+  },
+  "train_data_loader": {
+    "type": "OmniglotLoader",
+    "args": {
+      "data_dir": "downloaded-data/",
+      "batch_size": 128,
+      "shuffle": true,
+      "validation_split": 0.1,
+      "num_workers": 2
+    }
+  },
+  "trainer": {
+    "type": "MamlTrainer",
+    "args": {},
+    "epochs": 100,
+    "save_dir": "saved/",
+    "save_period": 1,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 10,
+    "train_log_step": 10,
+    "tensorboard": {
+      "enabled": true,
+      "modules": [
+        "torch.utils.tensorboard",
+        "tensorboardX"
+      ]
+    },
+    "tensorboard_logs": {
+      "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
+      "index_batches": true,
+      "log_params": true,
+      "log_train_images": false,
+      "log_test_images": false
+    }
+  },
+  "test": {
+    "do": false,
+    "test_epochs_interval": 1,
+    "test_batch_size": 100
+  }
+}

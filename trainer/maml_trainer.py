@@ -1,3 +1,4 @@
+"""This is still work in progress"""
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -9,20 +10,20 @@ from tqdm import tqdm
 
 
 class MamlTrainer(BaseTrainer):
-    def __init__(self, model, loss, metrics, optimizer, config, data_loader, valid_data_loader=None, lr_scheduler=None, len_epoch=None):
+    def __init__(self, model, loss, metrics, optimizer, config, train_data_loader, valid_data_loader=None, test_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
         self.config = config
-        self.data_loader = data_loader
+        self.data_loader = train_data_loader
         if len_epoch is None:
             self.len_epoch = len(self.data_loader)
         else:
-            self.data_loader = inf_loop(data_loader)
+            self.data_loader = inf_loop(self.data_loader)
             self.len_epoch = len_epoch
 
         self.valid_data_loader = valid_data_loader
         self.do_valdation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = int(np.sqrt(data_loader.batch_size))
+        self.log_step = int(np.sqrt(self.data_loader.batch_size))
 
     def _train_epoch(self, epoch):
         pass
@@ -79,7 +80,7 @@ class MamlTrainer(BaseTrainer):
 
     def _get_metrics(self, x, y, params):
         with torch.no_grad():
-            output_q = self.net(x, params, bn_training=True)
+            output_q = self.model(x, params, bn_training=True)
             loss_q = self.loss(output_q, y)
 
             pred_q = F.softmax(output_q, dim=1).argmax(dim=1)
