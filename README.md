@@ -3,6 +3,7 @@ This project is inspired py [pytorch-template](https://github.com/victoresque/py
 
 The main differences are:
 
+* Everything is written in an OOP fashion - each loss, metric, trainer is a class which inherits from a base class
 * Testing can also be done during training
 * Logging is improved so we can either log at the end of one epoch or at the end of each batch
 * More models + configs (with new to come, feel free to add any)
