@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from model.base import BaseModel
 
 
 class BasicBlock(nn.Module):
@@ -63,7 +64,7 @@ class Bottleneck(nn.Module):
         return out
 
 
-class ResNet(nn.Module):
+class ResNet(BaseModel):
     def __init__(self, block, num_blocks, num_channels=3, num_classes=10):
         super(ResNet, self).__init__()
         self.in_planes = 64
