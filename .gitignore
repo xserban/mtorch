@@ -101,7 +101,7 @@ ENV/
 .mypy_cache/
 
 # input data, saved log, checkpoints
-data/
+downloaded-data/
 input/
 saved/
 # datasets/

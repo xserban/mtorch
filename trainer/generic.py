@@ -1,12 +1,12 @@
 import numpy as np
 import torch
 from torchvision.utils import make_grid
-from base import BaseTrainer
+from trainer.base import BaseTrainer
 from tqdm import tqdm
 from utils import inf_loop
 
 
-class Trainer(BaseTrainer):
+class GenericTrainer(BaseTrainer):
     """Trainer class
     Note:
         Inherited from BaseTrainer.
@@ -37,8 +37,8 @@ class Trainer(BaseTrainer):
         """Evaluates all metrics and adds them to tensorboard"""
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric(output, target)
-            # self.writer.add_scalar('{}'.format(metric.__name__), acc_metrics[i])
+            acc_metrics[i] += metric.forward(output, target)
+
         return acc_metrics
 
     def _train_epoch(self, epoch):
@@ -104,7 +104,7 @@ class Trainer(BaseTrainer):
         """
         self.optimizer.zero_grad()
         output = self.model(data)
-        loss = self.loss(output, target)
+        loss = self.loss.forward(output, target)
         if train is True:
             loss.backward()
             self.optimizer.step()
@@ -198,7 +198,7 @@ class Trainer(BaseTrainer):
     def _log_metrics(self, metrics):
         """Adds all metric values to tensorboard"""
         for i, metric in enumerate(self.metrics):
-            self.writer.add_scalar('{}'.format(metric.__name__), metrics[i])
+            self.writer.add_scalar('{}'.format(metric.get_name()), metrics[i])
 
     def _log_progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'

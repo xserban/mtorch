@@ -67,11 +67,11 @@ class BaseTrainer:
         """
         for key, value in result.items():
             if key == 'metrics':
-                log.update({mtr.__name__: value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
             elif key == 'val_metrics':
-                log.update({'val_' + mtr.__name__: value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'val_' + mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
             elif key == 'test_metrics':
-                log.update({'test_' + mtr.__name__: value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'test_' + mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
             else:
                 log[key] = value
 

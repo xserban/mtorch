@@ -52,13 +52,13 @@ class ConfigParser:
             2: logging.DEBUG
         }
 
-    def initialize(self, name, module, *args, **kwargs):
+    def initialize(self, module, module_config, *args, **kwargs):
         """
         finds a function handle with the name given as 'type' in config, and returns the
         instance initialized with corresponding keyword args given as 'args'.
         """
-        module_name = self[name]['type']
-        module_args = dict(self[name]['args'])
+        module_name = module_config['type']
+        module_args = dict(module_config['args'])
         assert all([k not in module_args for k in kwargs]), 'Overwriting kwargs given in config file is not allowed'
         module_args.update(kwargs)
         return getattr(module, module_name)(*args, **module_args)

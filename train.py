@@ -1,19 +1,20 @@
 import argparse
 import collections
 import torch
-import data_loader.data_loaders as module_data
+import data.data_loaders as module_data
 import model.loss as module_loss
-import model.metric as module_metric
-import model.model as module_arch
-from parse_config import ConfigParser
-from trainer import Trainer
+import model.metrics as module_metric
+import model.arch as module_arch
+import trainer as module_train
+
+from utils.parse_config import ConfigParser
 
 
 def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    train_data_loader = config.initialize('train_data_loader', module_data)
+    train_data_loader = config.initialize(module_data, config['train_data_loader'])
     valid_data_loader = train_data_loader.split_validation()
 
     if config["test"]["do"]:
@@ -29,26 +30,31 @@ def main(config):
         test_data_loader = None
 
     # build model architecture, then print to console
-    model = config.initialize('arch', module_arch)
+    model = config.initialize(module_arch, config['arch'])
     logger.info(model)
 
     # get function handles of loss and metrics
-    loss = getattr(module_loss, config['loss'])
-    metrics = [getattr(module_metric, met) for met in config['metrics']]
+    loss = config.initialize(module_loss, config['loss_function'])
+    metrics = [config.initialize(module_metric, met) for met in config['metrics']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.initialize('optimizer', torch.optim, trainable_params)
+    optimizer = config.initialize(torch.optim, config['optimizer'], trainable_params)
 
-    lr_scheduler = config.initialize('lr_scheduler', torch.optim.lr_scheduler, optimizer)
+    lr_scheduler = config.initialize(torch.optim.lr_scheduler, config['lr_scheduler'], optimizer)
 
-    trainer = Trainer(model, loss, metrics, optimizer,
-                      config=config,
-                      train_data_loader=train_data_loader,
-                      valid_data_loader=valid_data_loader,
-                      test_data_loader=test_data_loader,
-                      lr_scheduler=lr_scheduler)
+    trainer_args = {
+        'model': model,
+        'loss': loss,
+        'metrics': metrics,
+        'optimizer': optimizer,
+        'config': config,
+        'train_data_loader': train_data_loader,
+        'test_data_loader': test_data_loader,
+        'lr_scheduler': lr_scheduler
+    }
 
+    trainer = config.initialize(module_train, config['trainer'], **trainer_args)
     trainer.train()
 
 
