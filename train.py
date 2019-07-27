@@ -5,7 +5,7 @@ import data.data_loaders as module_data
 import model.loss as module_loss
 import model.metrics as module_metric
 import model.arch as module_arch
-from parse_config import ConfigParser
+from utils.parse_config import ConfigParser
 from trainer import Trainer
 
 
