@@ -4,7 +4,7 @@
   "arch": {
     "type": "OmniNet",
     "args": {
-      "inpt_c": 3,
+      "inpt_c": 1,
       "num_classes": 10
     }
   },
@@ -40,12 +40,20 @@
       "batch_size": 128,
       "shuffle": true,
       "validation_split": 0.1,
-      "num_workers": 2
+      "num_workers": 2,
+      "tasks_num": 32,
+      "n_way": 5,
+      "k_shot": 1,
+      "k_query": 15,
+      "imgsz": 28
     }
   },
   "trainer": {
     "type": "MamlTrainer",
-    "args": {},
+    "args": {
+      "update_step": 5,
+      "update_lr": 0.4
+    },
     "epochs": 100,
     "save_dir": "saved/",
     "save_period": 1,

@@ -9,16 +9,20 @@ class BaseMAML(nn.Module):
     def __init__(self, inpt_c, nr_filters=64, stride=1, num_classes=10):
         super(BaseMAML, self).__init__()
 
-        self.conv1 = nn.Conv2d(inpt_c, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(
+            inpt_c, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(nr_filters)
 
-        self.conv2 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(nr_filters)
 
-        self.conv3 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv3 = nn.Conv2d(
+            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn3 = nn.BatchNorm2d(nr_filters)
 
-        self.conv4 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv4 = nn.Conv2d(
+            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn4 = nn.BatchNorm2d(nr_filters)
         # TODO: change input size
         self.linear = nn.Linear(512, num_classes)
@@ -46,14 +50,18 @@ class OmniNet(nn.Module):
     def __init__(self, inpt_c, nr_filters=64, stride=2, num_classes=10):
         super(OmniNet, self).__init__()
 
-        self.conv1 = nn.Conv2d(inpt_c, nr_filters, kernel_size=3, stride=stride)
-        self.conv2 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride)
-        self.conv3 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride)
-        self.conv4 = nn.Conv2d(nr_filters, nr_filters, kernel_size=3, stride=stride)
+        self.conv1 = nn.Conv2d(
+            inpt_c, nr_filters, kernel_size=3, stride=stride)
+        self.conv2 = nn.Conv2d(nr_filters, nr_filters,
+                               kernel_size=3, stride=stride)
+        self.conv3 = nn.Conv2d(nr_filters, nr_filters,
+                               kernel_size=3, stride=stride)
+        self.conv4 = nn.Conv2d(nr_filters, nr_filters,
+                               kernel_size=3, stride=stride)
         # TODO: change input size
         self.linear = nn.Linear(512, num_classes)
 
-    def forward(self, x):
+    def forward(self, x, vars=None, bn_training=True):
         out = F.relu(self.conv1(x))
         out = F.relu(self.conv2(x))
         out = F.relu(self.conv3(x))
