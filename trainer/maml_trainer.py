@@ -2,13 +2,13 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from base import BaseTrainer
+from .base import BaseTrainer
 from utils import inf_loop
 
 from tqdm import tqdm
 
 
-class MetaTrainer(BaseTrainer):
+class MamlTrainer(BaseTrainer):
     def __init__(self, model, loss, metrics, optimizer, config, data_loader, valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
         self.config = config

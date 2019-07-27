@@ -6,7 +6,7 @@ from tqdm import tqdm
 from utils import inf_loop
 
 
-class Trainer(BaseTrainer):
+class GenericTrainer(BaseTrainer):
     """Trainer class
     Note:
         Inherited from BaseTrainer.

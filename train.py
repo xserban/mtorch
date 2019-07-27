@@ -5,8 +5,9 @@ import data.data_loaders as module_data
 import model.loss as module_loss
 import model.metrics as module_metric
 import model.arch as module_arch
+import trainer as module_train
+
 from utils.parse_config import ConfigParser
-from trainer import Trainer
 
 
 def main(config):
@@ -42,13 +43,18 @@ def main(config):
 
     lr_scheduler = config.initialize(torch.optim.lr_scheduler, config['lr_scheduler'], optimizer)
 
-    trainer = Trainer(model, loss, metrics, optimizer,
-                      config=config,
-                      train_data_loader=train_data_loader,
-                      valid_data_loader=valid_data_loader,
-                      test_data_loader=test_data_loader,
-                      lr_scheduler=lr_scheduler)
+    trainer_args = {
+        'model': model,
+        'loss': loss,
+        'metrics': metrics,
+        'optimizer': optimizer,
+        'config': config,
+        'train_data_loader': train_data_loader,
+        'test_data_loader': test_data_loader,
+        'lr_scheduler': lr_scheduler
+    }
 
+    trainer = config.initialize(module_train, config['trainer'], **trainer_args)
     trainer.train()
 
 

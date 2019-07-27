@@ -44,6 +44,8 @@
     }
   },
   "trainer": {
+    "type": "GenericTrainer",
+    "args": {},
     "epochs": 100,
     "save_dir": "saved/",
     "save_period": 1,
