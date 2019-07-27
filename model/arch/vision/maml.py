@@ -47,7 +47,7 @@ class BaseMAML(nn.Module):
 
 
 class OmniNet(nn.Module):
-    def __init__(self, inpt_c, nr_filters=64, stride=2, num_classes=10):
+    def __init__(self, inpt_c, nr_filters=32, stride=2, num_classes=10):
         super(OmniNet, self).__init__()
 
         self.conv1 = nn.Conv2d(
@@ -57,15 +57,15 @@ class OmniNet(nn.Module):
         self.conv3 = nn.Conv2d(nr_filters, nr_filters,
                                kernel_size=3, stride=stride)
         self.conv4 = nn.Conv2d(nr_filters, nr_filters,
-                               kernel_size=3, stride=stride)
+                               kernel_size=2, stride=stride)
         # TODO: change input size
-        self.linear = nn.Linear(512, num_classes)
+        self.linear = nn.Linear(32, num_classes)
 
-    def forward(self, x, vars=None, bn_training=True):
+    def forward(self, x):
         out = F.relu(self.conv1(x))
-        out = F.relu(self.conv2(x))
-        out = F.relu(self.conv3(x))
-        out = F.relu(self.conv4(x))
+        out = F.relu(self.conv2(out))
+        out = F.relu(self.conv3(out))
+        out = F.relu(self.conv4(out))
 
         out = out.view(out.size(0), -1)
         out = self.linear(out)
