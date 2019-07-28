@@ -33,6 +33,7 @@ class Sacred(metaclass=Singleton):
         SETTINGS['CAPTURE_MODE'] = self.sacred_config['capture_mode']
 
     def add_config(self, config):
+        # TODO: change this
         global ex
         ex.add_config(config.json_config)
 

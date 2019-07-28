@@ -9,9 +9,12 @@ import logging.config
 from pathlib import Path
 from utils import Singleton
 from utils import read_json
+from logger.tb_logger import TBLogger
+from logger.sacred_logger import SacredLogger
+from logger.base import BaseLogger
 
 
-class Logger(metaclass=Singleton):
+class Logger(BaseLogger, metaclass=Singleton):
     def __init__(self,
                  config,
                  log_dir,
@@ -23,16 +26,14 @@ class Logger(metaclass=Singleton):
         self.log_dir = log_dir
         self.log_levels = log_levels
 
-        self._init_py_logger(self.log_dir, py_log_config, py_default_level)
+        self.init_py_logger(self.log_dir, py_log_config, py_default_level)
+        self.init_tb_logger(config)
+        self.init_sacred_logger(config)
 
-    def init_all_loggers(self):
-        pass
-
-    def _init_py_logger(self, save_dir, log_config, default_level=logging.INFO):
+    def init_py_logger(self, save_dir, log_config, default_level=logging.INFO):
         log_config = Path(log_config)
         if log_config.is_file():
             config = read_json(log_config)
-            print(config)
             # modify logging paths based on run config
             for _, handler in config['handlers'].items():
                 if 'filename' in handler:
@@ -44,11 +45,17 @@ class Logger(metaclass=Singleton):
                 "Warning: logging configuration file is not found in {}.".format(log_config))
             logging.basicConfig(level=default_level)
 
-    def _init_tb_logger(self):
-        pass
+    def init_tb_logger(self, config):
+        if config['trainer']['tensorboard_logs']['do'] is True:
+            self.tb_logger = TBLogger(self.log_dir, config)
+        else:
+            self.tb_logger = None
 
-    def _init_sacred_logger(self):
-        pass
+    def init_sacred_logger(self, config):
+        if config['trainer']['sacred_logs']['do'] is True:
+            self.sacred_logger = SacredLogger(config)
+        else:
+            self.sacred_logger = None
 
     def get_py_logger(self, name, verbosity):
         msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(
@@ -57,3 +64,19 @@ class Logger(metaclass=Singleton):
         logger = logging.getLogger(name)
         logger.setLevel(self.log_levels[verbosity])
         return logger
+
+    def log_batch(self, step, env, loss, custom_metrics, images):
+        if self.tb_logger is not None:
+            self.tb_logger.log_batch(step, env, loss, custom_metrics, images)
+        if self.sacred_logger is not None:
+            self.sacred_logger.log_batch(step, env, loss, custom_metrics)
+
+    def log_epoch(self, step, env, loss, custom_metrics):
+        if self.tb_logger is not None:
+            self.tb_logger.log_epoch(step, env, loss, custom_metrics)
+        if self.sacred_logger is not None:
+            self.sacred_logger.log_epoch(step, env, loss. custom_metrics)
+
+    def log_validation_params(self, step, env, parameters):
+        if self.tb_logger is not None:
+            self.tb_logger.log_parameters(step, env, parameters)

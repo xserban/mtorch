@@ -1,18 +1,17 @@
 """Tensorboard logger"""
 from utils import Singleton
-from logger import TensorboardWriter
+from logger.tensorboard_writer import TensorboardWriter
 from .base import BaseLogger
 
 
 class TBLogger(BaseLogger):
-    def __init__(self, config, logger):
+    def __init__(self, log_dir, config):
         super().__init__()
-        self.logger = logger
 
-        self.writer = TensorboardWriter(
-            config.log_dir,
-            logger,
-            config.trainer.tensorboard)
+        self.log_dir = log_dir
+        self.writer = TensorboardWriter(self.log_dir)
+
+        self._configure(config)
 
     def _configure(self, config):
         self.tb_config = config['trainer']['tensorboard_logs']
@@ -21,8 +20,26 @@ class TBLogger(BaseLogger):
         self.log_train_images = self.tb_config['log_train_images']
         self.log_test_images = self.tb_config['log_test_images']
 
-    def log_batch(self):
-        pass
+    def log_batch(self, step, env, loss, custom_metrics, images=None):
+        if self.log_index_batches:
+            self.writer.set_step(step, env)
+            self.writer.add_scalar('loss', loss)
+            self.log_custom_metrics(custom_metrics)
 
-    def log_custom_metrics(self):
-        pass
+            if self.log_train_images and images is not None:
+                self.writer.add_image('input', images)
+
+    def log_custom_metrics(self, metrics):
+        for key, value in metrics.items():
+            self.writer.add_scalar('{}'.format(key), value)
+
+    def log_epoch(self, step, env, loss, custom_metrics):
+        if not self.log_index_batches:
+            self.writer.set_step(step, env)
+            self.log_batch(step, env, loss, custom_metrics)
+
+    def log_parameters(self, step, env, params):
+        if self.log_params:
+            self.writer.set_step(step, env)
+            for name, p in params:
+                self.writer.add_histogram(name, p, bins='auto')

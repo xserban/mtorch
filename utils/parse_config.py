@@ -29,7 +29,6 @@ class ConfigParser:
 
         # load config file and apply custom cli options
         config = read_json(self.cfg_fname)
-        self.json_config = read_json(self.cfg_fname, dic=False)
         self._config = _update_config(config, options, args)
 
         # set save_dir where trained model and log will be saved.
@@ -52,7 +51,6 @@ class ConfigParser:
             1: logging.INFO,
             2: logging.DEBUG
         })
-        self.logger.init_all_loggers()
 
     def initialize(self, module, module_config, *args, **kwargs):
         """

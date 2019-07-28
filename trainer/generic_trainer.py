@@ -33,14 +33,6 @@ class GenericTrainer(BaseTrainer):
         self.do_testing = self.test_data_loader is not None
         self.lr_scheduler = lr_scheduler
 
-    def _eval_metrics(self, output, target):
-        """Evaluates all metrics and adds them to tensorboard"""
-        acc_metrics = np.zeros(len(self.metrics))
-        for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric.forward(output, target)
-
-        return acc_metrics
-
     def _train_epoch(self, epoch):
         """Training logic for an epoch
         :param epoch: Current training epoch.
@@ -56,40 +48,35 @@ class GenericTrainer(BaseTrainer):
         """
         print('[INFO] \t Starting Training Epoch {}:'.format(epoch))
         self.model.train()
-
         total_loss = 0
         total_metrics = np.zeros(len(self.metrics))
 
         for batch_idx, (data, target) in enumerate(tqdm(self.train_data_loader)):
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
-            loss, metrics = self._run_batch(data, target)
+            loss, metrics, dic_metrics = self._run_batch(data, target)
             total_loss += loss
             total_metrics += metrics
-            # log info
-            if self.log_index_batches:
-                self._log_batch((epoch - 1) * self.len_epoch +
-                                batch_idx, 'train', loss, metrics)
-                if self.log_train_images:
-                    self.writer.add_image('input', make_grid(
-                        data.cpu(), nrow=8, normalize=True))
+            # log info specific to this batch
+            self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
+                                  'train',
+                                  loss,
+                                  dic_metrics,
+                                  make_grid(data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
-
-        if not self.log_index_batches:
-            self._log_batch(epoch - 1, 'train',
-                            total_loss / self.len_epoch,
-                            (total_metrics / self.len_epoch).tolist())
+        # log info specific to the whole epoch
+        self.logger.log_epoch(epoch - 1, 'train',
+                              total_loss / self.len_epoch,
+                              (total_metrics / self.len_epoch).tolist())
 
         log = {
             'loss': total_loss / self.len_epoch,
             'metrics': (total_metrics / self.len_epoch).tolist()
         }
-
         # run validation and testing
         self._validate(epoch, log)
-
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
 
@@ -110,8 +97,9 @@ class GenericTrainer(BaseTrainer):
         if train is True:
             loss.backward()
             self.optimizer.step()
-        metrics = self._eval_metrics(output, target)
-        return loss.item(), metrics
+        metrics, dic_metrics = self._eval_metrics(output, target)
+
+        return loss.item(), metrics, dic_metrics
 
     def _validate(self, epoch, log):
         """Run validation and testing"""
@@ -137,30 +125,30 @@ class GenericTrainer(BaseTrainer):
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
                 # get loss and run metrics
-                loss, metrics = self._run_batch(data, target, train=False)
+                loss, metrics, dic_metrics = self._run_batch(
+                    data, target, train=False)
                 total_val_loss += loss
                 total_val_metrics += metrics
-                # log results
-                if self.log_index_batches:
-                    self._log_batch(
-                        (epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid', loss, metrics)
-                    if self.log_train_images:
-                        self.writer.add_image('input', make_grid(
-                            data.cpu(), nrow=8, normalize=True))
-
-        if not self.log_index_batches:
-            self._log_batch(epoch - 1, 'valid',
-                            total_val_loss / len(self.valid_data_loader),
-                            (total_val_metrics / len(self.valid_data_loader)).tolist())
-
+                # log results specific to batch
+                self.logger.log_batch((epoch - 1) * len(self.valid_data_loader) + batch_idx,
+                                      'valid',
+                                      loss,
+                                      dic_metrics,
+                                      make_grid(data.cpu(), nrow=8, normalize=True))
+        # log info specific to the whole validation epoch
+        total_loss = total_val_loss / len(self.valid_data_loader)
+        total_metrics = (total_val_metrics /
+                         len(self.valid_data_loader)).tolist()
+        self.logger.log_epoch(epoch - 1, 'valid',
+                              total_loss,
+                              total_metrics)
         # add histogram of model parameters to the tensorboard
-        if self.log_params:
-            for name, p in self.model.named_parameters():
-                self.writer.add_histogram(name, p, bins='auto')
-
+        self.logger.log_validation_params(
+            epoch-1, 'valid', self.model.named_parameters())
+        # return final log metrics
         return {
-            'val_loss': total_val_loss / len(self.valid_data_loader),
-            'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
+            'val_loss': total_loss,
+            'val_metrics': total_metrics
         }
 
     def _test_epoch(self, epoch):
@@ -172,23 +160,25 @@ class GenericTrainer(BaseTrainer):
             for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
                 data, target = data.to(self.device), target.to(self.device)
                 # get loss and and run metrics
-                loss, metrics = self._run_batch(data, target, train=False)
+                loss, metrics, dic_metrics = self._run_batch(
+                    data, target, train=False)
                 total_test_loss += loss
                 total_test_metrics += metrics
-                # log results
-                if self.log_index_batches:
-                    self._log_batch(
-                        (epoch - 1) * len(self.test_data_loader) + i, 'test', loss, metrics)
-                    if self.log_test_images:
-                        self.writer.add_image('input', make_grid(
-                            data.cpu(), nrow=8, normalize=True))
-
-        if not self.log_index_batches:
-            self._log_batch(epoch - 1, 'test',
-                            total_test_loss / len(self.test_data_loader),
-                            (total_test_metrics / len(self.test_data_loader)).tolist())
-
+                # log results specific to batch
+                self.logger.log_batch((epoch - 1) * len(self.test_data_loader) + i,
+                                      'test',
+                                      loss,
+                                      dic_metrics,
+                                      make_grid(data.cpu(), nrow=8, normalize=True))
+        # log results specific to epoch
+        total_loss = total_test_loss / len(self.test_data_loader)
+        total_metrics = (total_test_metrics /
+                         len(self.test_data_loader)).tolist()
+        self.logger.log_epoch(epoch - 1, 'test',
+                              total_loss,
+                              total_metrics)
+        # return final log metrics
         return {
-            'test_loss': total_test_loss / len(self.test_data_loader),
-            'test_metrics': (total_test_metrics / len(self.test_data_loader)).tolist()
+            'test_loss': total_loss,
+            'test_metrics': total_metrics
         }

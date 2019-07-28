@@ -46,7 +46,7 @@
   "trainer": {
     "type": "GenericTrainer",
     "args": {},
-    "epochs": 100,
+    "epochs": 500,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -61,14 +61,15 @@
       ]
     },
     "tensorboard_logs": {
+      "do": true,
       "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
       "index_batches": true,
       "log_params": true,
-      "log_train_images": true,
-      "log_test_images": true
+      "log_train_images": false,
+      "log_test_images": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "capture_mode": "no",
       "mongo_url": "192.168.178.75:27017",
       "db_name": "sacred"

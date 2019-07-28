@@ -3,7 +3,7 @@ from utils import Timer
 
 
 class TensorboardWriter():
-    def __init__(self, log_dir, logger, enabled):
+    def __init__(self, log_dir, enabled=True):
         self.writer = None
         self.selected_module = ""
 
@@ -14,7 +14,8 @@ class TensorboardWriter():
             succeeded = False
             for module in ["torch.utils.tensorboard", "tensorboardX"]:
                 try:
-                    self.writer = importlib.import_module(module).SummaryWriter(log_dir)
+                    self.writer = importlib.import_module(
+                        module).SummaryWriter(log_dir)
                     succeeded = True
                     break
                 except ImportError:
@@ -22,11 +23,10 @@ class TensorboardWriter():
                 self.selected_module = module
 
             if not succeeded:
-                message = "Warning: visualization (Tensorboard) is configured to use, but currently not installed on " \
-                    "this machine. Please install either TensorboardX with 'pip install tensorboardx', upgrade " \
-                    "PyTorch to version >= 1.1 for using 'torch.utils.tensorboard' or turn off the option in " \
-                    "the 'config.json' file."
-                logger.warning(message)
+                raise("Error: Tensorboard is configured to use, but currently not installed on "
+                      "this machine. Please install either TensorboardX with 'pip install tensorboardx', upgrade "
+                      "PyTorch to version >= 1.1 for using 'torch.utils.tensorboard' or turn off the option in "
+                      "the 'config.json' file.")
 
         self.step = 0
         self.mode = ''
@@ -36,7 +36,7 @@ class TensorboardWriter():
             'add_text', 'add_histogram', 'add_pr_curve', 'add_embedding'
         }
         self.tag_mode_exceptions = {'add_histogram', 'add_embedding'}
-            
+
         self.timer = Timer()
 
     def set_step(self, step, mode='train'):
@@ -70,5 +70,6 @@ class TensorboardWriter():
             try:
                 attr = object.__getattr__(name)
             except AttributeError:
-                raise AttributeError("type object '{}' has no attribute '{}'".format(self.selected_module, name))
+                raise AttributeError("type object '{}' has no attribute '{}'".format(
+                    self.selected_module, name))
             return attr
