@@ -68,9 +68,11 @@ class GenericTrainer(BaseTrainer):
             total_metrics += metrics
             # log info
             if self.log_index_batches:
-                self._log_batch((epoch - 1) * self.len_epoch + batch_idx, 'train', loss, metrics)
+                self._log_batch((epoch - 1) * self.len_epoch +
+                                batch_idx, 'train', loss, metrics)
                 if self.log_train_images:
-                    self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                    self.writer.add_image('input', make_grid(
+                        data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
@@ -140,9 +142,11 @@ class GenericTrainer(BaseTrainer):
                 total_val_metrics += metrics
                 # log results
                 if self.log_index_batches:
-                    self._log_batch((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid', loss, metrics)
+                    self._log_batch(
+                        (epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid', loss, metrics)
                     if self.log_train_images:
-                        self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                        self.writer.add_image('input', make_grid(
+                            data.cpu(), nrow=8, normalize=True))
 
         if not self.log_index_batches:
             self._log_batch(epoch - 1, 'valid',
@@ -173,9 +177,11 @@ class GenericTrainer(BaseTrainer):
                 total_test_metrics += metrics
                 # log results
                 if self.log_index_batches:
-                    self._log_batch((epoch - 1) * len(self.test_data_loader) + i, 'test', loss, metrics)
+                    self._log_batch(
+                        (epoch - 1) * len(self.test_data_loader) + i, 'test', loss, metrics)
                     if self.log_test_images:
-                        self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                        self.writer.add_image('input', make_grid(
+                            data.cpu(), nrow=8, normalize=True))
 
         if not self.log_index_batches:
             self._log_batch(epoch - 1, 'test',
@@ -186,26 +192,3 @@ class GenericTrainer(BaseTrainer):
             'test_loss': total_test_loss / len(self.test_data_loader),
             'test_metrics': (total_test_metrics / len(self.test_data_loader)).tolist()
         }
-
-    ###
-    # Log helpers
-    ###
-    def _log_batch(self, step, env, loss, metrics):
-        self.writer.set_step(step, env)
-        self.writer.add_scalar('loss', loss)
-        self._log_metrics(metrics)
-
-    def _log_metrics(self, metrics):
-        """Adds all metric values to tensorboard"""
-        for i, metric in enumerate(self.metrics):
-            self.writer.add_scalar('{}'.format(metric.get_name()), metrics[i])
-
-    def _log_progress(self, batch_idx):
-        base = '[{}/{} ({:.0f}%)]'
-        if hasattr(self.train_data_loader, 'n_samples'):
-            current = batch_idx * self.train_data_loader.batch_size
-            total = self.train_data_loader.n_samples
-        else:
-            current = batch_idx
-            total = self.len_epoch
-        return base.format(current, total, 100.0 * current / total)

@@ -11,7 +11,8 @@ class BaseTrainer:
 
     def __init__(self, model, loss, metrics, optimizer, config):
         self.config = config
-        self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
+        self.logger = config.get_logger(
+            'trainer', config['trainer']['verbosity'])
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer
@@ -67,11 +68,12 @@ class BaseTrainer:
         """
         for key, value in result.items():
             if key == 'metrics':
-                log.update({mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({mtr.get_name(): value[i]
+                            for i, mtr in enumerate(self.metrics)})
             elif key == 'val_metrics':
-                log.update({'val_' + mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'val_' + mtr.get_name()                            : value[i] for i, mtr in enumerate(self.metrics)})
             elif key == 'test_metrics':
-                log.update({'test_' + mtr.get_name(): value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'test_' + mtr.get_name()                            : value[i] for i, mtr in enumerate(self.metrics)})
             else:
                 log[key] = value
 
@@ -92,7 +94,8 @@ class BaseTrainer:
             try:
                 # check whether model performance improved or not, according to specified metric(mnt_metric)
                 improved = (self.mnt_mode == 'min' and log[self.mnt_metric] <= self.mnt_best) or \
-                    (self.mnt_mode == 'max' and log[self.mnt_metric] >= self.mnt_best)
+                    (self.mnt_mode ==
+                     'max' and log[self.mnt_metric] >= self.mnt_best)
             except KeyError:
                 self.logger.warning("Warning: Metric '{}' is not found. "
                                     "Model performance monitoring is disabled.".format(self.mnt_metric))
@@ -161,7 +164,8 @@ class BaseTrainer:
         # configure test flags
         self.test_epochs_interval = config['test']['test_epochs_interval']
         # instantiate Tensorboard writer
-        self.writer = TensorboardWriter(config.log_dir, self.logger, self.cfg_trainer['tensorboard'])
+        self.writer = TensorboardWriter(
+            config.log_dir, self.logger, self.cfg_trainer['tensorboard'])
 
     def _configure_monitor(self, config):
         """Configure performance monitor and save best model
@@ -198,13 +202,16 @@ class BaseTrainer:
             'monitor_best': self.mnt_best,
             'config': self.config
         }
-        filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
+        filename = str(self.checkpoint_dir /
+                       'checkpoint-epoch{}.pth'.format(epoch))
         torch.save(state, filename)
-        self.logger.info("[INFO] \t Saving checkpoint: {} ...".format(filename))
+        self.logger.info(
+            "[INFO] \t Saving checkpoint: {} ...".format(filename))
         if save_best:
             best_path = str(self.checkpoint_dir / 'model_best.pth')
             torch.save(state, best_path)
-            self.logger.info("[INFO] \t Saving current best: model_best.pth ...")
+            self.logger.info(
+                "[INFO] \t Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, resume_path):
         """Resume from saved checkpoints
@@ -229,4 +236,18 @@ class BaseTrainer:
         else:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-        self.logger.info("Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
+        self.logger.info(
+            "Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
+
+    ###
+    # Log helpers
+    ###
+    def _log_batch(self, step, env, loss, metrics):
+        self.writer.set_step(step, env)
+        self.writer.add_scalar('loss', loss)
+        self._log_metrics(metrics)
+
+    def _log_metrics(self, metrics):
+        """Adds all metric values to tensorboard"""
+        for i, metric in enumerate(self.metrics):
+            self.writer.add_scalar('{}'.format(metric.get_name()), metrics[i])

@@ -5,7 +5,7 @@ from pathlib import Path
 from functools import reduce
 from operator import getitem
 from datetime import datetime
-from logger import setup_logging
+from logger import Logger
 from utils import read_json, write_json
 
 
@@ -47,12 +47,12 @@ class ConfigParser:
         write_json(self.config, self.save_dir / 'config.json')
 
         # configure logging module
-        setup_logging(self.log_dir)
-        self.log_levels = {
+        self.logger = Logger(config, self.log_dir, {
             0: logging.WARNING,
             1: logging.INFO,
             2: logging.DEBUG
-        }
+        })
+        self.logger.init_all_loggers()
 
     def initialize(self, module, module_config, *args, **kwargs):
         """
@@ -70,11 +70,7 @@ class ConfigParser:
         return self.config[name]
 
     def get_logger(self, name, verbosity=2):
-        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(
-            verbosity, self.log_levels.keys())
-        assert verbosity in self.log_levels, msg_verbosity
-        logger = logging.getLogger(name)
-        logger.setLevel(self.log_levels[verbosity])
+        logger = self.logger.get_py_logger(name, verbosity)
         return logger
 
     # setting read-only attributes
