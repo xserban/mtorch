@@ -1,5 +1,5 @@
 {
-  "name": "CIFAR100_ResNet_18",
+  "name": "CIFAR10_ResNet_18",
   "n_gpu": 2,
   "arch": {
     "type": "ResNet18",
@@ -9,7 +9,7 @@
     }
   },
   "train_data_loader": {
-    "type": "ImageNetLoader",
+    "type": "CIFAR10Loader",
     "args": {
       "data_dir": "downloaded-data/",
       "batch_size": 128,
@@ -66,6 +66,12 @@
       "log_params": true,
       "log_train_images": true,
       "log_test_images": true
+    },
+    "sacred_logs": {
+      "do": true,
+      "capture_mode": "no",
+      "mongo_url": "192.168.178.75:27017",
+      "db_name": "sacred"
     }
   },
   "test": {

@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import logging
 from pathlib import Path
@@ -28,6 +29,7 @@ class ConfigParser:
 
         # load config file and apply custom cli options
         config = read_json(self.cfg_fname)
+        self.json_config = read_json(self.cfg_fname, dic=False)
         self._config = _update_config(config, options, args)
 
         # set save_dir where trained model and log will be saved.

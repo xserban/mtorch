@@ -8,6 +8,7 @@ import model.arch as module_arch
 import trainer as module_train
 
 from utils.parse_config import ConfigParser
+from experiment.sacred import Sacred
 
 
 def main(config):
@@ -64,6 +65,11 @@ def main(config):
     trainer.train()
 
 
+def main_sacred(main, config):
+    exp = Sacred(config)
+    exp.run(main, config)
+
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
     args.add_argument('-c', '--config', default=None, type=str,
@@ -82,4 +88,8 @@ if __name__ == '__main__':
                    target=('data_loader', 'args', 'batch_size'))
     ]
     config = ConfigParser(args, options)
-    main(config)
+
+    if config['trainer']['sacred_logs']['do'] is False:
+        main(config)
+    else:
+        main_sacred(main, config)
