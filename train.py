@@ -8,10 +8,14 @@ import model.arch as module_arch
 import trainer as module_train
 
 from utils.parse_config import ConfigParser
-from experiment.sacred import Sacred
+# from experiment.sacred import Sacred
+from sacred import Experiment
+
+ex = Experiment()
+config = None
 
 
-def main(config):
+def main_normal():
     logger = config.get_logger('train')
 
     # setup data_loader instances
@@ -31,7 +35,7 @@ def main(config):
     else:
         test_data_loader = None
 
-    # build model architecture, then print to console
+    # build model architecture, then  it to console
     model = config.initialize(module_arch, config['arch'])
     logger.info(model)
 
@@ -65,9 +69,9 @@ def main(config):
     trainer.train()
 
 
-def main_sacred(main, config):
-    exp = Sacred(config)
-    exp.run(main, config)
+@ex.main
+def main_sacred():
+    main_normal()
 
 
 if __name__ == '__main__':
@@ -89,7 +93,9 @@ if __name__ == '__main__':
     ]
     config = ConfigParser(args, options)
 
-    if config['trainer']['sacred_logs']['do'] is False:
-        main(config)
+    if config['logger']['sacred_logs']['do'] is False:
+        config.init_logger()
+        main_normal()
     else:
-        main_sacred(main, config)
+        config.init_logger(sacred_ex=ex)
+        ex.run()

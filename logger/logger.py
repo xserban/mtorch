@@ -20,7 +20,8 @@ class Logger(BaseLogger, metaclass=Singleton):
                  log_dir,
                  log_levels,
                  py_log_config='configs/py_logger_config.json',
-                 py_default_level=logging.INFO):
+                 py_default_level=logging.INFO,
+                 sacred_ex=None):
         super(Logger, self).__init__()
 
         self.log_dir = log_dir
@@ -28,7 +29,7 @@ class Logger(BaseLogger, metaclass=Singleton):
 
         self.init_py_logger(self.log_dir, py_log_config, py_default_level)
         self.init_tb_logger(config)
-        self.init_sacred_logger(config)
+        self.init_sacred_logger(config, sacred_ex)
 
     def init_py_logger(self, save_dir, log_config, default_level=logging.INFO):
         log_config = Path(log_config)
@@ -46,14 +47,14 @@ class Logger(BaseLogger, metaclass=Singleton):
             logging.basicConfig(level=default_level)
 
     def init_tb_logger(self, config):
-        if config['trainer']['tensorboard_logs']['do'] is True:
+        if config['logger']['tensorboard_logs']['do'] is True:
             self.tb_logger = TBLogger(self.log_dir, config)
         else:
             self.tb_logger = None
 
-    def init_sacred_logger(self, config):
-        if config['trainer']['sacred_logs']['do'] is True:
-            self.sacred_logger = SacredLogger(config)
+    def init_sacred_logger(self, config, sacred_ex):
+        if config['logger']['sacred_logs']['do'] is True:
+            self.sacred_logger = SacredLogger(config, sacred_ex)
         else:
             self.sacred_logger = None
 
@@ -75,7 +76,7 @@ class Logger(BaseLogger, metaclass=Singleton):
         if self.tb_logger is not None:
             self.tb_logger.log_epoch(step, env, loss, custom_metrics)
         if self.sacred_logger is not None:
-            self.sacred_logger.log_epoch(step, env, loss. custom_metrics)
+            self.sacred_logger.log_epoch(step, env, loss, custom_metrics)
 
     def log_validation_params(self, step, env, parameters):
         if self.tb_logger is not None:

@@ -1,5 +1,5 @@
 {
-  "name": "CIFAR10_ResNet_18",
+  "name": "Cifar10_ResNet_18",
   "n_gpu": 2,
   "arch": {
     "type": "ResNet18",
@@ -21,7 +21,7 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.001,
+      "lr": 0.005,
       "weight_decay": 0,
       "amsgrad": true
     }
@@ -59,25 +59,29 @@
         "torch.utils.tensorboard",
         "tensorboardX"
       ]
-    },
-    "tensorboard_logs": {
-      "do": true,
-      "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-      "index_batches": true,
-      "log_params": true,
-      "log_train_images": false,
-      "log_test_images": false
-    },
-    "sacred_logs": {
-      "do": false,
-      "capture_mode": "no",
-      "mongo_url": "192.168.178.75:27017",
-      "db_name": "sacred"
     }
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 1,
+    "test_epochs_interval": 100,
     "test_batch_size": 100
+  },
+  "logger": {
+    "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
+    "index_batches": true,
+    "log_params": true,
+    "log_train_images": true,
+    "log_test_images": true,
+    "tensorboard_logs": {
+      "do": false
+    },
+    "sacred_logs": {
+      "do": true,
+      "args": {
+        "capture_mode": "no",
+        "mongo_url": "192.168.178.75:27017",
+        "db_name": "sacred"
+      }
+    }
   }
 }

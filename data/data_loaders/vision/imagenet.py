@@ -9,20 +9,24 @@ class ImageNetLoader(BaseDataLoader):
         print('[INFO] Preparing the ImageNet dataset ...')
         if training is True:
             trans = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
+                transforms.RandomCrop(224, padding=4),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
+                transforms.Normalize((0.485, 0.456, 0.406),
+                                     (0.229, 0.224, 0.225)),
             ])
         else:
             trans = transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
+                transforms.Normalize((0.485, 0.456, 0.406),
+                                     (0.229, 0.224, 0.225)),
             ])
 
         self.data_dir = data_dir
+        if training is True:
+            split = 'train'
+        else:
+            split = 'val'
         self.dataset = datasets.ImageNet(
-            self.data_dir, train=training, download=True, transform=trans)
+            self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)

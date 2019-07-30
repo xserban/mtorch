@@ -45,12 +45,6 @@ class ConfigParser:
         # save updated config file to the checkpoint dir
         write_json(self.config, self.save_dir / 'config.json')
 
-        # configure logging module
-        self.logger = Logger(config, self.log_dir, {
-            0: logging.WARNING,
-            1: logging.INFO,
-            2: logging.DEBUG
-        })
 
     def initialize(self, module, module_config, *args, **kwargs):
         """
@@ -67,9 +61,22 @@ class ConfigParser:
     def __getitem__(self, name):
         return self.config[name]
 
+    def init_logger(self, sacred_ex=None):
+        # configure logging module
+        self.logger = Logger(self.config, self.log_dir,
+                            {
+                                0: logging.WARNING,
+                                1: logging.INFO,
+                                2: logging.DEBUG
+                            },
+                            sacred_ex=sacred_ex)
+
     def get_logger(self, name, verbosity=2):
-        logger = self.logger.get_py_logger(name, verbosity)
-        return logger
+      if not self.logger:
+        raise('Please initialize logger')
+
+      logger = self.logger.get_py_logger(name, verbosity)
+      return logger
 
     # setting read-only attributes
     @property

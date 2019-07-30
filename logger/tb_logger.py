@@ -1,5 +1,4 @@
 """Tensorboard logger"""
-from utils import Singleton
 from logger.tensorboard_writer import TensorboardWriter
 from .base import BaseLogger
 
@@ -14,7 +13,7 @@ class TBLogger(BaseLogger):
         self._configure(config)
 
     def _configure(self, config):
-        self.tb_config = config['trainer']['tensorboard_logs']
+        self.tb_config = config['logger']
         self.log_index_batches = self.tb_config['index_batches']
         self.log_params = self.tb_config['log_params']
         self.log_train_images = self.tb_config['log_train_images']
