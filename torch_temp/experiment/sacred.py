@@ -54,7 +54,6 @@ class Sacred(metaclass=Singleton):
                         file_set.add(rel_file)
 
             for file_name in file_set:
-                print(parent_folder + file_name)
                 try:
                     # self.ex.add_source_file(parent_folder + file_name)
                     self.ex.add_resource(parent_folder + file_name)

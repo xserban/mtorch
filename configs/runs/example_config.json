@@ -69,7 +69,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "save_files": true,
       "settings": {
         "CAPTURE_MODE": "sys"
