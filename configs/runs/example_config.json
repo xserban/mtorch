@@ -52,14 +52,7 @@
     "verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 10,
-    "train_log_step": 10,
-    "tensorboard": {
-      "enabled": true,
-      "modules": [
-        "torch.utils.tensorboard",
-        "tensorboardX"
-      ]
-    }
+    "train_log_step": 10
   },
   "test": {
     "do": true,
@@ -70,18 +63,19 @@
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
     "index_batches": true,
     "log_params": true,
-    "log_train_images": true,
-    "log_test_images": true,
+    "log_train_images": false,
+    "log_test_images": false,
     "tensorboard_logs": {
       "do": false
     },
     "sacred_logs": {
       "do": true,
-      "args": {
-        "capture_mode": "no",
-        "mongo_url": "192.168.178.75:27017",
-        "db_name": "sacred"
-      }
+      "save_files": true,
+      "settings": {
+        "CAPTURE_MODE": "sys"
+      },
+      "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
+      "db_name": "admin"
     }
   }
 }

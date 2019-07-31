@@ -1,15 +1,18 @@
 import argparse
 import collections
+import os
 import torch
-import data.data_loaders as module_data
-import model.loss as module_loss
-import model.metrics as module_metric
-import model.arch as module_arch
-import trainer as module_train
+import torch_temp.data.data_loaders as module_data
+import torch_temp.model.loss as module_loss
+import torch_temp.model.metrics as module_metric
+import torch_temp.model.arch as module_arch
+import torch_temp.trainer as module_train
 
-from utils.parse_config import ConfigParser
-# from experiment.sacred import Sacred
+from torch_temp.utils.parse_config import ConfigParser
 from sacred import Experiment
+from sacred.observers import MongoObserver
+from torch_temp.experiment.sacred import Sacred
+
 
 ex = Experiment()
 config = None
@@ -71,6 +74,7 @@ def main_normal():
 
 @ex.main
 def main_sacred():
+    sacred_exp.add_all_files(os.getcwd() + '/torch_temp/')
     main_normal()
 
 
@@ -97,5 +101,11 @@ if __name__ == '__main__':
         config.init_logger()
         main_normal()
     else:
-        config.init_logger(sacred_ex=ex)
+        sacred_exp = Sacred(
+            ex,
+            config=config.config['logger']['sacred_logs'],
+            auto_config=True,
+        )
+
+        config.init_logger(sacred_ex=sacred_exp.ex)
         ex.run()
