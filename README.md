@@ -6,6 +6,7 @@ The goal is to have a general configuration file from where we can control the m
 The main modules are:
 
 1. Data.
+
 The data module consists of data loaders and datasets, both subclasses of pytorch DataLoader and Dataset, respectively.
 
 These modules allow to easily add new datasets and create data loaders which can be used during training or testing.
@@ -13,6 +14,7 @@ These modules allow to easily add new datasets and create data loaders which can
 In particular, the datasets folder hosts custom datasets, which are not available through pytorch.
 
 2. Model.
+
 The model module consists of different model architectures, loss functions and metrics used to measure performance.
 The architectures are based on building blocks, which can be found in the 'blocks' folder.
 
@@ -21,6 +23,7 @@ Defining new architectures is straightforward following the ResNet example in th
 Similarly, defining new loss functions or new metrics is trivial, following the examples in the repo.
 
 3. Trainer.
+
 A trainer runs the model for a number of epochs and measures its performance.
 It implements the logic for running train, validate and test epochs.
 If the performance increases, the trainer will save the model in a designated folder.
@@ -29,16 +32,19 @@ The generic_trainer in the folder can be used to train most 'standard' model.
 For special cases, new trainers can easily be implemented following the implementation of the generic trainer.
 
 4. Logger.
+
 One of the goal of the project is to reduce the code needed to instrument, run the experiments and save the measurements.
 The logger classes handle the logic for saving the measurements and the code.
 Two options are available at the moment: Tensorboard for pytorch and sacred](https://github.com/IDSIA/sacred).
 Both can be configured in the settings (see below).
 
 5. Experiment.
+
 Self explainable.
 
 
 6. Utils.
+
 Self explainable.
 
 
