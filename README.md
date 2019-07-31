@@ -8,18 +8,14 @@ The main modules are:
 #### 1. Data.
 
 The data module consists of data loaders and datasets, both subclasses of pytorch DataLoader and Dataset, respectively.
-
 These modules allow to easily add new datasets and create data loaders which can be used during training or testing.
-
 In particular, the datasets folder hosts custom datasets, which are not available through pytorch.
 
 #### 2. Model.
 
 The model module consists of different model architectures, loss functions and metrics used to measure performance.
 The architectures are based on building blocks, which can be found in the 'blocks' folder.
-
 Defining new architectures is straightforward following the ResNet example in the repo.
-
 Similarly, defining new loss functions or new metrics is trivial, following the examples in the repo.
 
 #### 3. Trainer.
