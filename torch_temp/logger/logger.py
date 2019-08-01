@@ -42,8 +42,8 @@ class Logger(BaseLogger, metaclass=Singleton):
 
             logging.config.dictConfig(config)
         else:
-            print(
-                "Warning: logging configuration file is not found in {}.".format(log_config))
+            print("Warning: logging configuration "
+                  "file is not found in {}.".format(log_config))
             logging.basicConfig(level=default_level)
 
     def init_tb_logger(self, config):
@@ -59,8 +59,9 @@ class Logger(BaseLogger, metaclass=Singleton):
             self.sacred_logger = None
 
     def get_py_logger(self, name, verbosity):
-        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(
-            verbosity, self.log_levels.keys())
+        msg_verbosity = \
+            "verbosity option {} is invalid. Valid options are {}.".format(
+                verbosity, self.log_levels.keys())
         assert verbosity in self.log_levels, msg_verbosity
         logger = logging.getLogger(name)
         logger.setLevel(self.log_levels[verbosity])
@@ -81,3 +82,6 @@ class Logger(BaseLogger, metaclass=Singleton):
     def log_validation_params(self, step, env, parameters):
         if self.tb_logger is not None:
             self.tb_logger.log_parameters(step, env, parameters)
+
+    def log_custom_metrics(self, metrics):
+        super().log_custom_metrics(metrics)

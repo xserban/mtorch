@@ -7,7 +7,7 @@ from torch_temp.utils import Singleton, read_json
 
 
 class Sacred(metaclass=Singleton):
-    def __init__(self, experiment, config, auto_config=False, parent_folder=None):
+    def __init__(self, experiment, config, auto_config=False):
         """Initializes Sacred Singleton used to configure all s
         Sacred related settings
         :param experiment: sacared Experiment object
@@ -42,7 +42,8 @@ class Sacred(metaclass=Singleton):
             url=config["mongo_url"],
             db_name=config["db_name"]))
 
-    def add_settings(self, settings='torch_temp/logger/sacred_logger_config.json'):
+    def add_settings(self,
+                     settings='torch_temp/logger/sacred_logger_config.json'):
         print('[INFO] Configuring Sacred Settings.')
         if isinstance(settings, str):
             log_config = Path(settings)
@@ -73,6 +74,5 @@ class Sacred(metaclass=Singleton):
         for file_name in file_set:
             try:
                 self.ex.add_resource(parent_folder + file_name)
-            except Exception as e:
-                print(e)
-                raise('File not found')
+            except Exception as exception:
+                raise exception

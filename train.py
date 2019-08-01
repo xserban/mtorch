@@ -31,7 +31,8 @@ def main_normal():
     valid_data_loader = train_data_loader.split_validation()
 
     if config["test"]["do"]:
-        test_data_loader = getattr(module_data, config['train_data_loader']['type'])(
+        test_data_loader = getattr(module_data,
+                                   config['train_data_loader']['type'])(
             config['train_data_loader']['args']['data_dir'],
             batch_size=config['test']['test_batch_size'],
             shuffle=False,
@@ -51,7 +52,8 @@ def main_normal():
     metrics = [config.initialize(module_metric, met)
                for met in config['metrics']]
 
-    # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
+    # build optimizer, learning rate scheduler. delete every
+    # lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = config.initialize(
         torch.optim, config['optimizer'], trainable_params)
@@ -90,7 +92,8 @@ if __name__ == '__main__':
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
 
-    # custom cli options to modify configuration from default values given in json file.
+    # custom cli options to modify configuration
+    # from default values given in json file.
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
     options = [
         CustomArgs(['--lr', '--learning_rate'], type=float,

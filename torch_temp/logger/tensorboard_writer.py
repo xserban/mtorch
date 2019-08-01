@@ -22,17 +22,22 @@ class TensorboardWriter():
             self.selected_module = module
 
         if not succeeded:
-            raise("Error: Tensorboard is configured to use, but currently not installed on "
-                  "this machine. Please install either TensorboardX with 'pip install tensorboardx', upgrade "
-                  "PyTorch to version >= 1.1 for using 'torch.utils.tensorboard' or turn off the option in "
+            raise("Error: Tensorboard is configured to use, "
+                  "but currently not installed on "
+                  "this machine. Please install either TensorboardX "
+                  "with 'pip install tensorboardx', upgrade "
+                  "PyTorch to version >= 1.1 for using "
+                  " 'torch.utils.tensorboard' "
+                  "or turn off the option in "
                   "the 'config.json' file.")
 
         self.step = 0
         self.mode = ''
 
         self.tb_writer_ftns = {
-            'add_scalar', 'add_scalars', 'add_image', 'add_images', 'add_audio',
-            'add_text', 'add_histogram', 'add_pr_curve', 'add_embedding'
+            'add_scalar', 'add_scalars', 'add_image',
+            'add_images', 'add_audio', 'add_text',
+            'add_histogram', 'add_pr_curve', 'add_embedding'
         }
         self.tag_mode_exceptions = {'add_histogram', 'add_embedding'}
 
@@ -50,7 +55,8 @@ class TensorboardWriter():
     def __getattr__(self, name):
         """
         If visualization is configured to use:
-            return add_data() methods of tensorboard with additional information (step, tag) added.
+            return add_data() methods of tensorboard with
+            additional information (step, tag) added.
         Otherwise:
             return a blank function handle that does nothing
         """
@@ -65,10 +71,12 @@ class TensorboardWriter():
                     add_data(tag, data, self.step, *args, **kwargs)
             return wrapper
         else:
-            # default action for returning methods defined in this class, set_step() for instance.
+            # default action for returning methods defined in
+            # this class, set_step() for instance.
             try:
                 attr = object.__getattr__(name)
             except AttributeError:
-                raise AttributeError("type object '{}' has no attribute '{}'".format(
-                    self.selected_module, name))
+                raise AttributeError("type object '{}' has "
+                                     "no attribute '{}'".format(
+                                         self.selected_module, name))
             return attr

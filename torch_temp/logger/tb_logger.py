@@ -40,5 +40,5 @@ class TBLogger(BaseLogger):
     def log_parameters(self, step, env, params):
         if self.log_params:
             self.writer.set_step(step, env)
-            for name, p in params:
-                self.writer.add_histogram(name, p, bins='auto')
+            for name, param in params:
+                self.writer.add_histogram(name, param, bins='auto')

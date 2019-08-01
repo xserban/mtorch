@@ -22,7 +22,8 @@ class ConfigParser:
             self.resume = Path(args.resume)
             self.cfg_fname = self.resume.parent / 'config.json'
         else:
-            msg_no_cfg = "Configuration file need to be specified. Add '-c config.json', for example."
+            msg_no_cfg = "Configuration file need to be "
+            "specified. Add '-c config.json', for example."
             assert args.config is not None, msg_no_cfg
             self.resume = None
             self.cfg_fname = Path(args.config)
@@ -33,7 +34,8 @@ class ConfigParser:
 
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config['trainer']['save_dir'])
-        timestamp = datetime.now().strftime(r'%m%d_%H%M%S') if timestamp else ''
+        timestamp = datetime.now().strftime(r'%m%d_%H%M%S') \
+            if timestamp else ''
 
         exper_name = self.config['name']
         self._save_dir = save_dir / 'models' / exper_name / timestamp
@@ -47,8 +49,10 @@ class ConfigParser:
 
     def initialize(self, module, module_config, *args, **kwargs):
         """
-        finds a function handle with the name given as 'type' in config, and returns the
-        instance initialized with corresponding keyword args given as 'args'.
+        finds a function handle with the name given
+        as 'type' in config, and returns the
+        instance initialized with corresponding
+        keyword args given as 'args'.
         """
         module_name = module_config['type']
         module_args = dict(module_config['args'])

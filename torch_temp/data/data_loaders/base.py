@@ -8,14 +8,17 @@ class BaseDataLoader(DataLoader):
     """
     Base class for all data loaders
     """
-    def __init__(self, dataset, batch_size, shuffle, validation_split, num_workers, collate_fn=default_collate):
+
+    def __init__(self, dataset, batch_size, shuffle,
+                 validation_split, num_workers, collate_fn=default_collate):
         self.validation_split = validation_split
         self.shuffle = shuffle
 
         self.batch_idx = 0
         self.n_samples = len(dataset)
 
-        self.sampler, self.valid_sampler = self._split_sampler(self.validation_split)
+        self.sampler, self.valid_sampler = self._split_sampler(
+            self.validation_split)
 
         self.init_kwargs = {
             'dataset': dataset,
@@ -36,8 +39,10 @@ class BaseDataLoader(DataLoader):
         np.random.shuffle(idx_full)
 
         if isinstance(split, int):
+            asrt_msg = "validation set size is configured "
+            "to be larger than entire dataset."
             assert split > 0
-            assert split < self.n_samples, "validation set size is configured to be larger than entire dataset."
+            assert split < self.n_samples, asrt_msg
             len_valid = split
         else:
             len_valid = int(self.n_samples * split)

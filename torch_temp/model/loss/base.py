@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class BaseLoss(object):
+class BaseLoss:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

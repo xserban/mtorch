@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_temp.model.base import BaseModel
@@ -11,7 +10,8 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
 
         self.conv1 = nn.Conv2d(
-            in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+            in_planes, planes, kernel_size=3, stride=stride,
+            padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3,
                                stride=1, padding=1, bias=False)
@@ -96,13 +96,3 @@ class ResNet(BaseModel):
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
-
-
-def test():
-    net = ResNet()
-    y = net(torch.rand(1, 3, 32, 32))
-    print(y.size())
-
-
-if __name__ == '__main__':
-    test()
