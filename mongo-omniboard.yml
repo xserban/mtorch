@@ -24,8 +24,8 @@ services:
   omniboard:
     image: vivekratnavel/omniboard:latest
     # restart: always
-    command: ["--mu", "mongodb://root:example@mongo:27017/db?authSource=admin"]
+    command: ["--mu", "mongodb://root:example@mongo:27017/sacred-db?authSource=admin"]
     ports:
-      - 9100:9100
+      - 9100:9000
     depends_on:
       - mongo
