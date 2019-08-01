@@ -1,5 +1,5 @@
 ###
-# Modified from https://github.com/dragen1860/MAML-Pytorch/blob/d55ffb8c58338a20b92cc030c432799a00b5fc30/MiniImagenet.py
+# Modified from https://github.com/dragen1860/MAML-Pytorch
 ###
 import os
 import torch
@@ -22,12 +22,15 @@ class MiniImageNet(Dataset):
         |- train.csv
         |- test.csv
         |- val.csv
-    NOTICE: meta-learning is different from general supervised learning, especially the concept of batch and set.
+    NOTICE: meta-learning is different from general supervised learning,
+    especially the concept of batch and set.
     batch: contains several sets
-    sets: conains n_way * k_shot for meta-train set, n_way * n_query for meta-test set.
+    sets: conains n_way * k_shot for meta-train set, n_way * n_query
+    for meta-test set.
     """
 
-    def __init__(self, root, mode, batchsz, n_way, k_shot, k_query, resize, startidx=0):
+    def __init__(self, root, mode, batchsz, n_way,
+                 k_shot, k_query, resize, startidx=0):
         """
 
         :param root: root path of mini-imagenet
@@ -45,29 +48,37 @@ class MiniImageNet(Dataset):
         self.k_shot = k_shot  # k-shot
         self.k_query = k_query  # for evaluation
         self.setsz = self.n_way * self.k_shot  # num of samples per set
-        self.querysz = self.n_way * self.k_query  # number of samples per set for evaluation
+        # number of samples per set for evaluation
+        self.querysz = self.n_way * self.k_query
         self.resize = resize  # resize to
         self.startidx = startidx  # index label not from 0, but from startidx
         print('shuffle DB :%s, b:%d, %d-way, %d-shot, %d-query, resize:%d' % (
             mode, batchsz, n_way, k_shot, k_query, resize))
 
         if mode == 'train':
-            self.transform = transforms.Compose([lambda x: Image.open(x).convert('RGB'),
-                                                 transforms.Resize((self.resize, self.resize)),
-                                                 # transforms.RandomHorizontalFlip(),
-                                                 # transforms.RandomRotation(5),
-                                                 transforms.ToTensor(),
-                                                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-                                                 ])
+            self.transform = transforms.Compose(
+                [lambda x: Image.open(x).convert('RGB'),
+                 transforms.Resize(
+                    (self.resize, self.resize)),
+                 # transforms.RandomHorizontalFlip(),
+                 # transforms.RandomRotation(5),
+                 transforms.ToTensor(),
+                 transforms.Normalize(
+                    (0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+                 ])
         else:
-            self.transform = transforms.Compose([lambda x: Image.open(x).convert('RGB'),
-                                                 transforms.Resize((self.resize, self.resize)),
-                                                 transforms.ToTensor(),
-                                                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-                                                 ])
-        self.folder_path = DATA_PATH + MINI_PATH
+            self.transform = transforms.Compose(
+                [lambda x: Image.open(x).convert('RGB'),
+                 transforms.Resize(
+                    (self.resize, self.resize)),
+                 transforms.ToTensor(),
+                 transforms.Normalize(
+                    (0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+                 ])
+        self.folder_path = root
         self.path = self.folder_path + 'images'
-        csvdata = self.loadCSV(os.path.join(self.folder_path, mode + '.csv'))  # csv path
+        csvdata = self.loadCSV(os.path.join(
+            self.folder_path, mode + '.csv'))  # csv path
         self.data = []
         self.img2label = {}
         for i, (k, v) in enumerate(csvdata.items()):
@@ -87,7 +98,7 @@ class MiniImageNet(Dataset):
         with open(csvf) as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             next(csvreader, None)  # skip (filename, label)
-            for i, row in enumerate(csvreader):
+            for _, row in enumerate(csvreader):
                 filename = row[0]
                 label = row[1]
                 # append filename to current label
@@ -100,33 +111,40 @@ class MiniImageNet(Dataset):
     def create_batch(self, batchsz):
         """
         create batch for meta-learning.
-        ×episode× here means batch, and it means how many sets we want to retain.
+        ×episode× here means batch, and it means
+        how many sets we want to retain.
         :param episodes: batch size
         :return:
         """
         self.support_x_batch = []  # support set batch
         self.query_x_batch = []  # query set batch
-        for b in range(batchsz):  # for each batch
+        for _ in range(batchsz):  # for each batch
             # 1.select n_way classes randomly
-            selected_cls = np.random.choice(self.cls_num, self.n_way, False)  # no duplicate
+            selected_cls = np.random.choice(
+                self.cls_num, self.n_way, False)
             np.random.shuffle(selected_cls)
             support_x = []
             query_x = []
             for cls in selected_cls:
                 # 2. select k_shot + k_query for each class
-                selected_imgs_idx = np.random.choice(len(self.data[cls]), self.k_shot + self.k_query, False)
+                selected_imgs_idx = np.random.choice(
+                    len(self.data[cls]), self.k_shot + self.k_query, False)
                 np.random.shuffle(selected_imgs_idx)
-                indexDtrain = np.array(selected_imgs_idx[:self.k_shot])  # idx for Dtrain
-                indexDtest = np.array(selected_imgs_idx[self.k_shot:])  # idx for Dtest
+                indexDtrain = np.array(
+                    selected_imgs_idx[:self.k_shot])  # idx for Dtrain
+                indexDtest = np.array(
+                    selected_imgs_idx[self.k_shot:])  # idx for Dtest
                 support_x.append(
-                    np.array(self.data[cls])[indexDtrain].tolist())  # get all images filename for current Dtrain
+                    np.array(self.data[cls])[indexDtrain].tolist())
                 query_x.append(np.array(self.data[cls])[indexDtest].tolist())
 
-            # shuffle the correponding relation between support set and query set
+            # shuffle the correponding relation between
+            # support set and query set
             random.shuffle(support_x)
             random.shuffle(query_x)
 
-            self.support_x_batch.append(support_x)  # append set to current sets
+            # append set to current sets
+            self.support_x_batch.append(support_x)
             self.query_x_batch.append(query_x)  # append sets to current sets
 
     def __getitem__(self, index):
@@ -145,15 +163,21 @@ class MiniImageNet(Dataset):
         query_y = np.zeros((self.querysz), dtype=np.int)
 
         flatten_support_x = [os.path.join(self.path, item)
-                             for sublist in self.support_x_batch[index] for item in sublist]
+                             for sublist in self.support_x_batch[index]
+                             for item in sublist]
         support_y = np.array(
-            [self.img2label[item[:9]]  # filename:n0153282900000005.jpg, the first 9 characters treated as label
-             for sublist in self.support_x_batch[index] for item in sublist]).astype(np.int32)
+            [  # filename:n0153282900000005.jpg,
+                # the first 9 characters treated as label
+                self.img2label[item[:9]]
+                for sublist in self.support_x_batch[index]
+                for item in sublist]).astype(np.int32)
 
         flatten_query_x = [os.path.join(self.path, item)
-                           for sublist in self.query_x_batch[index] for item in sublist]
+                           for sublist in self.query_x_batch[index]
+                           for item in sublist]
         query_y = np.array([self.img2label[item[:9]]
-                            for sublist in self.query_x_batch[index] for item in sublist]).astype(np.int32)
+                            for sublist in self.query_x_batch[index]
+                            for item in sublist]).astype(np.int32)
 
         # print('global:', support_y, query_y)
         # support_y: [setsz]
@@ -176,12 +200,15 @@ class MiniImageNet(Dataset):
         for i, path in enumerate(flatten_query_x):
             query_x[i] = self.transform(path)
         # print(support_set_y)
-        # return support_x, torch.LongTensor(support_y), query_x, torch.LongTensor(query_y)
+        # return support_x, torch.LongTensor(support_y),
+        # query_x, torch.LongTensor(query_y)
 
-        return support_x, torch.LongTensor(support_y_relative), query_x, torch.LongTensor(query_y_relative)
+        return (support_x, torch.LongTensor(support_y_relative),
+                query_x, torch.LongTensor(query_y_relative))
 
     def __len__(self):
-        # as we have built up to batchsz of sets, you can sample some small batch size of sets.
+        # as we have built up to batchsz of sets, you can
+        # sample some small batch size of sets.
         return self.batchsz
 
 
@@ -195,7 +222,8 @@ if __name__ == '__main__':
     plt.ion()
 
     tb = SummaryWriter('runs', 'mini-imagenet')
-    mini = MiniImageNet('../mini-imagenet/', mode='train', n_way=5, k_shot=1, k_query=1, batchsz=1000, resize=168)
+    mini = MiniImageNet('../mini-imagenet/', mode='train',
+                        n_way=5, k_shot=1, k_query=1, batchsz=1000, resize=168)
 
     for i, set_ in enumerate(mini):
         # support_x: [k_shot*n_way, 3, 84, 84]

@@ -1,5 +1,5 @@
-import torch
 from abc import abstractmethod
+import torch
 from numpy import inf
 import numpy as np
 
@@ -52,7 +52,8 @@ class BaseTrainer:
             log = {'epoch': epoch}
             log = self._log_epoch(log, result)
 
-            # evaluate model performance according to configured metric, save best checkpoint as model_best
+            # evaluate model performance according to configured metric,
+            # save best checkpoint as model_best
             improved, best = self._save_model(log)
             if improved is False:
                 break
@@ -74,11 +75,11 @@ class BaseTrainer:
                 log.update({mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
             elif key == 'val_metrics':
-                log.update({'val_' + mtr.get_name()
-                           : value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'val_' + mtr.get_name(): value[i]
+                            for i, mtr in enumerate(self.metrics)})
             elif key == 'test_metrics':
-                log.update({'test_' + mtr.get_name()
-                           : value[i] for i, mtr in enumerate(self.metrics)})
+                log.update({'test_' + mtr.get_name(): value[i]
+                            for i, mtr in enumerate(self.metrics)})
             else:
                 log[key] = value
 
@@ -99,13 +100,16 @@ class BaseTrainer:
         imprvd = True
         if self.mnt_mode != 'off':
             try:
-                # check whether model performance improved or not, according to specified metric(mnt_metric)
-                improved = (self.mnt_mode == 'min' and log[self.mnt_metric] <= self.mnt_best) or \
+                # check whether model performance
+                # improved or not, according to specified metric(mnt_metric)
+                improved = (self.mnt_mode == 'min' and
+                            log[self.mnt_metric] <= self.mnt_best) or \
                     (self.mnt_mode ==
                      'max' and log[self.mnt_metric] >= self.mnt_best)
             except KeyError:
                 self.py_logger.warning("Warning: Metric '{}' is not found. "
-                                       "Model performance monitoring is disabled.".format(self.mnt_metric))
+                                       "Model performance monitoring "
+                                       "is disabled.".format(self.mnt_metric))
                 self.mnt_mode = 'off'
                 improved = False
                 not_improved_count = 0
@@ -118,7 +122,8 @@ class BaseTrainer:
                 not_improved_count += 1
 
             if not_improved_count > self.early_stop:
-                self.py_logger.info("Validation performance didn\'t improve for {} epochs. "
+                self.py_logger.info("Validation performance "
+                                    "didn\'t improve for {} epochs. "
                                     "Training stops.".format(self.early_stop))
                 imprvd = False
 
@@ -133,11 +138,14 @@ class BaseTrainer:
         """
         n_gpu = torch.cuda.device_count()
         if n_gpu_use > 0 and n_gpu == 0:
-            self.py_logger.warning("[WARN] \t Warning: There\'s no GPU available on this machine,"
+            self.py_logger.warning("[WARN] \t Warning: There\'s "
+                                   "no GPU available on this machine,"
                                    "training will be performed on CPU.")
             n_gpu_use = 0
         if n_gpu_use > n_gpu:
-            self.py_logger.warning("[WARN] \t Warning: The number of GPU\'s configured to use is {}, but only {} are available "
+            self.py_logger.warning("[WARN] \t Warning: The number of "
+                                   "GPU\'s configured to use is {}, "
+                                   "but only {} are available "
                                    "on this machine.".format(n_gpu_use, n_gpu))
             n_gpu_use = n_gpu
         device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
@@ -190,7 +198,8 @@ class BaseTrainer:
         """Saving checkpoints
         :param epoch: current epoch number
         :param log: logging information of the epoch
-        :param save_best: if True, rename the saved checkpoint to 'model_best.pth'
+        :param save_best: if True, rename the s
+          aved checkpoint to 'model_best.pth'
         """
         arch = type(self.model).__name__
         state = {
@@ -225,19 +234,27 @@ class BaseTrainer:
 
         # load architecture params from checkpoint.
         if checkpoint['config']['arch'] != self.config['arch']:
-            self.py_logger.warning("[WARN] \t Warning: Architecture configuration given in config file is different from that of "
-                                   "checkpoint. This may yield an exception while state_dict is being loaded.")
+            self.py_logger.warning("[WARN] \t Warning: Architecture "
+                                   "configuration given in config file "
+                                   "is different from that of checkpoint."
+                                   "This may yield an exception while "
+                                   "state_dict is being loaded.")
         self.model.load_state_dict(checkpoint['state_dict'])
 
-        # load optimizer state from checkpoint only when optimizer type is not changed.
-        if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
-            self.py_logger.warning("[WARN] \t Warning: Optimizer type given in config file is different from that of checkpoint. "
+        # load optimizer state from checkpoint only
+        # when optimizer type is not changed.
+        if checkpoint['config']['optimizer']['type'] != \
+                self.config['optimizer']['type']:
+            self.py_logger.warning("[WARN] \t Warning: Optimizer type "
+                                   " given in config file is different "
+                                   "from that of checkpoint. "
                                    "Optimizer parameters not being resumed.")
         else:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
         self.py_logger.info(
-            "Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
+            "Checkpoint loaded. Resume "
+            "training from epoch {}".format(self.start_epoch))
 
     def _eval_metrics(self, output, target):
         """Evaluates all metrics"""

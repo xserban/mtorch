@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 from torchvision.utils import make_grid
+from tqdm import tqdm
 from torch_temp.trainer.base import BaseTrainer
 from torch_temp.utils import inf_loop
-from tqdm import tqdm
 
 
 class GenericTrainer(BaseTrainer):
@@ -12,8 +12,12 @@ class GenericTrainer(BaseTrainer):
         Inherited from BaseTrainer.
     """
 
-    def __init__(self, model, loss, metrics, optimizer, config, train_data_loader,
-                 valid_data_loader=None, test_data_loader=None, lr_scheduler=None, len_epoch=None):
+    def __init__(self, model, loss, metrics,
+                 optimizer, config, train_data_loader,
+                 valid_data_loader=None,
+                 test_data_loader=None,
+                 lr_scheduler=None,
+                 len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
 
         self.config = config
@@ -51,7 +55,9 @@ class GenericTrainer(BaseTrainer):
         total_loss = 0
         total_metrics = np.zeros(len(self.metrics))
 
-        for batch_idx, (data, target) in enumerate(tqdm(self.train_data_loader)):
+        for batch_idx, (data, target) in \
+                enumerate(tqdm(self.train_data_loader)):
+
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
             loss, metrics, dic_metrics = self._run_batch(data, target)
@@ -62,7 +68,8 @@ class GenericTrainer(BaseTrainer):
                                   'train',
                                   loss,
                                   dic_metrics,
-                                  make_grid(data.cpu(), nrow=8, normalize=True))
+                                  make_grid(data.cpu(),
+                                            nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
@@ -130,11 +137,14 @@ class GenericTrainer(BaseTrainer):
                 total_val_loss += loss
                 total_val_metrics += metrics
                 # log results specific to batch
-                self.logger.log_batch((epoch - 1) * len(self.valid_data_loader) + batch_idx,
+                self.logger.log_batch((epoch - 1) *
+                                      len(self.valid_data_loader) +
+                                      batch_idx,
                                       'valid',
                                       loss,
                                       dic_metrics,
-                                      make_grid(data.cpu(), nrow=8, normalize=True))
+                                      make_grid(data.cpu(),
+                                                nrow=8, normalize=True))
         # log info specific to the whole validation epoch
         total_loss = total_val_loss / len(self.valid_data_loader)
         total_metrics = (total_val_metrics /
@@ -165,11 +175,13 @@ class GenericTrainer(BaseTrainer):
                 total_test_loss += loss
                 total_test_metrics += metrics
                 # log results specific to batch
-                self.logger.log_batch((epoch - 1) * len(self.test_data_loader) + i,
+                self.logger.log_batch((epoch - 1) *
+                                      len(self.test_data_loader) + i,
                                       'test',
                                       loss,
                                       dic_metrics,
-                                      make_grid(data.cpu(), nrow=8, normalize=True))
+                                      make_grid(data.cpu(),
+                                                nrow=8, normalize=True))
         # log results specific to epoch
         total_loss = total_test_loss / len(self.test_data_loader)
         total_metrics = (total_test_metrics /

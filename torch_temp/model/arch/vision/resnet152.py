@@ -1,5 +1,5 @@
 import torch.nn as nn
-from torch_temp.model.blocks.resnet import *
+from torch_temp.model.blocks.resnet import ResNet, Bottleneck
 
 
 class ResNet152(ResNet):

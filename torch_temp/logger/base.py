@@ -12,7 +12,3 @@ class BaseLogger(object):
     @abstractmethod
     def log_custom_metrics(self, metrics):
         raise NotImplementedError
-
-    @abstractmethod
-    def log_epoch(self, epoch, loss, metrics):
-        raise NotImplementedError

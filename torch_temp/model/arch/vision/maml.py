@@ -10,19 +10,23 @@ class BaseMAML(nn.Module):
         super(BaseMAML, self).__init__()
 
         self.conv1 = nn.Conv2d(
-            inpt_c, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+            inpt_c, nr_filters, kernel_size=3, stride=stride,
+            padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(nr_filters)
 
         self.conv2 = nn.Conv2d(
-            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+            nr_filters, nr_filters, kernel_size=3, stride=stride,
+            padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(nr_filters)
 
         self.conv3 = nn.Conv2d(
-            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+            nr_filters, nr_filters, kernel_size=3, stride=stride,
+            padding=1, bias=False)
         self.bn3 = nn.BatchNorm2d(nr_filters)
 
         self.conv4 = nn.Conv2d(
-            nr_filters, nr_filters, kernel_size=3, stride=stride, padding=1, bias=False)
+            nr_filters, nr_filters, kernel_size=3, stride=stride,
+            padding=1, bias=False)
         self.bn4 = nn.BatchNorm2d(nr_filters)
         # TODO: change input size
         self.linear = nn.Linear(512, num_classes)

@@ -10,9 +10,10 @@ from tqdm import tqdm
 
 
 class MamlTrainer(BaseTrainer):
-    def __init__(self, model, loss, metrics, optimizer, config, train_data_loader,
-                 valid_data_loader=None, test_data_loader=None,
-                 lr_scheduler=None, len_epoch=None, *args, **kwargs):
+    def __init__(self, model, loss, metrics, optimizer, config,
+                 train_data_loader, valid_data_loader=None,
+                 test_data_loader=None, lr_scheduler=None,
+                 len_epoch=None, *args, **kwargs):
         super().__init__(model, loss, metrics, optimizer, config)
 
         self.config = config
@@ -60,9 +61,11 @@ class MamlTrainer(BaseTrainer):
             # get gradients and perform update
             gradients = torch.autograd.grad(loss, self.model.parameters())
             fast_weights = list(map(
-                lambda p: p[1] - self.update_lr * p[0], zip(gradients, self.model.parameters())))
+                lambda p: p[1] - self.update_lr * p[0],
+                zip(gradients, self.model.parameters())))
 
-            # compute loss and accuracy before updating the parameters for this task
+            # compute loss and accuracy before updating
+            # the parameters for this task
             loss_q, correct_q = self._get_metrics(
                 x_qry[i], y_qry[i], self.model.parameters())
             losses_q[0] += loss_q
@@ -82,7 +85,8 @@ class MamlTrainer(BaseTrainer):
                 gradients = torch.autograd.grad(loss, fast_weights)
                 # update
                 fast_weights = list(
-                    map(lambda p: p[1] - self.update_lr * p[0], zip(gradients, fast_weights)))
+                    map(lambda p: p[1] - self.update_lr * p[0],
+                        zip(gradients, fast_weights)))
 
                 # get loss and save it
                 output_q = self.model(x_qry[i], fast_weights, bn_training=True)
@@ -99,6 +103,8 @@ class MamlTrainer(BaseTrainer):
         self.optimizer.zero_grad()
         loss_q.backward()
         self.optimizer.step()
+
+        return loss_q
 
     def _get_metrics(self, x, y, params):
         with torch.no_grad():
