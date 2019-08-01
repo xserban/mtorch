@@ -2,14 +2,13 @@
 # Modified from https://github.com/dragen1860/MAML-Pytorch
 ###
 import os
+import csv
+import random
 import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 import numpy as np
-import collections
 from PIL import Image
-import csv
-import random
 
 # from config.constants import DATA_PATH, MINI_PATH
 
@@ -58,43 +57,40 @@ class MiniImageNet(Dataset):
         if mode == 'train':
             self.transform = transforms.Compose(
                 [lambda x: Image.open(x).convert('RGB'),
-                 transforms.Resize(
-                    (self.resize, self.resize)),
+                 transforms.Resize((self.resize, self.resize)),
                  # transforms.RandomHorizontalFlip(),
                  # transforms.RandomRotation(5),
                  transforms.ToTensor(),
-                 transforms.Normalize(
-                    (0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-                 ])
+                 transforms.Normalize((0.485, 0.456, 0.406),
+                                      (0.229, 0.224, 0.225))])
         else:
             self.transform = transforms.Compose(
                 [lambda x: Image.open(x).convert('RGB'),
-                 transforms.Resize(
-                    (self.resize, self.resize)),
+                 transforms.Resize((self.resize,
+                                    self.resize)),
                  transforms.ToTensor(),
-                 transforms.Normalize(
-                    (0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-                 ])
+                 transforms.Normalize((0.485, 0.456, 0.406),
+                                      (0.229, 0.224, 0.225))])
         self.folder_path = root
         self.path = self.folder_path + 'images'
-        csvdata = self.loadCSV(os.path.join(
+        csvdata = self.load_csv(os.path.join(
             self.folder_path, mode + '.csv'))  # csv path
         self.data = []
         self.img2label = {}
-        for i, (k, v) in enumerate(csvdata.items()):
-            self.data.append(v)  # [[img1, img2, ...], [img111, ...]]
-            self.img2label[k] = i + self.startidx  # {"img_name[:9]":label}
+        for i, (key, value) in enumerate(csvdata.items()):
+            self.data.append(value)  # [[img1, img2, ...], [img111, ...]]
+            self.img2label[key] = i + self.startidx  # {"img_name[:9]":label}
         self.cls_num = len(self.data)
 
         self.create_batch(self.batchsz)
 
-    def loadCSV(self, csvf):
+    def load_csv(self, csvf):
         """
         return a dict saving the information of csv
         :param splitFile: csv file name
         :return: {label:[file1, file2 ...]}
         """
-        dictLabels = {}
+        dict_labels = {}
         with open(csvf) as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             next(csvreader, None)  # skip (filename, label)
@@ -102,11 +98,11 @@ class MiniImageNet(Dataset):
                 filename = row[0]
                 label = row[1]
                 # append filename to current label
-                if label in dictLabels.keys():
-                    dictLabels[label].append(filename)
+                if label in dict_labels.keys():
+                    dict_labels[label].append(filename)
                 else:
-                    dictLabels[label] = [filename]
-        return dictLabels
+                    dict_labels[label] = [filename]
+        return dict_labels
 
     def create_batch(self, batchsz):
         """
@@ -130,13 +126,14 @@ class MiniImageNet(Dataset):
                 selected_imgs_idx = np.random.choice(
                     len(self.data[cls]), self.k_shot + self.k_query, False)
                 np.random.shuffle(selected_imgs_idx)
-                indexDtrain = np.array(
+                index_data_train = np.array(
                     selected_imgs_idx[:self.k_shot])  # idx for Dtrain
-                indexDtest = np.array(
+                index_data_test = np.array(
                     selected_imgs_idx[self.k_shot:])  # idx for Dtest
                 support_x.append(
-                    np.array(self.data[cls])[indexDtrain].tolist())
-                query_x.append(np.array(self.data[cls])[indexDtest].tolist())
+                    np.array(self.data[cls])[index_data_train].tolist())
+                query_x.append(
+                    np.array(self.data[cls])[index_data_test].tolist())
 
             # shuffle the correponding relation between
             # support set and query set
@@ -215,13 +212,13 @@ class MiniImageNet(Dataset):
 if __name__ == '__main__':
     # the following episode is to view one set of images via tensorboard.
     from torchvision.utils import make_grid
-    from matplotlib import pyplot as plt
     from tensorboardX import SummaryWriter
+    from matplotlib import pyplot as plt
     import time
 
     plt.ion()
 
-    tb = SummaryWriter('runs', 'mini-imagenet')
+    tensorboard_writer = SummaryWriter('runs', 'mini-imagenet')
     mini = MiniImageNet('../mini-imagenet/', mode='train',
                         n_way=5, k_shot=1, k_query=1, batchsz=1000, resize=168)
 
@@ -239,9 +236,9 @@ if __name__ == '__main__':
         plt.imshow(query_x.transpose(2, 0).numpy())
         plt.pause(0.5)
 
-        tb.add_image('support_x', support_x)
-        tb.add_image('query_x', query_x)
+        tensorboard_writer.add_image('support_x', support_x)
+        tensorboard_writer.add_image('query_x', query_x)
 
         time.sleep(5)
 
-    tb.close()
+    tensorboard_writer.close()

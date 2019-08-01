@@ -82,3 +82,6 @@ class Logger(BaseLogger, metaclass=Singleton):
     def log_validation_params(self, step, env, parameters):
         if self.tb_logger is not None:
             self.tb_logger.log_parameters(step, env, parameters)
+
+    def log_custom_metrics(self, metrics):
+        super().log_custom_metrics(metrics)

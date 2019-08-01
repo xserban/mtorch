@@ -39,8 +39,10 @@ class BaseDataLoader(DataLoader):
         np.random.shuffle(idx_full)
 
         if isinstance(split, int):
+            asrt_msg = "validation set size is configured "
+            "to be larger than entire dataset."
             assert split > 0
-            assert split < self.n_samples, "validation set size is configured to be larger than entire dataset."
+            assert split < self.n_samples, asrt_msg
             len_valid = split
         else:
             len_valid = int(self.n_samples * split)
