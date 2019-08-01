@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "DISCOVER_SOURCES": "dir",
+    "CAPTURE_MODE": "sys"
+  },
+  "_comments": {
+    "_c": "_these are the default settings if they are not configured in the main experiment config file supplied on training"
+  }
+}

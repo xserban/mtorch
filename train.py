@@ -12,8 +12,12 @@ from torch_temp.utils.parse_config import ConfigParser
 from sacred import Experiment
 from sacred.observers import MongoObserver
 from torch_temp.experiment.sacred import Sacred
+from sacred import SETTINGS
 
-
+# Currently the discover sources flag must be set here.
+# Please see the issue on github:
+# https://github.com/IDSIA/sacred/issues/546
+SETTINGS['DISCOVER_SOURCES'] = 'no'
 ex = Experiment()
 config = None
 
@@ -74,7 +78,6 @@ def main_normal():
 
 @ex.main
 def main_sacred():
-    sacred_exp.add_all_files(os.getcwd() + '/torch_temp/')
     main_normal()
 
 
@@ -101,11 +104,11 @@ if __name__ == '__main__':
         config.init_logger()
         main_normal()
     else:
+        # init logger
         sacred_exp = Sacred(
             ex,
             config=config.config['logger']['sacred_logs'],
             auto_config=True,
         )
-
         config.init_logger(sacred_ex=sacred_exp.ex)
         ex.run()

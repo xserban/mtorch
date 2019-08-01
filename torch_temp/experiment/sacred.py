@@ -1,8 +1,9 @@
 import os
 
-from torch_temp.utils import Singleton
-from sacred.observers import MongoObserver
+from pathlib import Path
 from sacred import SETTINGS
+from sacred.observers import MongoObserver
+from torch_temp.utils import Singleton, read_json
 
 
 class Sacred(metaclass=Singleton):
@@ -23,19 +24,36 @@ class Sacred(metaclass=Singleton):
             self.add_mongo_observer(config)
             self.add_settings(config['settings'])
 
-    def add_config(self, config):
+    def add_config(self, config=None):
         print('[INFO] \t Setting Sacred Config File.')
+        if config is None and self.config is not None:
+            config = self.config
+        elif config is None and self.config is None:
+            raise TypeError('Config should not be none')
+        elif config is not None:
+            self.config = config
         self.ex.add_config(config)
 
-    def add_mongo_observer(self, config):
+    def add_mongo_observer(self, config=None):
         print('[INFO] \t Configuring Sacred MongoDB Observer.')
+        if config is None:
+            config = self.config
         self.ex.observers.append(MongoObserver.create(
             url=config["mongo_url"],
             db_name=config["db_name"]))
 
-    def add_settings(self, settings):
-        print('[INFO] Added all Sacred Settings.')
-        for key, value in settings.items():
+    def add_settings(self, settings='torch_temp/logger/sacred_logger_config.json'):
+        print('[INFO] Configuring Sacred Settings.')
+        if isinstance(settings, str):
+            log_config = Path(settings)
+            if log_config.is_file():
+                config = read_json(log_config)
+                config = config['settings']
+            else:
+                raise ValueError('Incorrect settings path')
+        else:
+            config = settings
+        for key, value in config.items():
             if isinstance(value, str):
                 SETTINGS[key] = value
             else:
@@ -43,20 +61,18 @@ class Sacred(metaclass=Singleton):
                 # TODO: configure iterative parsing of sacred config
 
     def add_all_files(self, parent_folder):
-        if self.config['save_files']:
-            print('[INFO] \t Indexing all Source Files in Sacred MongoDB.')
-            file_set = set()
-            for dir_, _, files in os.walk(parent_folder):
-                for file_name in files:
-                    if file_name.endswith((".py")):
-                        rel_dir = os.path.relpath(dir_, parent_folder)
-                        rel_file = os.path.join(rel_dir, file_name)
-                        file_set.add(rel_file)
+        print('[INFO] \t Indexing Extra Source Files in Sacred MongoDB.')
+        file_set = set()
+        for dir_, _, files in os.walk(parent_folder):
+            for file_name in files:
+                if file_name.endswith((".py")):
+                    rel_dir = os.path.relpath(dir_, parent_folder)
+                    rel_file = os.path.join(rel_dir, file_name)
+                    file_set.add(rel_file)
 
-            for file_name in file_set:
-                try:
-                    # self.ex.add_source_file(parent_folder + file_name)
-                    self.ex.add_resource(parent_folder + file_name)
-                except Exception as e:
-                    print(e)
-                    raise('File not found')
+        for file_name in file_set:
+            try:
+                self.ex.add_resource(parent_folder + file_name)
+            except Exception as e:
+                print(e)
+                raise('File not found')

@@ -70,13 +70,12 @@
     },
     "sacred_logs": {
       "do": true,
-      "save_files": true,
-      "settings": {
-        "CAPTURE_MODE": "sys",
-        "DISCOVER_SOURCES ": "dir"
-      },
       "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
-      "db_name": "sacred-db"
+      "db_name": "sacred-db",
+      "settings": {
+        "DISCOVER_SOURCES": "sys",
+        "CAPTURE_MODE": "no"
+      }
     }
   }
 }
