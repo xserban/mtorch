@@ -57,11 +57,11 @@ After configuring this file you can run an experimeng using:
 python train.py --config=configs/runs/example_config.json
 ```
 
-Currently, the Sacred logger indexes everything is a MongoDB database.
+Currently, the Sacred logger indexes everything is a MongoDB database and uses [Omniboard](https://vivekratnavel.github.io/omniboard/#/) for visualizations.
 If you want to use this logger, you can run a MongoDB instance using the docker-compose file in the repo:
 
 ```
-docker-compose -f mongodb.yml up -d
+docker-compose -f mongo-omniboard.yml up -d
 ```
 
 
@@ -74,7 +74,7 @@ This project started with a few changes to the project [pytorch-template](https:
 * Everything is written in an OOP fashion - each loss, metric, trainer is a class which inherits from a base class.
 * There is a new 'datasets' module used to load data not included pytorch.
 * New loss functions are now defined as classes and must implement a 'forward' function, similar to the nn.Module in pytorch.
-* New metrics are now defined as classes and must implement a 'forward' function, similar to the nn.Module in pytorch. 
+* New metrics are now defined as classes and must implement a 'forward' function, similar to the nn.Module in pytorch.
 * It is easier to write models using the included building blocks. The models are more modular now.
 * New Trainers can easily be written and configured in the .json file.
 * Testing can also be done during training.
