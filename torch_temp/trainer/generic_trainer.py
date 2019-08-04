@@ -74,13 +74,15 @@ class GenericTrainer(BaseTrainer):
             if batch_idx == self.len_epoch:
                 break
         # log info specific to the whole epoch
+        total_train_loss = total_loss / self.len_epoch
+        total_train_metrics = (total_metrics / self.len_epoch).tolist()
         self.logger.log_epoch(epoch - 1, 'train',
-                              total_loss / self.len_epoch,
-                              (total_metrics / self.len_epoch).tolist())
+                              total_train_loss,
+                              self.get_metrics_dic(total_train_metrics))
 
         log = {
-            'loss': total_loss / self.len_epoch,
-            'metrics': (total_metrics / self.len_epoch).tolist()
+            'loss': total_train_loss,
+            'metrics': total_train_metrics
         }
         # run validation and testing
         self._validate(epoch, log)

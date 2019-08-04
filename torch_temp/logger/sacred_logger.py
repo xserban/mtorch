@@ -16,7 +16,6 @@ class SacredLogger(BaseLogger):
         self.log_test_images = self.tb_config['log_test_images']
 
     def log_batch(self, step, env, loss, custom_metrics):
-
         if self.log_index_batches:
             name = env + '.' + 'loss'  # + "." + str(step)
             self.sacred_ex.log_scalar(name, loss)
@@ -30,7 +29,9 @@ class SacredLogger(BaseLogger):
 
     def log_epoch(self, step, env, loss, custom_metrics):
         if not self.log_index_batches:
-            self.log_batch(step, env, loss, custom_metrics)
+            name = env + '.' + 'loss'  # + "." + str(step)
+            self.sacred_ex.log_scalar(name, loss)
+            self.log_custom_metrics(step, env, custom_metrics)
 
     def log_parameters(self, step, env, params):
         pass
