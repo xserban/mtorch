@@ -44,9 +44,9 @@
     }
   },
   "trainer": {
-    "type": "GenericTrainer",
+    "type": "DefaultTrainer",
     "args": {},
-    "epochs": 5000,
+    "epochs": 100,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -68,12 +68,55 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
       "db_name": "sacred-db",
       "settings": {
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "no"
+      }
+    },
+    "infrastructure_logs": {
+      "do": false,
+      "config": {
+        "time": 5,
+        "name": "x4",
+        "save_dir": "saved/",
+        "metrics": [
+          {
+            "type": "CpuLoad"
+          },
+          {
+            "type": "CpuTemp",
+            "args": {
+              "tmp_key": "k10temp"
+            }
+          },
+          {
+            "type": "GPUs"
+          },
+          {
+            "type": "Memory"
+          }
+        ],
+        "elk": {
+          "elastic": {
+            "host": "http://elastic:changeme@localhost:9200/",
+            "index": {
+              "name": "experiment-metrics",
+              "config": {
+                "mappings": {
+                  "_default_": {
+                    "_timestamp": {
+                      "enabled": true,
+                      "store": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

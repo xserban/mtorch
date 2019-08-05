@@ -44,7 +44,7 @@ class Sacred(metaclass=Singleton):
 
     def add_settings(self,
                      settings='torch_temp/logger/sacred_logger_config.json'):
-        print('[INFO] Configuring Sacred Settings.')
+        print('[INFO] \t Configuring Sacred Settings.')
         if isinstance(settings, str):
             log_config = Path(settings)
             if log_config.is_file():

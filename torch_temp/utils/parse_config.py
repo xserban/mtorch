@@ -70,7 +70,8 @@ class ConfigParser:
                              {
                                  0: logging.WARNING,
                                  1: logging.INFO,
-                                 2: logging.DEBUG
+                                 2: logging.DEBUG,
+                                 3: logging.ERROR
                              },
                              sacred_ex=sacred_ex)
 
@@ -78,8 +79,7 @@ class ConfigParser:
         if not self.logger:
             raise('Please initialize logger')
 
-        logger = self.logger.get_py_logger(name, verbosity)
-        return logger
+        return self.logger.get_py_logger(name, verbosity)
 
     # setting read-only attributes
     @property

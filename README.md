@@ -24,9 +24,9 @@ A trainer runs the model for a number of epochs and measures its performance.
 It implements the logic for running train, validate and test epochs.
 If the performance increases, the trainer will save the model in a designated folder.
 The trainer also implements early stopping, which can be configured in the settings (see below).
-The generic_trainer in the folder can be used to train most 'standard' model.
+The default in the folder can be used to train most 'standard' model.
 
-For special cases, new trainers can easily be implemented by creating a new class and inheriting the BaseTrainer class (see generic_trainer.py).
+For special cases, new trainers can easily be implemented by creating a new class and inheriting the BaseTrainer class (see default.py).
 
 #### 4. Logger.
 
@@ -50,11 +50,11 @@ Self explainable.
 ### Running an experiment:
 
 In order to run an experiment, you have to add a configuration file in 'configs/runs', specifying the data, the model, the optimizer, the loss functions, the metrics, the trainer and configuring the logger.
-The file 'example_config.json' is self explainable.
+The file 'default.json' is self explainable.
 
 After configuring this file you can run an experimeng using:
 ```
-python train.py --config=configs/runs/example_config.json
+python train.py --config=configs/runs/default.json
 ```
 
 Currently, the Sacred logger indexes everything is a MongoDB database and uses [Omniboard](https://vivekratnavel.github.io/omniboard/#/) for visualizations.
