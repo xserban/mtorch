@@ -11,6 +11,7 @@ from torch_temp.utils import Singleton
 from torch_temp.utils import read_json
 from torch_temp.logger.tb_logger import TBLogger
 from torch_temp.logger.sacred_logger import SacredLogger
+from torch_temp.logger.elasticinfra_logger import InfraLogger
 from torch_temp.logger.base import BaseLogger
 
 
@@ -19,26 +20,31 @@ class Logger(BaseLogger, metaclass=Singleton):
                  config,
                  log_dir,
                  log_levels,
-                 py_log_config='torch_temp/logger/py_logger_config.json',
-                 py_default_level=logging.INFO,
+                 py_log_config="torch_temp/logger/py_logger_config.json",
+                 py_default_level=logging.ERROR,
                  sacred_ex=None):
         super(Logger, self).__init__()
 
         self.log_dir = log_dir
         self.log_levels = log_levels
+        self.default_log_level = py_default_level
 
-        self.init_py_logger(self.log_dir, py_log_config, py_default_level)
+        self.init_py_logger(self.log_dir, py_log_config,
+                            self.default_log_level)
         self.init_tb_logger(config)
         self.init_sacred_logger(config, sacred_ex)
+        self.init_infrastructure_logger(config)
 
-    def init_py_logger(self, save_dir, log_config, default_level=logging.INFO):
+    def init_py_logger(self, save_dir,
+                       log_config,
+                       default_level=logging.ERROR):
         log_config = Path(log_config)
         if log_config.is_file():
             config = read_json(log_config)
             # modify logging paths based on run config
-            for _, handler in config['handlers'].items():
-                if 'filename' in handler:
-                    handler['filename'] = str(save_dir / handler['filename'])
+            for _, handler in config["handlers"].items():
+                if "filename" in handler:
+                    handler["filename"] = str(save_dir / handler["filename"])
 
             logging.config.dictConfig(config)
         else:
@@ -47,18 +53,28 @@ class Logger(BaseLogger, metaclass=Singleton):
             logging.basicConfig(level=default_level)
 
     def init_tb_logger(self, config):
-        if config['logger']['tensorboard_logs']['do'] is True:
+        if config["logger"]["tensorboard_logs"]["do"] is True:
             self.tb_logger = TBLogger(self.log_dir, config)
         else:
             self.tb_logger = None
 
     def init_sacred_logger(self, config, sacred_ex):
-        if config['logger']['sacred_logs']['do'] is True:
+        if config["logger"]["sacred_logs"]["do"] is True:
             self.sacred_logger = SacredLogger(config, sacred_ex)
         else:
             self.sacred_logger = None
 
-    def get_py_logger(self, name, verbosity):
+    def init_infrastructure_logger(self, config):
+        elk_logger = self.get_py_logger("elk_logger", 3)
+        if config["logger"]["infrastructure_logs"]["do"] is True:
+            self.infra_logger = InfraLogger(
+                config["logger"]["infrastructure_logs"]["config"],
+                elk_logger)
+            # configure logger from the elasticsearch module
+            es_logger = logging.getLogger('elasticsearch')
+            es_logger.setLevel(self.default_log_level)
+
+    def get_py_logger(self, name, verbosity=2):
         msg_verbosity = \
             "verbosity option {} is invalid. Valid options are {}.".format(
                 verbosity, self.log_levels.keys())
@@ -85,3 +101,15 @@ class Logger(BaseLogger, metaclass=Singleton):
 
     def log_custom_metrics(self, metrics):
         super().log_custom_metrics(metrics)
+
+    def start_loops(self):
+        """This method will start all loggers that
+          run in a loop, on a separate thread"""
+        if self.infra_logger:
+            self.infra_logger.start()
+
+    def stop_loops(self):
+        """This method will stop all loggers that
+          run in a loop, on a separate thread"""
+        if self.infra_logger:
+            self.infra_logger.stop()

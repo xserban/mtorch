@@ -5,17 +5,17 @@
     "type": "ResNet18",
     "args": {
       "num_channels": 3,
-      "num_classes": 1000
+      "num_classes": 10
     }
   },
   "train_data_loader": {
     "type": "CIFAR10Loader",
     "args": {
       "data_dir": "downloaded-data/",
-      "batch_size": 128,
+      "batch_size": 256,
       "shuffle": true,
-      "validation_split": 0.1,
-      "num_workers": 2
+      "validation_split": 0.0,
+      "num_workers": 4
     }
   },
   "optimizer": {
@@ -44,15 +44,14 @@
     }
   },
   "trainer": {
-    "type": "GenericTrainer",
+    "type": "DefaultTrainer",
     "args": {},
-    "epochs": 500,
+    "epochs": 100,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
-    "monitor": "min val_loss",
-    "early_stop": 10,
-    "train_log_step": 10
+    "monitor": "min train_loss",
+    "early_stop": 100
   },
   "test": {
     "do": true,
@@ -61,20 +60,63 @@
   },
   "logger": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-    "index_batches": true,
-    "log_params": true,
+    "index_batches": false,
+    "log_params": false,
     "log_train_images": false,
     "log_test_images": false,
     "tensorboard_logs": {
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
       "db_name": "sacred-db",
       "settings": {
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "no"
+      }
+    },
+    "infrastructure_logs": {
+      "do": false,
+      "config": {
+        "time": 5,
+        "name": "x4",
+        "save_dir": "saved/",
+        "metrics": [
+          {
+            "type": "CpuLoad"
+          },
+          {
+            "type": "CpuTemp",
+            "args": {
+              "tmp_key": "k10temp"
+            }
+          },
+          {
+            "type": "GPUs"
+          },
+          {
+            "type": "Memory"
+          }
+        ],
+        "elk": {
+          "elastic": {
+            "host": "http://elastic:changeme@localhost:9200/",
+            "index": {
+              "name": "experiment-metrics",
+              "config": {
+                "mappings": {
+                  "_default_": {
+                    "_timestamp": {
+                      "enabled": true,
+                      "store": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -3,8 +3,6 @@ import torch
 from numpy import inf
 import numpy as np
 
-not_improved = 0
-
 
 class BaseTrainer:
     """
@@ -28,6 +26,8 @@ class BaseTrainer:
         self._configure_trainer(config)
         # configure monitor
         self._configure_monitor(config)
+        # not improved variable
+        self.not_improved = 0
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -45,6 +45,7 @@ class BaseTrainer:
 
     def train(self):
         """Full training logic"""
+        self.logger.start_loops()
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 
@@ -60,6 +61,7 @@ class BaseTrainer:
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
+        self.logger.stop_loops()
 
     ###
     # Train helpers
@@ -94,8 +96,6 @@ class BaseTrainer:
         :param log: dictionary with metrics
 
         """
-        global not_improved
-
         best = False
         imprvd = True
         if self.mnt_mode != 'off':
@@ -112,16 +112,17 @@ class BaseTrainer:
                                        "is disabled.".format(self.mnt_metric))
                 self.mnt_mode = 'off'
                 improved = False
-                not_improved = 0
 
             if improved:
                 self.mnt_best = log[self.mnt_metric]
-                not_improved = 0
+                print('[INFO] Setting not improved to 0.')
+                self.not_improved = 0
                 best = True
             else:
-                not_improved += 1
+                print('[INFO] Incrementing not improved.')
+                self.not_improved += 1
 
-            if not_improved > self.early_stop:
+            if self.not_improved > self.early_stop:
                 self.py_logger.info("Validation performance "
                                     "didn\'t improve for {} epochs. "
                                     "Training stops.".format(self.early_stop))
@@ -265,3 +266,10 @@ class BaseTrainer:
             dic_metrics[metric.get_name()] = acc_metrics[i]
 
         return acc_metrics, dic_metrics
+
+    def get_metrics_dic(self, metrics):
+        """Converts metrics to dictionary"""
+        dic_metrics = {}
+        for i, metric in enumerate(self.metrics):
+            dic_metrics[metric.get_name()] = metrics[i]
+        return dic_metrics
