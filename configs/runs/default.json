@@ -1,5 +1,6 @@
 {
   "name": "Cifar10_ResNet_18",
+  "hostname": "x4",
   "n_gpu": 2,
   "arch": {
     "type": "ResNet18",
@@ -12,10 +13,10 @@
     "type": "CIFAR10Loader",
     "args": {
       "data_dir": "downloaded-data/",
-      "batch_size": 256,
+      "batch_size": 128,
       "shuffle": true,
       "validation_split": 0.0,
-      "num_workers": 4
+      "num_workers": 1
     }
   },
   "optimizer": {
@@ -77,10 +78,9 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
-        "name": "x4",
         "save_dir": "saved/",
         "metrics": [
           {

@@ -119,7 +119,7 @@ class BaseTrainer:
                 self.not_improved = 0
                 best = True
             else:
-                print('[INFO] Incrementing not improved.')
+                print('[INFO] \t Incremental metric not improved.')
                 self.not_improved += 1
 
             if self.not_improved > self.early_stop:
