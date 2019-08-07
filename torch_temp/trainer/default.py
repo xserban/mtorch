@@ -6,7 +6,7 @@ from torch_temp.trainer.base import BaseTrainer
 from torch_temp.utils import inf_loop
 
 
-class GenericTrainer(BaseTrainer):
+class DefaultTrainer(BaseTrainer):
     """Trainer class
     Note:
         Inherited from BaseTrainer.

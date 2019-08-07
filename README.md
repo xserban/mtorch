@@ -24,18 +24,17 @@ A trainer runs the model for a number of epochs and measures its performance.
 It implements the logic for running train, validate and test epochs.
 If the performance increases, the trainer will save the model in a designated folder.
 The trainer also implements early stopping, which can be configured in the settings (see below).
-The generic_trainer in the folder can be used to train most 'standard' model.
+The default in the folder can be used to train most 'standard' model.
 
-For special cases, new trainers can easily be implemented by creating a new class and inheriting the BaseTrainer class (see generic_trainer.py).
+For special cases, new trainers can easily be implemented by creating a new class and inheriting the BaseTrainer class (see default.py).
 
 #### 4. Logger.
 
 One of the goal of the project is to reduce the code needed to instrument, run the experiments and save the measurements.
 The logger classes handle the logic for saving the measurements and the code.
-Two options are available at the moment: Tensorboard for pytorch and sacred](https://github.com/IDSIA/sacred).
-Both can be configured in the settings (see below).
+Three options are available at the moment: Tensorboard for pytorch, [sacred](https://github.com/IDSIA/sacred) and [py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) which gathers hardware metrics in elasticsearch.
+All can be configured in the settings (see below).
 
-New loggers (such as Elasticsearch) can easily be configured by creating a new class and inheriting the BaseLogger class.
 
 #### 5. Experiment.
 
@@ -50,11 +49,11 @@ Self explainable.
 ### Running an experiment:
 
 In order to run an experiment, you have to add a configuration file in 'configs/runs', specifying the data, the model, the optimizer, the loss functions, the metrics, the trainer and configuring the logger.
-The file 'example_config.json' is self explainable.
+The file 'default.json' is self explainable.
 
 After configuring this file you can run an experimeng using:
 ```
-python train.py --config=configs/runs/example_config.json
+python train.py --config=configs/runs/default.json
 ```
 
 Currently, the Sacred logger indexes everything is a MongoDB database and uses [Omniboard](https://vivekratnavel.github.io/omniboard/#/) for visualizations.
@@ -64,7 +63,8 @@ If you want to use this logger, you can run a MongoDB instance using the docker-
 docker-compose -f mongo-omniboard.yml up -d
 ```
 
-
+The [py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) uses elasticsearch to index metrics the machin you run experiments on (and, optionally, kibana to mine them).
+For running an elasticsearch cluster see the project [readme](https://github.com/NullConvergence/py-elasticinfrastructure/blob/master/README.md).
 
 
 ##### Historical considerations:
@@ -80,5 +80,5 @@ This project started with a few changes to the project [pytorch-template](https:
 * Testing can also be done during training.
 * Logging is rebuild in order to make it easy to add new loggers. The old project only allowed tensorboard. This project also implements [sacred](https://github.com/IDSIA/sacred).
 * Logging is improved so we can either log at the end of one epoch or at the end of each batch.
-* The loggers are now defined as classes. Besides tensorboard, sacred was added.
+* The loggers are now defined as classes. Besides tensorboard, sacred and py-elasticinfrastructure were added.
 * More models + configs (with new to come, feel free to add any)

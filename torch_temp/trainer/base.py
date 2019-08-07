@@ -45,6 +45,7 @@ class BaseTrainer:
 
     def train(self):
         """Full training logic"""
+        self.logger.start_loops()
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 
@@ -60,6 +61,7 @@ class BaseTrainer:
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
+        self.logger.stop_loops()
 
     ###
     # Train helpers
@@ -117,7 +119,7 @@ class BaseTrainer:
                 self.not_improved = 0
                 best = True
             else:
-                print('[INFO] Incrementing not improved.')
+                print('[INFO] \t Incremental metric not improved.')
                 self.not_improved += 1
 
             if self.not_improved > self.early_stop:

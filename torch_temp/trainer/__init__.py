@@ -1,2 +1,2 @@
-from .generic_trainer import *
+from .default import *
 from .maml_trainer import MamlTrainer
