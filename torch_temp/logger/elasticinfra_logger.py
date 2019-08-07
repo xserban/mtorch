@@ -7,13 +7,12 @@ from py_elasticinfra.utils.parse_config import ConfigParser
 class InfraLogger:
     def __init__(self, config, logger):
         print("[INFO] \t Initializing Infrastructure Logger ...")
-        self.config = config
 
-        self.config["logger"]["infrastructure_logs"]["config"]["hostname"] = self.config["hostname"]
-        self.config["logger"]["infrastructure_logs"]["config"]["name"] = self.config["name"]
+        config["logger"]["infrastructure_logs"]["config"]["hostname"] = config["hostname"]
+        config["logger"]["infrastructure_logs"]["config"]["name"] = config["name"]
 
         self.elk_config = ConfigParser(
-            self.config["logger"]["infrastructure_logs"]["config"])
+            config["logger"]["infrastructure_logs"]["config"])
 
         try:
             self.es = Indexer(self.elk_config, logger)
