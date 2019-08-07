@@ -24,7 +24,6 @@ class Logger(BaseLogger, metaclass=Singleton):
                  py_default_level=logging.ERROR,
                  sacred_ex=None):
         super(Logger, self).__init__()
-
         self.log_dir = log_dir
         self.log_levels = log_levels
         self.default_log_level = py_default_level
@@ -68,7 +67,7 @@ class Logger(BaseLogger, metaclass=Singleton):
         elk_logger = self.get_py_logger("elk_logger", 3)
         if config["logger"]["infrastructure_logs"]["do"] is True:
             self.infra_logger = InfraLogger(
-                config["logger"]["infrastructure_logs"]["config"],
+                config,
                 elk_logger)
             # configure logger from the elasticsearch module
             es_logger = logging.getLogger('elasticsearch')
