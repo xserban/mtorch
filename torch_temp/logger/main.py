@@ -72,6 +72,8 @@ class Logger(BaseLogger, metaclass=Singleton):
             # configure logger from the elasticsearch module
             es_logger = logging.getLogger('elasticsearch')
             es_logger.setLevel(self.default_log_level)
+        else:
+            self.infra_logger = None
 
     def get_py_logger(self, name, verbosity=2):
         msg_verbosity = \
@@ -104,11 +106,11 @@ class Logger(BaseLogger, metaclass=Singleton):
     def start_loops(self):
         """This method will start all loggers that
           run in a loop, on a separate thread"""
-        if self.infra_logger:
+        if self.infra_logger is not None:
             self.infra_logger.start()
 
     def stop_loops(self):
         """This method will stop all loggers that
           run in a loop, on a separate thread"""
-        if self.infra_logger:
+        if self.infra_logger is not None:
             self.infra_logger.stop()

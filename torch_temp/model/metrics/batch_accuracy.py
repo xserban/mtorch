@@ -2,7 +2,7 @@ import torch
 from .base import BaseMetric
 
 
-class Accuracy(BaseMetric):
+class BatchAccuracy(BaseMetric):
 
     def forward(self, output, target):
         with torch.no_grad():
@@ -13,4 +13,4 @@ class Accuracy(BaseMetric):
         return correct / len(target)
 
     def get_name(self):
-        return "Accuracy"
+        return "BatchAccuracy"

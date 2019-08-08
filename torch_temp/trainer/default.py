@@ -106,9 +106,9 @@ class DefaultTrainer(BaseTrainer):
         if train is True:
             loss.backward()
             self.optimizer.step()
-        metrics, dic_metrics = self._eval_metrics(output, target)
+        metrics = self._eval_metrics(output, target)
 
-        return loss.item(), metrics, dic_metrics
+        return loss.item(), metrics, self.get_metrics_dic(metrics)
 
     def _validate(self, epoch, log):
         """Run validation and testing"""
@@ -153,7 +153,7 @@ class DefaultTrainer(BaseTrainer):
                          len(self.valid_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, 'valid',
                               total_loss,
-                              total_metrics)
+                              self.get_metrics_dic(total_metrics))
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, 'valid', self.model.named_parameters())
@@ -190,7 +190,7 @@ class DefaultTrainer(BaseTrainer):
                          len(self.test_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, 'test',
                               total_loss,
-                              total_metrics)
+                              self.get_metrics_dic(total_metrics))
         # return final log metrics
         return {
             'test_loss': total_loss,
