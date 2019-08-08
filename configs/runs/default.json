@@ -15,7 +15,7 @@
       "data_dir": "downloaded-data/",
       "batch_size": 128,
       "shuffle": true,
-      "validation_split": 0.0,
+      "validation_split": 0.1,
       "num_workers": 1
     }
   },
@@ -33,7 +33,7 @@
   },
   "metrics": [
     {
-      "type": "Accuracy",
+      "type": "EpochAccuracy",
       "args": {}
     }
   ],
@@ -51,7 +51,7 @@
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
-    "monitor": "min train_loss",
+    "monitor": "min val_loss",
     "early_stop": 100
   },
   "test": {
@@ -69,7 +69,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
       "db_name": "sacred-db",
       "settings": {
@@ -78,7 +78,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": true,
+      "do": false,
       "config": {
         "time": 5,
         "save_dir": "saved/",

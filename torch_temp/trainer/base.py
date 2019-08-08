@@ -115,7 +115,7 @@ class BaseTrainer:
 
             if improved:
                 self.mnt_best = log[self.mnt_metric]
-                print('[INFO] Setting not improved to 0.')
+                print('[INFO] \t Metric not improved. Setting flag to 0.')
                 self.not_improved = 0
                 best = True
             else:
@@ -260,12 +260,10 @@ class BaseTrainer:
     def _eval_metrics(self, output, target):
         """Evaluates all metrics"""
         acc_metrics = np.zeros(len(self.metrics))
-        dic_metrics = {}
         for i, metric in enumerate(self.metrics):
             acc_metrics[i] += metric.forward(output, target)
-            dic_metrics[metric.get_name()] = acc_metrics[i]
 
-        return acc_metrics, dic_metrics
+        return acc_metrics
 
     def get_metrics_dic(self, metrics):
         """Converts metrics to dictionary"""
