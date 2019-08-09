@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-from torchvision.utils import make_grid
 from tqdm import tqdm
 from torch_temp.trainer.base import BaseTrainer
 from torch_temp.utils import inf_loop
@@ -68,8 +67,7 @@ class DefaultTrainer(BaseTrainer):
                                   'train',
                                   loss,
                                   dic_metrics,
-                                  make_grid(data.cpu(),
-                                            nrow=8, normalize=True))
+                                  data)
 
             if batch_idx == self.len_epoch:
                 break
@@ -145,8 +143,7 @@ class DefaultTrainer(BaseTrainer):
                                       'valid',
                                       loss,
                                       dic_metrics,
-                                      make_grid(data.cpu(),
-                                                nrow=8, normalize=True))
+                                      data)
         # log info specific to the whole validation epoch
         total_loss = total_val_loss / len(self.valid_data_loader)
         total_metrics = (total_val_metrics /
@@ -182,8 +179,7 @@ class DefaultTrainer(BaseTrainer):
                                       'test',
                                       loss,
                                       dic_metrics,
-                                      make_grid(data.cpu(),
-                                                nrow=8, normalize=True))
+                                      data)
         # log results specific to epoch
         total_loss = total_test_loss / len(self.test_data_loader)
         total_metrics = (total_test_metrics /

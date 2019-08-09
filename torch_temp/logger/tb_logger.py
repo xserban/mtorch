@@ -1,5 +1,6 @@
 """Tensorboard logger"""
 from torch_temp.logger.tensorboard_writer import TensorboardWriter
+from torchvision.utils import make_grid
 from .base import BaseLogger
 
 
@@ -27,7 +28,9 @@ class TBLogger(BaseLogger):
             self.log_custom_metrics(custom_metrics)
 
             if self.log_train_images and images is not None:
-                self.writer.add_image('input', images)
+                self.writer.add_image('input',
+                                      make_grid(images.cpu(), nrow=8,
+                                                normalize=True))
 
     def log_custom_metrics(self, metrics):
         for key, value in metrics.items():
