@@ -261,7 +261,7 @@ class BaseTrainer:
         """Evaluates all metrics"""
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric.forward(output, target)
+            acc_metrics[i] = metric.forward(output, target)
 
         return acc_metrics
 

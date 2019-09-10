@@ -52,35 +52,31 @@ class DefaultTrainer(BaseTrainer):
         print('[INFO] \t Starting Training Epoch {}:'.format(epoch))
         self.model.train()
         total_loss = 0
-        total_metrics = np.zeros(len(self.metrics))
 
         for batch_idx, (data, target) in \
                 enumerate(tqdm(self.train_data_loader)):
 
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
-            loss, metrics, dic_metrics = self._run_batch(data, target)
+            loss = self._run_batch(data, target)
             total_loss += loss
-            total_metrics += metrics
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
                                   'train',
                                   loss,
-                                  dic_metrics,
+                                  {},
                                   data)
 
             if batch_idx == self.len_epoch:
                 break
         # log info specific to the whole epoch
         total_train_loss = total_loss / self.len_epoch
-        total_train_metrics = (total_metrics / self.len_epoch).tolist()
         self.logger.log_epoch(epoch - 1, 'train',
                               total_train_loss,
-                              self.get_metrics_dic(total_train_metrics))
+                              {})
 
         log = {
             'loss': total_train_loss,
-            'metrics': total_train_metrics
         }
         # run validation and testing
         self._validate(epoch, log)
@@ -92,7 +88,7 @@ class DefaultTrainer(BaseTrainer):
     ###
     # Epoch helpers
     ###
-    def _run_batch(self, data, target, train=True):
+    def _run_batch(self, data, target, eval_metrics=False, train=True):
         """Runs batch optimization and returns loss
         :param data: input batch
         :param target: labels batch
@@ -104,9 +100,11 @@ class DefaultTrainer(BaseTrainer):
         if train is True:
             loss.backward()
             self.optimizer.step()
-        metrics = self._eval_metrics(output, target)
-
-        return loss.item(), metrics, self.get_metrics_dic(metrics)
+        if eval_metrics is True:
+            metrics = self._eval_metrics(output, target)
+            return loss.item(), metrics, self.get_metrics_dic(metrics)
+        else:
+            return loss.item()
 
     def _validate(self, epoch, log):
         """Run validation and testing"""
@@ -133,7 +131,7 @@ class DefaultTrainer(BaseTrainer):
                 data, target = data.to(self.device), target.to(self.device)
                 # get loss and run metrics
                 loss, metrics, dic_metrics = self._run_batch(
-                    data, target, train=False)
+                    data, target, eval_metrics=True, train=False)
                 total_val_loss += loss
                 total_val_metrics += metrics
                 # log results specific to batch
@@ -170,7 +168,7 @@ class DefaultTrainer(BaseTrainer):
                 data, target = data.to(self.device), target.to(self.device)
                 # get loss and and run metrics
                 loss, metrics, dic_metrics = self._run_batch(
-                    data, target, train=False)
+                    data, target, eval_metrics=True, train=False)
                 total_test_loss += loss
                 total_test_metrics += metrics
                 # log results specific to batch

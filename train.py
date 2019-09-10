@@ -57,9 +57,11 @@ def main_normal():
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = config.initialize(
         torch.optim, config['optimizer'], trainable_params)
-
-    lr_scheduler = config.initialize(
-        torch.optim.lr_scheduler, config['lr_scheduler'], optimizer)
+    if config['lr_scheduler']:
+        lr_scheduler = config.initialize(
+            torch.optim.lr_scheduler, config['lr_scheduler'], optimizer)
+    else:
+        lr_scheduler = None
 
     trainer_args = {
         'model': model,
