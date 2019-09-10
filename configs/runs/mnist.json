@@ -1,16 +1,15 @@
 {
-  "name": "Cifar10_ResNet_18",
+  "name": "MNIST_Standard",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
-    "type": "ResNet18",
+    "type": "LeNet",
     "args": {
-      "num_channels": 3,
       "num_classes": 10
     }
   },
   "train_data_loader": {
-    "type": "CIFAR10Loader",
+    "type": "MnistLoader",
     "args": {
       "data_dir": "downloaded-data/",
       "batch_size": 128,
@@ -22,13 +21,13 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.005,
+      "lr": 0.001,
       "weight_decay": 0,
       "amsgrad": true
     }
   },
   "loss_function": {
-    "type": "NLL",
+    "type": "CrossEntropy",
     "args": {}
   },
   "metrics": [
@@ -47,7 +46,7 @@
   "trainer": {
     "type": "DefaultTrainer",
     "args": {},
-    "epochs": 100,
+    "epochs": 10,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -56,8 +55,8 @@
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 100,
-    "test_batch_size": 100
+    "test_epochs_interval": 1,
+    "test_batch_size": 128
   },
   "logger": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
@@ -69,7 +68,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
       "db_name": "sacred-db",
       "settings": {
@@ -78,7 +77,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",

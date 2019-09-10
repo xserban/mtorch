@@ -2,7 +2,7 @@ from torchvision import datasets, transforms
 from torch_temp.data.data_loaders.base import BaseDataLoader
 
 
-class MnistDataLoader(BaseDataLoader):
+class MnistLoader(BaseDataLoader):
     """
     MNIST data loading demo using BaseDataLoader
     """
