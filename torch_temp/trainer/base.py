@@ -115,11 +115,13 @@ class BaseTrainer:
 
             if improved:
                 self.mnt_best = log[self.mnt_metric]
-                print('[INFO] \t Early Stop Metric Improved. Setting flag to 0.')
+                print("[INFO] \t Early Stop Metric Improved. "
+                      "Setting flag to 0.")
                 self.not_improved = 0
                 best = True
             else:
-                print('[INFO] \t Early Stop Metric not Improved. Incrementing flag.')
+                print("[INFO] \t Early Stop Metric not Improved. "
+                      "Incrementing flag.")
                 self.not_improved += 1
 
             if self.not_improved > self.early_stop:
