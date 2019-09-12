@@ -3,7 +3,7 @@
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
-    "type": "ResNet18",
+    "type": "ResNet34",
     "args": {
       "num_channels": 3,
       "num_classes": 100

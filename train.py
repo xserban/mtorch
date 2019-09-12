@@ -17,7 +17,7 @@ from sacred import SETTINGS
 # Currently the discover sources flag must be set here.
 # Please see the issue on github:
 # https://github.com/IDSIA/sacred/issues/546
-SETTINGS['DISCOVER_SOURCES'] = 'none'
+SETTINGS['DISCOVER_SOURCES'] = 'dir'
 ex = Experiment()
 config = None
 
