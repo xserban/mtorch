@@ -57,7 +57,8 @@ class AdversarialTrainer(BaseTrainer):
             self.attack_parameters = attack_parameters
             self.adversary = getattr(attacks, attack_type)(
                 self.model,
-                loss_fn=self.loss,
+                # loss_fn=self.loss,
+                loss_fn=torch.nn.CrossEntropyLoss(reduction="sum"),
                 **attack_parameters)
         except Exception as e:
             raise e

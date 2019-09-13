@@ -1,22 +1,22 @@
 {
-  "name": "CIFAR10_ResNet18_PGD",
+  "name": "ImageNet_ResNet152",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
-    "type": "ResNet18",
+    "type": "ResNet34",
     "args": {
       "num_channels": 3,
-      "num_classes": 10
+      "num_classes": 100
     }
   },
   "train_data_loader": {
-    "type": "CIFAR10Loader",
+    "type": "ImageNetLoader",
     "args": {
       "data_dir": "downloaded-data/",
-      "batch_size": 128,
+      "batch_size": 258,
       "shuffle": true,
       "validation_split": 0.1,
-      "num_workers": 8
+      "num_workers": 1
     }
   },
   "optimizer": {
@@ -35,10 +35,6 @@
     {
       "type": "EpochAccuracy",
       "args": {}
-    },
-    {
-      "type": "AdversarialAccuracy",
-      "args": {}
     }
   ],
   "lr_scheduler": {
@@ -49,30 +45,19 @@
     }
   },
   "trainer": {
-    "type": "AdversarialTrainer",
-    "args": {
-      "attack_type": "LinfPGDAttack",
-      "attack_params": {
-        "eps": 0.3,
-        "nb_iter": 30,
-        "eps_iter": 0.01,
-        "clip_min": 0.0,
-        "clip_max": 1.0,
-        "targeted": false
-      },
-      "worst_case_training": true
-    },
-    "epochs": 500,
+    "type": "DefaultTrainer",
+    "args": {},
+    "epochs": 5000,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 5
+    "early_stop": 10
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 1,
-    "test_batch_size": 128
+    "test_epochs_interval": 10,
+    "test_batch_size": 100
   },
   "logger": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
@@ -84,7 +69,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {

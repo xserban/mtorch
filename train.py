@@ -112,7 +112,7 @@ if __name__ == '__main__':
         # init logger
         sacred_exp = Sacred(
             ex,
-            config=config.config['logger']['sacred_logs'],
+            config=config.config,
             auto_config=True,
         )
         config.init_logger(sacred_ex=sacred_exp.ex)
