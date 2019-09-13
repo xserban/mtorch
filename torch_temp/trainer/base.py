@@ -73,7 +73,7 @@ class BaseTrainer:
         :return log: dictionary with key values log metrics
         """
         for key, value in result.items():
-            if key == 'metrics':
+            if key == 'train_metrics':
                 log.update({mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
             elif key == 'val_metrics':

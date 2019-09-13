@@ -34,6 +34,10 @@
     {
       "type": "EpochAccuracy",
       "args": {}
+    },
+    {
+      "type": "AdversarialAccuracy",
+      "args": {}
     }
   ],
   "lr_scheduler": {
@@ -49,7 +53,7 @@
       "attack_type": "LinfPGDAttack",
       "attack_params": {
         "eps": 0.3,
-        "nb_iter": 10,
+        "nb_iter": 30,
         "eps_iter": 0.01,
         "clip_min": 0.0,
         "clip_max": 1.0,
