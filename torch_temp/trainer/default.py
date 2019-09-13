@@ -96,7 +96,7 @@ class DefaultTrainer(BaseTrainer):
         """
         self.optimizer.zero_grad()
         output = self.model(data)
-        loss = self.loss.forward(output, target)
+        loss = self.loss(output, target)
         if train is True:
             loss.backward()
             self.optimizer.step()

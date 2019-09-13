@@ -46,8 +46,15 @@
   "trainer": {
     "type": "AdversarialTrainer",
     "args": {
-      "foolbox_model_params": {},
-      "attack_params": {}
+      "attack_type": "LinfPGDAttack",
+      "attack_params": {
+        "eps": 0.3,
+        "nb_iter": 10,
+        "eps_iter": 0.01,
+        "clip_min": 0.0,
+        "clip_max": 1.0,
+        "targeted": false
+      }
     },
     "epochs": 10,
     "save_dir": "saved/",

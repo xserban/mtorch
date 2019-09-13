@@ -1,11 +1,12 @@
-import torch
+import advertorch.attacks as attacks
+from advertorch.context import ctx_noparamgrad_and_eval
 
-from art.classifiers import PyTorchClassifier
-from art.attacks import FastGradientMethod
-from art.data_generators import PyTorchDataGenerator
+import numpy as np
+import torch
 
 from tqdm import tqdm
 from torch_temp.trainer.base import BaseTrainer
+from torch_temp.utils import inf_loop
 
 
 class AdversarialTrainer(BaseTrainer):
@@ -15,70 +16,49 @@ class AdversarialTrainer(BaseTrainer):
 
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
-                 foolbox_model_params={},
-                 attack_params={},
+                 attack_type,
+                 attack_params,
                  valid_data_loader=None,
                  test_data_loader=None,
-                 lr_scheduler=None):
+                 lr_scheduler=None,
+                 len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
 
         self.config = config
         self.train_data_loader = train_data_loader
 
-        # epoch-based training
-        self.len_epoch = len(self.train_data_loader)
+        if len_epoch is None:
+            # epoch-based training
+            self.len_epoch = len(self.train_data_loader)
+        else:
+            # iteration-based training
+            self.train_data_loader = inf_loop(train_data_loader)
+            self.len_epoch = len_epoch
 
-        # initialize adversarial objects
-        self._init_adversarial_loaders(train_data_loader,
-                                       valid_data_loader,
-                                       test_data_loader)
-        self._init_adversarial_classifier()
-        self._init_adversarial_attack()
+        self.valid_data_loader = valid_data_loader
+        self.test_data_loader = test_data_loader
 
         self.do_validation = self.valid_data_loader is not None
         self.do_testing = self.test_data_loader is not None
         self.lr_scheduler = lr_scheduler
 
-        self.foolbox_model_params = foolbox_model_params
-        self.attack_params = attack_params
+        # init adversarial attack
+        self._init_attack(attack_type, attack_params)
 
-    def _init_adversarial_classifier(self, *args, **kwargs):
-        """Initializes adversarial toolbox classifier"""
-        # TODO: implement hyperparams parsing
-        self.adversarial_model = PyTorchClassifier(model=self.model,
-                                                   clip_values=(
-                                                       0, 1),
-                                                   loss=self.loss,
-                                                   optimizer=self.optimizer,
-                                                   input_shape=(1, 28, 28),
-                                                   nb_classes=10)
-
-    def _init_adversarial_attack(self):
-        """Initializes adversarial attack"""
-        # TODO: Implement param parsing
-        self.attack = FastGradientMethod(classifier=self.adversarial_model,
-                                         eps=0.2)
-
-    def _init_adversarial_loaders(self, train_loader,
-                                  valid_loader=None,
-                                  test_loader=None):
-        """Initializes adversarial data loaders for training, validation
-           and testing
-        :param train_loader: pytorch data loader for training data
-        :param valid_loader: pytorch data loader for validation data
-        :param test_loader: pytorch data loader for test data
+    def _init_attack(self, attack_type, attack_parameters):
+        """Initializes adversarial attack
+        :param attack_type: attack name from advertorch
+        :param attack_parameters: dictionary with parameters for the attack
         """
-        self.adv_train_loader = PyTorchDataGenerator(train_loader,
-                                                     len(train_loader),
-                                                     self.config.train_data_loader.args.batch_size)
-        if valid_loader is not None:
-            self.adv_valid_loader = PyTorchDataGenerator(valid_loader,
-                                                         len(valid_loader),
-                                                         self.config.train_data_loader.args.batch_size)
-        if test_loader is not None:
-            self.adv_test_loader = PyTorchDataGenerator(valid_loader,
-                                                        len(valid_loader),
-                                                        self.config.test.test_batch_size)
+        try:
+            self.attack_type = attack_type
+            self.attack_parameters = attack_parameters
+            self.adversary = getattr(attacks, attack_type)(
+                self.model,
+                loss_fn=self.loss,
+                **attack_parameters)
+        except Exception as e:
+            raise e
 
     def _train_epoch(self, epoch):
         """Training logic for an epoch
@@ -93,71 +73,57 @@ class AdversarialTrainer(BaseTrainer):
 
             The metrics in log must have the key 'metrics'.
         """
-        print('[INFO] \t Starting Adversarial Training Epoch {}:'.format(epoch))
+        print('[INFO] \t Starting Training Epoch {}:'.format(epoch))
+        self.model.train()
+        total_loss = 0
 
-        # self.model.train()
-        # total_loss = 0
+        for batch_idx, (data, target) in enumerate(tqdm(self.train_data_loader)):
+            data, target = data.to(self.device), target.to(self.device)
+            # run batch and get loss
+            loss = self._run_batch(data, target)
+            total_loss += loss
+            # log info specific to this batch
+            self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
+                                  'train',
+                                  loss,
+                                  {},
+                                  data)
 
-        # for batch_idx, (data, target) in \
-        #         enumerate(tqdm(self.train_data_loader)):
+            if batch_idx == self.len_epoch:
+                break
+        # log info specific to the whole epoch
+        total_train_loss = total_loss / self.len_epoch
+        self.logger.log_epoch(epoch - 1, 'train',
+                              total_train_loss,
+                              {})
 
-        #     data, target = data.to(self.device), target.to(self.device)
-        #     # run batch and get loss
-        #     loss = self._run_batch(data, target)
-        #     total_loss += loss
-        #     # log info specific to this batch
-        #     self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
-        #                           'train',
-        #                           loss,
-        #                           {},
-        #                           data)
+        log = {
+            'loss': total_train_loss,
+        }
+        # run validation and testing
+        self._validate(epoch, log)
+        if self.lr_scheduler is not None:
+            self.lr_scheduler.step()
 
-        #     if batch_idx == self.len_epoch:
-        #         break
-        # # log info specific to the whole epoch
-        # total_train_loss = total_loss / self.len_epoch
-        # self.logger.log_epoch(epoch - 1, 'train',
-        #                       total_train_loss,
-        #                       {})
-
-        # log = {
-        #     'loss': total_train_loss,
-        # }
-        # # run validation and testing
-        # self._validate(epoch, log)
-        # if self.lr_scheduler is not None:
-        #     self.lr_scheduler.step()
-
-        # return log
+        return log
 
     ###
     # Epoch helpers
     ###
-
     def _run_batch(self, data, target, eval_metrics=False, train=True):
         """Runs batch optimization and returns loss
         :param data: input batch
         :param target: labels batch
         :return: loss value
         """
-        self.optimizer.zero_grad()
-        # Generate adversarial data
-        print('aaa', data[0].shape)
-        classifier = PyTorchClassifier(model=self.model,
-                                       clip_values=(
-                                           0, 1),
-                                       loss=self.loss,
-                                       optimizer=self.optimizer,
-                                       input_shape=data[0].shape,
-                                       nb_classes=10)
-        attack = FastGradientMethod(classifier=classifier, eps=0.2)
-        adversarial_data = attack.generate(x=data)
-        # TODO: decide if we should only train on adversarial data
-        # or on both normal and adversarial data
+        # generate adversarial data
+        original_data = data
+        with ctx_noparamgrad_and_eval(self.model):
+            adversarial_data = self.adversary.perturb(data, target)
 
-        # Train on adversarial data
-        output = self.model(adversarial_data)
-        loss = self.loss.forward(output, target)
+        self.optimizer.zero_grad()
+        output = self.model(data)
+        loss = self.loss(output, target)
         if train is True:
             loss.backward()
             self.optimizer.step()
