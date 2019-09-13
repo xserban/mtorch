@@ -101,9 +101,12 @@ class AdversarialTrainer(BaseTrainer):
         total_adversarial_loss = total_adversarial_loss / self.len_epoch
         total_train_metrics = (total_metrics /
                                len(self.train_data_loader)).tolist()
+        # add adversarial loss to custom metrics
+        metr = self.get_metrics_dic(total_train_metrics)
+        metr['adversarial_loss'] = total_adversarial_loss
         self.logger.log_epoch(epoch - 1, 'train',
                               total_train_loss,
-                              total_train_metrics)
+                              metr)
         log = {
             'loss': total_train_loss,
             'adversarial_loss': total_adversarial_loss,
@@ -199,9 +202,12 @@ class AdversarialTrainer(BaseTrainer):
         total_adv_loss = total_adv_loss / len(self.test_data_loader)
         total_metrics = (total_val_metrics /
                          len(self.valid_data_loader)).tolist()
+        # add adversarial loss to custom metrics
+        metr = self.get_metrics_dic(total_metrics)
+        metr['adversarial_loss'] = total_adv_loss
         self.logger.log_epoch(epoch - 1, 'valid',
                               total_loss,
-                              self.get_metrics_dic(total_metrics))
+                              metr)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, 'valid', self.model.named_parameters())
@@ -239,9 +245,12 @@ class AdversarialTrainer(BaseTrainer):
         total_adv_loss = total_adv_loss / len(self.test_data_loader)
         total_metrics = (total_test_metrics /
                          len(self.test_data_loader)).tolist()
+        # add adversarial loss to custom metrics
+        metr = self.get_metrics_dic(total_metrics)
+        metr['adversarial_loss'] = total_adv_loss
         self.logger.log_epoch(epoch - 1, 'test',
                               total_loss,
-                              self.get_metrics_dic(total_metrics))
+                              metr)
         # return final log metrics
         return {
             'test_loss': total_loss,
