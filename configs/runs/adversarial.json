@@ -58,7 +58,8 @@
         "clip_min": 0.0,
         "clip_max": 1.0,
         "targeted": false
-      }
+      },
+      "worst_case_training": true
     },
     "epochs": 10,
     "save_dir": "saved/",

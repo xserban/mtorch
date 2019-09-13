@@ -18,6 +18,7 @@ class AdversarialTrainer(BaseTrainer):
                  train_data_loader,
                  attack_type,
                  attack_params,
+                 worst_case_training,
                  valid_data_loader=None,
                  test_data_loader=None,
                  lr_scheduler=None,
@@ -44,6 +45,7 @@ class AdversarialTrainer(BaseTrainer):
 
         # init adversarial attack
         self._init_attack(attack_type, attack_params)
+        self.worst_case_training = worst_case_training
 
     def _init_attack(self, attack_type, attack_parameters):
         """Initializes adversarial attack
@@ -123,7 +125,7 @@ class AdversarialTrainer(BaseTrainer):
     # Epoch helpers
     ###
     def _run_batch(self, data, target, eval_metrics=False,
-                   train=True, only_adv=True):
+                   train=True):
         """Runs batch optimization and returns loss
         :param data: input batch
         :param target: labels batch
@@ -147,7 +149,7 @@ class AdversarialTrainer(BaseTrainer):
         loss = self.loss(output, target)
 
         if train is True:
-            if not only_adv:
+            if self.worst_case_training is False:
                 loss.backward()
                 self.optimizer.step()
             adv_loss.backward()
