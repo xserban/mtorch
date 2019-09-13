@@ -69,11 +69,11 @@
     },
     "sacred_logs": {
       "do": true,
-      "mongo_url": "mongodb://root:example@192.168.178.75:27017/admin?authMechanism=SCRAM-SHA-1",
+      "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
         "DISCOVER_SOURCES": "sys",
-        "CAPTURE_MODE": "no"
+        "CAPTURE_MODE": "sys"
       }
     },
     "infrastructure_logs": {
@@ -100,7 +100,7 @@
         ],
         "elk": {
           "elastic": {
-            "host": "http://elastic:changeme@localhost:9200/",
+            "host": "http://192.168.178.26:9200/",
             "index": {
               "name": "experiment-metrics",
               "config": {

@@ -1,5 +1,5 @@
 {
-  "name": "MNIST_AdversarialTests",
+  "name": "MNIST_PGD",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
@@ -66,7 +66,7 @@
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10
+    "early_stop": 5
   },
   "test": {
     "do": true,
@@ -88,7 +88,7 @@
       "db_name": "sacred-db",
       "settings": {
         "DISCOVER_SOURCES": "sys",
-        "CAPTURE_MODE": "no"
+        "CAPTURE_MODE": "sys"
       }
     },
     "infrastructure_logs": {
