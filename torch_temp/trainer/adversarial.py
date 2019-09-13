@@ -122,13 +122,17 @@ class AdversarialTrainer(BaseTrainer):
             adversarial_data = self.adversary.perturb(data, target)
 
         self.optimizer.zero_grad()
-        output = self.model(data)
+        if train is True:
+            output = self.model(data)
+        else:
+            with torch.no_grad():
+                output = self.model(adversarial_data)
         loss = self.loss(output, target)
         if train is True:
             loss.backward()
             self.optimizer.step()
         if eval_metrics is True:
-            metrics = self._eval_metrics(output, target)
+            metrics = self.eval_metrics(output, target)
             return loss.item(), metrics, self.get_metrics_dic(metrics)
         else:
             return loss.item()
@@ -153,22 +157,22 @@ class AdversarialTrainer(BaseTrainer):
         self.model.eval()
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
-        with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
-                # get loss and run metrics
-                loss, metrics, dic_metrics = self._run_batch(
-                    data, target, eval_metrics=True, train=False)
-                total_val_loss += loss
-                total_val_metrics += metrics
-                # log results specific to batch
-                self.logger.log_batch((epoch - 1) *
-                                      len(self.valid_data_loader) +
-                                      batch_idx,
-                                      'valid',
-                                      loss,
-                                      dic_metrics,
-                                      data)
+
+        for batch_idx, (data, target) in enumerate(self.valid_data_loader):
+            data, target = data.to(self.device), target.to(self.device)
+            # get loss and run metrics
+            loss, metrics, dic_metrics = self._run_batch(
+                data, target, eval_metrics=True, train=False)
+            total_val_loss += loss
+            total_val_metrics += metrics
+            # log results specific to batch
+            self.logger.log_batch((epoch - 1) *
+                                  len(self.valid_data_loader) +
+                                  batch_idx,
+                                  'valid',
+                                  loss,
+                                  dic_metrics,
+                                  data)
         # log info specific to the whole validation epoch
         total_loss = total_val_loss / len(self.valid_data_loader)
         total_metrics = (total_val_metrics /
@@ -190,21 +194,21 @@ class AdversarialTrainer(BaseTrainer):
         self.model.eval()
         total_test_loss = 0
         total_test_metrics = np.zeros(len(self.metrics))
-        with torch.no_grad():
-            for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
-                data, target = data.to(self.device), target.to(self.device)
-                # get loss and and run metrics
-                loss, metrics, dic_metrics = self._run_batch(
-                    data, target, eval_metrics=True, train=False)
-                total_test_loss += loss
-                total_test_metrics += metrics
-                # log results specific to batch
-                self.logger.log_batch((epoch - 1) *
-                                      len(self.test_data_loader) + i,
-                                      'test',
-                                      loss,
-                                      dic_metrics,
-                                      data)
+
+        for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
+            data, target = data.to(self.device), target.to(self.device)
+            # get loss and and run metrics
+            loss, metrics, dic_metrics = self._run_batch(
+                data, target, eval_metrics=True, train=False)
+            total_test_loss += loss
+            total_test_metrics += metrics
+            # log results specific to batch
+            self.logger.log_batch((epoch - 1) *
+                                  len(self.test_data_loader) + i,
+                                  'test',
+                                  loss,
+                                  dic_metrics,
+                                  data)
         # log results specific to epoch
         total_loss = total_test_loss / len(self.test_data_loader)
         total_metrics = (total_test_metrics /

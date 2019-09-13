@@ -3,8 +3,10 @@ from .base import BaseMetric
 
 
 class EpochAccuracy(BaseMetric):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def forward(self, output, target):
+    def forward(self, output, target, *args, **kwargs):
         with torch.no_grad():
             pred = torch.argmax(output, dim=1)
             assert pred.shape[0] == len(target)

@@ -101,7 +101,7 @@ class DefaultTrainer(BaseTrainer):
             loss.backward()
             self.optimizer.step()
         if eval_metrics is True:
-            metrics = self._eval_metrics(output, target)
+            metrics = self.eval_metrics(output, target)
             return loss.item(), metrics, self.get_metrics_dic(metrics)
         else:
             return loss.item()
