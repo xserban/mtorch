@@ -6,7 +6,7 @@ from .base import BaseLogger
 
 class TBLogger(BaseLogger):
     def __init__(self, log_dir, config):
-        print("[INFO] \t Initializing Tensorboard Logger ...")
+        print("[INFO][LOGS] \t Initializing Tensorboard Logger ...")
         super().__init__()
 
         self.log_dir = log_dir

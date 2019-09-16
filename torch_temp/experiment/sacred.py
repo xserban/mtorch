@@ -25,7 +25,7 @@ class Sacred(metaclass=Singleton):
             self.add_settings(self.config["settings"])
 
     def add_mongo_observer(self, config=None):
-        print("[INFO] \t Configuring Sacred MongoDB Observer.")
+        print("[INFO][LOGS] \t Configuring Sacred MongoDB Observer.")
         if config is None:
             config = self.config
         self.ex.observers.append(MongoObserver.create(
@@ -34,7 +34,7 @@ class Sacred(metaclass=Singleton):
 
     def add_settings(self,
                      settings="torch_temp/logger/sacred_logger_config.json"):
-        print("[INFO] \t Configuring Sacred Settings.")
+        print("[INFO][LOGS] \t Configuring Sacred Settings.")
         if isinstance(settings, str):
             log_config = Path(settings)
             if log_config.is_file():
@@ -52,7 +52,7 @@ class Sacred(metaclass=Singleton):
                 # TODO: configure iterative parsing of sacred config
 
     def add_all_files(self, parent_folder):
-        print("[INFO] \t Indexing Extra Source Files in Sacred MongoDB.")
+        print("[INFO][LOGS] \t Indexing Extra Source Files in Sacred MongoDB.")
         file_set = set()
         for dir_, _, files in os.walk(parent_folder):
             for file_name in files:

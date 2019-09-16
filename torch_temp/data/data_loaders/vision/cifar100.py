@@ -7,7 +7,7 @@ class CIFAR100Loader(BaseDataLoader):
 
     def __init__(self, data_dir, batch_size, shuffle=True,
                  validation_split=0.0, num_workers=1, training=True):
-        print("[INFO] Preparing the CIFAR100 dataset ...")
+        print("[INFO][DATA] \t Preparing the CIFAR100 dataset ...")
 
         if training is True:
             trans = transforms.Compose([

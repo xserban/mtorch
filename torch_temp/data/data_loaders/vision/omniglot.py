@@ -6,7 +6,7 @@ class OmniglotLoader(BaseDataLoader):
     def __init__(self, data_dir, batch_size, tasks_num,
                  n_way, k_shot, k_query, imgsz,
                  shuffle=True, validation_split=0.0, num_workers=1):
-        print("[INFO] Preparing Omniglot Dataset")
+        print("[INFO][DATA] \t Preparing Omniglot Dataset")
 
         self.data_dir = data_dir + "omniglot/"
 

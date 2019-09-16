@@ -86,7 +86,7 @@ class BaseTrainer:
                 log[key] = value
 
         # print logged informations to the screen
-        print("[INFO] \t Evaluation:")
+        print("[INFO][METRICS] \t Evaluation:")
         for key, value in log.items():
             self.py_logger.info("    {:15s}: {}".format(str(key), value))
         return log
@@ -115,12 +115,12 @@ class BaseTrainer:
 
             if improved:
                 self.mnt_best = log[self.mnt_metric]
-                print("[INFO] \t Early Stop Metric Improved. "
+                print("[INFO][METRICS] \t Early Stop Metric Improved. "
                       "Setting flag to 0.")
                 self.not_improved = 0
                 best = True
             else:
-                print("[INFO] \t Early Stop Metric not Improved. "
+                print("[INFO][METRICS] \t Early Stop Metric not Improved. "
                       "Incrementing flag.")
                 self.not_improved += 1
 
@@ -219,12 +219,12 @@ class BaseTrainer:
 
         torch.save(state, filename)
         self.py_logger.info(
-            "[INFO] \t Saving checkpoint: {} ...".format(filename))
+            "[INFO][TRAIN] \t Saving checkpoint: {} ...".format(filename))
         if save_best:
             best_path = str(self.checkpoint_dir / "model_best.pth")
             torch.save(state, best_path)
             self.py_logger.info(
-                "[INFO] \t Saving current best: model_best.pth ...")
+                "[INFO][TRAIN] \t Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, resume_path):
         """Resume from saved checkpoints

@@ -4,7 +4,7 @@ from .base import BaseLogger
 
 class SacredLogger(BaseLogger):
     def __init__(self, config, sacred_ex):
-        print("[INFO] \t Initializing Sacred Logger ...")
+        print("[INFO][LOGS] \t Initializing Sacred Logger ...")
         super().__init__()
         self._configure(config)
         self.sacred_ex = sacred_ex

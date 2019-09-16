@@ -53,7 +53,7 @@ class DefaultTrainer(BaseTrainer):
 
             The metrics in log must have the key "metrics".
         """
-        print("[INFO] \t Starting Training Epoch {}:".format(epoch))
+        print("[INFO][TRAIN] \t Starting Training Epoch {}:".format(epoch))
         self.model.train()
         total_loss = 0
 
@@ -125,7 +125,7 @@ class DefaultTrainer(BaseTrainer):
         Note:
             The validation metrics in log must have the key "val_metrics".
         """
-        print("[INFO] \t Starting Validation Epoch {}:".format(epoch))
+        print("[INFO][VALIDATION] \t Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
@@ -163,7 +163,7 @@ class DefaultTrainer(BaseTrainer):
         }
 
     def _test_epoch(self, epoch):
-        print("[INFO] \t Starting Test Epoch {}:".format(epoch))
+        print("[INFO][TEST] \t Starting Test Epoch {}:".format(epoch))
         self.model.eval()
         total_test_loss = 0
         total_test_metrics = np.zeros(len(self.metrics))
