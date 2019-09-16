@@ -1,7 +1,7 @@
 {
   "name": "ImageNet_ResNet152",
   "host": {
-    "hostname": "x4",
+    "name": "x4",
     "n_gpu": 2
   },
   "data": {

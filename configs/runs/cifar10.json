@@ -1,7 +1,7 @@
 {
-  "name": "Cifar100_Resnet_101_002",
+  "name": "Cifar10_Resnet34",
   "host": {
-    "hostname": "x4",
+    "name": "x4",
     "n_gpu": 2
   },
   "data": {
@@ -18,7 +18,7 @@
   },
   "model": {
     "arch": {
-      "type": "ResNet18",
+      "type": "ResNet34",
       "args": {
         "num_channels": 3,
         "num_classes": 10
@@ -31,11 +31,11 @@
   },
   "optimizer": {
     "opt": {
-      "type": "Adam",
+      "type": "SGD",
       "args": {
-        "lr": 0.005,
-        "weight_decay": 0,
-        "amsgrad": true
+        "lr": 0.1,
+        "weight_decay": 0.0001,
+        "momentum": 0.9
       }
     },
     "lr_scheduler": {
@@ -47,7 +47,12 @@
     },
     "dynamic_lr_scheduler": {
       "do": false,
-      "args": {}
+      "args": {
+        "epochs": [
+          90,
+          130
+        ]
+      }
     }
   },
   "metrics": [
@@ -61,16 +66,16 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 100,
+    "epochs": 500,
     "save_dir": "saved/",
     "save_period": 1,
     "log_verbosity": 2,
-    "monitor": "min val_loss",
+    "monitor": "off",
     "early_stop": 10
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 1,
+    "test_epochs_interval": 50,
     "test_batch_size": 128
   },
   "logging": {
@@ -83,7 +88,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -92,7 +97,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",
