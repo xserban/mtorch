@@ -22,7 +22,7 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.005,
+      "lr": 0.002,
       "weight_decay": 0,
       "amsgrad": true
     }
@@ -67,7 +67,7 @@
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 5
+    "early_stop": 10
   },
   "test": {
     "do": true,
@@ -84,7 +84,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {

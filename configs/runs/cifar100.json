@@ -1,9 +1,9 @@
 {
-  "name": "Cifar100_Resnet_18_002",
+  "name": "Cifar100_Resnet_101_002",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
-    "type": "ResNet34",
+    "type": "ResNet101",
     "args": {
       "num_channels": 3,
       "num_classes": 100
@@ -13,16 +13,16 @@
     "type": "CIFAR100Loader",
     "args": {
       "data_dir": "downloaded-data/",
-      "batch_size": 128,
+      "batch_size": 256,
       "shuffle": true,
       "validation_split": 0.1,
-      "num_workers": 1
+      "num_workers": 8
     }
   },
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.002,
+      "lr": 0.1,
       "weight_decay": 0,
       "amsgrad": true
     }
@@ -40,23 +40,23 @@
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
-      "step_size": 50,
+      "step_size": 30,
       "gamma": 0.1
     }
   },
   "trainer": {
     "type": "DefaultTrainer",
     "args": {},
-    "epochs": 500,
+    "epochs": 5000,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10
+    "early_stop": 40
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 10,
+    "test_epochs_interval": 50,
     "test_batch_size": 100
   },
   "logger": {
