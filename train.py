@@ -33,7 +33,7 @@ def get_learning_scheduler(config, optimizer):
 
 def get_dynamic_scheduler(config):
     if config["optimizer"]["dynamic_lr_scheduler"]["do"] is True:
-        return DynamicLR(**config["dynamic_lr_scheduler"]["args"])
+        return DynamicLR(**config["optimizer"]["dynamic_lr_scheduler"]["args"])
     return None
 
 
