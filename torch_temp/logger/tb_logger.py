@@ -41,10 +41,11 @@ class TBLogger(BaseLogger):
             name = "learning_rate_" + str(index)
             self.writer.add_scalar("{}".format(name), rate)
 
-    def log_epoch(self, step, env, loss, lrates, custom_metrics):
+    def log_epoch(self, step, env, loss, custom_metrics, lrates):
         if not self.log_index_batches:
             self.writer.set_step(step, env)
-            self.log_learning_rates(lrates)
+            if lrates is not None:
+                self.log_learning_rates(lrates)
             self.log_batch(step, env, loss, custom_metrics)
 
     def log_parameters(self, step, env, params):

@@ -77,8 +77,8 @@ class DefaultTrainer(BaseTrainer):
         total_train_loss = total_loss / self.len_epoch
         self.logger.log_epoch(epoch - 1, "train",
                               total_train_loss,
-                              self.lrates,
-                              {})
+                              {},
+                              self.lrates)
         log = {
             "loss": total_train_loss,
         }
@@ -151,8 +151,8 @@ class DefaultTrainer(BaseTrainer):
                          len(self.valid_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, "valid",
                               total_loss,
-                              self.lrates,
-                              self.get_metrics_dic(total_metrics))
+                              self.get_metrics_dic(total_metrics),
+                              None)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, "valid", self.model.named_parameters())
@@ -188,8 +188,8 @@ class DefaultTrainer(BaseTrainer):
                          len(self.test_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, "test",
                               total_loss,
-                              self.lrates,
-                              self.get_metrics_dic(total_metrics))
+                              self.get_metrics_dic(total_metrics),
+                              None)
         # return final log metrics
         return {
             "test_loss": total_loss,

@@ -90,12 +90,12 @@ class Logger(BaseLogger, metaclass=Singleton):
         if self.sacred_logger is not None:
             self.sacred_logger.log_batch(step, env, loss, custom_metrics)
 
-    def log_epoch(self, step, env, loss, lrates, custom_metrics):
+    def log_epoch(self, step, env, loss, custom_metrics, lrates=None):
         if self.tb_logger is not None:
-            self.tb_logger.log_epoch(step, env, loss, lrates, custom_metrics)
+            self.tb_logger.log_epoch(step, env, loss, custom_metrics, lrates)
         if self.sacred_logger is not None:
             self.sacred_logger.log_epoch(
-                step, env, loss, lrates, custom_metrics)
+                step, env, loss, custom_metrics, lrates)
 
     def log_validation_params(self, step, env, parameters):
         if self.tb_logger is not None:

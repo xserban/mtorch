@@ -33,11 +33,12 @@ class SacredLogger(BaseLogger):
             name = "learning_rate_" + str(index)
             self.sacred_ex.log_scalar(name, rate)
 
-    def log_epoch(self, step, env, loss, lrates, custom_metrics):
+    def log_epoch(self, step, env, loss, custom_metrics, lrates):
         if not self.log_index_batches:
             name = env + "." + "loss"  # + "." + str(step)
             self.sacred_ex.log_scalar(name, loss)
-            self.log_learning_rates(lrates)
+            if lrates is not None:
+                self.log_learning_rates(lrates)
             self.log_custom_metrics(step, env, custom_metrics)
 
     def log_parameters(self, step, env, params):
