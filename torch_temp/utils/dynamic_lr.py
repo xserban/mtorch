@@ -27,10 +27,10 @@ class DynamicLR():
             return
 
         if epoch == self.change_epochs[self.current_epochs_index]:
-            print('[INFO] \t Setting Learning Rate Value to {}'.format(
+            print("[INFO] \t Setting Learning Rate Value to {}".format(
                 self.lr_values[self.current_epochs_index]))
             for g in optimizer.param_groups:
-                g['lr'] = self.lr_values[self.current_epochs_index]
+                g["lr"] = self.lr_values[self.current_epochs_index]
 
             self.increment_index()
 

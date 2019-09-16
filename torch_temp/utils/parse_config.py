@@ -10,7 +10,7 @@ from torch_temp.utils import read_json, write_json
 
 
 class ConfigParser:
-    def __init__(self, args, options='', timestamp=True):
+    def __init__(self, args, options="", timestamp=True):
         # parse default and custom cli options
         for opt in options:
             args.add_argument(*opt.flags, default=None, type=opt.type)
@@ -20,7 +20,7 @@ class ConfigParser:
             os.environ["CUDA_VISIBLE_DEVICES"] = args.device
         if args.resume:
             self.resume = Path(args.resume)
-            self.cfg_fname = self.resume.parent / 'config.json'
+            self.cfg_fname = self.resume.parent / "config.json"
         else:
             msg_no_cfg = "Configuration file need to be "
             "specified. Add '-c config.json', for example."
@@ -33,31 +33,31 @@ class ConfigParser:
         self._config = _update_config(config, options, args)
 
         # set save_dir where trained model and log will be saved.
-        save_dir = Path(self.config['training']['save_dir'])
-        timestamp = datetime.now().strftime(r'%m%d_%H%M%S') \
-            if timestamp else ''
+        save_dir = Path(self.config["training"]["save_dir"])
+        timestamp = datetime.now().strftime(r"%m%d_%H%M%S") \
+            if timestamp else ""
 
-        exper_name = self.config['name']
-        self._save_dir = save_dir / 'models' / exper_name / timestamp
-        self._log_dir = save_dir / 'log' / exper_name / timestamp
+        exper_name = self.config["name"]
+        self._save_dir = save_dir / "models" / exper_name / timestamp
+        self._log_dir = save_dir / "log" / exper_name / timestamp
 
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # save updated config file to the checkpoint dir
-        write_json(self.config, self.save_dir / 'config.json')
+        write_json(self.config, self.save_dir / "config.json")
 
     def initialize(self, module, module_config, *args, **kwargs):
         """
         finds a function handle with the name given
-        as 'type' in config, and returns the
+        as "type" in config, and returns the
         instance initialized with corresponding
-        keyword args given as 'args'.
+        keyword args given as "args".
         """
-        module_name = module_config['type']
-        module_args = dict(module_config['args'])
+        module_name = module_config["type"]
+        module_args = dict(module_config["args"])
         assert all([k not in module_args for k in kwargs]
-                   ), 'Overwriting kwargs given in config file is not allowed'
+                   ), "Overwriting kwargs given in config file is not allowed"
         module_args.update(kwargs)
         return getattr(module, module_name)(*args, **module_args)
 
@@ -77,7 +77,7 @@ class ConfigParser:
 
     def get_logger(self, name, verbosity=2):
         if not self.logger:
-            raise('Please initialize logger')
+            raise("Please initialize logger")
 
         return self.logger.get_py_logger(name, verbosity)
 
@@ -106,9 +106,9 @@ def _update_config(config, options, args):
 
 def _get_opt_name(flags):
     for flg in flags:
-        if flg.startswith('--'):
-            return flg.replace('--', '')
-    return flags[0].replace('--', '')
+        if flg.startswith("--"):
+            return flg.replace("--", "")
+    return flags[0].replace("--", "")
 
 
 def _set_by_path(tree, keys, value):

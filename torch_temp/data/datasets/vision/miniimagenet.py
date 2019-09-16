@@ -51,12 +51,12 @@ class MiniImageNet(Dataset):
         self.querysz = self.n_way * self.k_query
         self.resize = resize  # resize to
         self.startidx = startidx  # index label not from 0, but from startidx
-        print('shuffle DB :%s, b:%d, %d-way, %d-shot, %d-query, resize:%d' % (
+        print("shuffle DB :%s, b:%d, %d-way, %d-shot, %d-query, resize:%d" % (
             mode, batchsz, n_way, k_shot, k_query, resize))
 
-        if mode == 'train':
+        if mode == "train":
             self.transform = transforms.Compose(
-                [lambda x: Image.open(x).convert('RGB'),
+                [lambda x: Image.open(x).convert("RGB"),
                  transforms.Resize((self.resize, self.resize)),
                  # transforms.RandomHorizontalFlip(),
                  # transforms.RandomRotation(5),
@@ -65,16 +65,16 @@ class MiniImageNet(Dataset):
                                       (0.229, 0.224, 0.225))])
         else:
             self.transform = transforms.Compose(
-                [lambda x: Image.open(x).convert('RGB'),
+                [lambda x: Image.open(x).convert("RGB"),
                  transforms.Resize((self.resize,
                                     self.resize)),
                  transforms.ToTensor(),
                  transforms.Normalize((0.485, 0.456, 0.406),
                                       (0.229, 0.224, 0.225))])
         self.folder_path = root
-        self.path = self.folder_path + 'images'
+        self.path = self.folder_path + "images"
         csvdata = self.load_csv(os.path.join(
-            self.folder_path, mode + '.csv'))  # csv path
+            self.folder_path, mode + ".csv"))  # csv path
         self.data = []
         self.img2label = {}
         for i, (key, value) in enumerate(csvdata.items()):
@@ -92,7 +92,7 @@ class MiniImageNet(Dataset):
         """
         dict_labels = {}
         with open(csvf) as csvfile:
-            csvreader = csv.reader(csvfile, delimiter=',')
+            csvreader = csv.reader(csvfile, delimiter=",")
             next(csvreader, None)  # skip (filename, label)
             for _, row in enumerate(csvreader):
                 filename = row[0]
@@ -176,7 +176,7 @@ class MiniImageNet(Dataset):
                             for sublist in self.query_x_batch[index]
                             for item in sublist]).astype(np.int32)
 
-        # print('global:', support_y, query_y)
+        # print("global:", support_y, query_y)
         # support_y: [setsz]
         # query_y: [querysz]
         # unique: [n-way], sorted
@@ -189,7 +189,7 @@ class MiniImageNet(Dataset):
             support_y_relative[support_y == l] = idx
             query_y_relative[query_y == l] = idx
 
-        # print('relative:', support_y_relative, query_y_relative)
+        # print("relative:", support_y_relative, query_y_relative)
 
         for i, path in enumerate(flatten_support_x):
             support_x[i] = self.transform(path)
@@ -209,7 +209,7 @@ class MiniImageNet(Dataset):
         return self.batchsz
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # the following episode is to view one set of images via tensorboard.
     from torchvision.utils import make_grid
     from tensorboardX import SummaryWriter
@@ -218,8 +218,8 @@ if __name__ == '__main__':
 
     plt.ion()
 
-    tensorboard_writer = SummaryWriter('runs', 'mini-imagenet')
-    mini = MiniImageNet('../mini-imagenet/', mode='train',
+    tensorboard_writer = SummaryWriter("runs", "mini-imagenet")
+    mini = MiniImageNet("../mini-imagenet/", mode="train",
                         n_way=5, k_shot=1, k_query=1, batchsz=1000, resize=168)
 
     for i, set_ in enumerate(mini):
@@ -236,8 +236,8 @@ if __name__ == '__main__':
         plt.imshow(query_x.transpose(2, 0).numpy())
         plt.pause(0.5)
 
-        tensorboard_writer.add_image('support_x', support_x)
-        tensorboard_writer.add_image('query_x', query_x)
+        tensorboard_writer.add_image("support_x", support_x)
+        tensorboard_writer.add_image("query_x", query_x)
 
         time.sleep(5)
 

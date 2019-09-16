@@ -70,7 +70,7 @@ class Logger(BaseLogger, metaclass=Singleton):
                 config,
                 elk_logger)
             # configure logger from the elasticsearch module
-            es_logger = logging.getLogger('elasticsearch')
+            es_logger = logging.getLogger("elasticsearch")
             es_logger.setLevel(self.default_log_level)
         else:
             self.infra_logger = None

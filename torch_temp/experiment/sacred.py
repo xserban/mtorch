@@ -18,14 +18,14 @@ class Sacred(metaclass=Singleton):
         super().__init__()
         self.ex = experiment
         self.ex.add_config(config)
-        self.config = config['logging']['sacred_logs']
+        self.config = config["logging"]["sacred_logs"]
 
         if auto_config is True:
             self.add_mongo_observer(self.config)
-            self.add_settings(self.config['settings'])
+            self.add_settings(self.config["settings"])
 
     def add_mongo_observer(self, config=None):
-        print('[INFO] \t Configuring Sacred MongoDB Observer.')
+        print("[INFO] \t Configuring Sacred MongoDB Observer.")
         if config is None:
             config = self.config
         self.ex.observers.append(MongoObserver.create(
@@ -33,15 +33,15 @@ class Sacred(metaclass=Singleton):
             db_name=config["db_name"]))
 
     def add_settings(self,
-                     settings='torch_temp/logger/sacred_logger_config.json'):
-        print('[INFO] \t Configuring Sacred Settings.')
+                     settings="torch_temp/logger/sacred_logger_config.json"):
+        print("[INFO] \t Configuring Sacred Settings.")
         if isinstance(settings, str):
             log_config = Path(settings)
             if log_config.is_file():
                 config = read_json(log_config)
-                config = config['settings']
+                config = config["settings"]
             else:
-                raise ValueError('Incorrect settings path')
+                raise ValueError("Incorrect settings path")
         else:
             config = settings
         for key, value in config.items():
@@ -52,7 +52,7 @@ class Sacred(metaclass=Singleton):
                 # TODO: configure iterative parsing of sacred config
 
     def add_all_files(self, parent_folder):
-        print('[INFO] \t Indexing Extra Source Files in Sacred MongoDB.')
+        print("[INFO] \t Indexing Extra Source Files in Sacred MongoDB.")
         file_set = set()
         for dir_, _, files in os.walk(parent_folder):
             for file_name in files:

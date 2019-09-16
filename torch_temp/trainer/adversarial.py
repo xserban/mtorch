@@ -78,9 +78,9 @@ class AdversarialTrainer(BaseTrainer):
                 > log = {**log, **additional_log}
                 > return log
 
-            The metrics in log must have the key 'metrics'.
+            The metrics in log must have the key "metrics".
         """
-        print('[INFO] \t Starting Training Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Training Epoch {}:".format(epoch))
         self.model.train()
         total_loss = 0
         total_adversarial_loss = 0
@@ -96,7 +96,7 @@ class AdversarialTrainer(BaseTrainer):
             total_metrics += metrics
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
-                                  'train',
+                                  "train",
                                   loss,
                                   {},
                                   data)
@@ -110,15 +110,15 @@ class AdversarialTrainer(BaseTrainer):
                                len(self.train_data_loader)).tolist()
         # add adversarial loss to custom metrics
         metr = self.get_metrics_dic(total_train_metrics)
-        metr['adversarial_loss'] = total_adversarial_loss
-        self.logger.log_epoch(epoch - 1, 'train',
+        metr["adversarial_loss"] = total_adversarial_loss
+        self.logger.log_epoch(epoch - 1, "train",
                               total_train_loss,
                               self.lrates,
                               metr)
         log = {
-            'loss': total_train_loss,
-            'adversarial_loss': total_adversarial_loss,
-            'train_metrics': total_train_metrics
+            "loss": total_train_loss,
+            "adversarial_loss": total_adversarial_loss,
+            "train_metrics": total_train_metrics
         }
         # run validation and testing
         self._validate_and_test(epoch, log)
@@ -180,9 +180,9 @@ class AdversarialTrainer(BaseTrainer):
         """Validate after training an epoch
         :return: A log that contains information about validation
         Note:
-            The validation metrics in log must have the key 'val_metrics'.
+            The validation metrics in log must have the key "val_metrics".
         """
-        print('[INFO] \t Starting Validation Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
         total_val_loss = 0
         total_adv_loss = 0
@@ -200,7 +200,7 @@ class AdversarialTrainer(BaseTrainer):
             self.logger.log_batch((epoch - 1) *
                                   len(self.valid_data_loader) +
                                   batch_idx,
-                                  'valid',
+                                  "valid",
                                   loss,
                                   dic_metrics,
                                   data)
@@ -211,23 +211,23 @@ class AdversarialTrainer(BaseTrainer):
                          len(self.valid_data_loader)).tolist()
         # add adversarial loss to custom metrics
         metr = self.get_metrics_dic(total_metrics)
-        metr['adversarial_loss'] = total_adv_loss
-        self.logger.log_epoch(epoch - 1, 'valid',
+        metr["adversarial_loss"] = total_adv_loss
+        self.logger.log_epoch(epoch - 1, "valid",
                               total_loss,
                               self.lrates,
                               metr)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
-            epoch-1, 'valid', self.model.named_parameters())
+            epoch-1, "valid", self.model.named_parameters())
         # return final log metrics
         return {
-            'val_loss': total_loss,
-            'val_adv_loss': total_adv_loss,
-            'val_metrics': total_metrics
+            "val_loss": total_loss,
+            "val_adv_loss": total_adv_loss,
+            "val_metrics": total_metrics
         }
 
     def _test_epoch(self, epoch):
-        print('[INFO] \t Starting Test Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Test Epoch {}:".format(epoch))
         self.model.eval()
         total_test_loss = 0
         total_adv_loss = 0
@@ -244,7 +244,7 @@ class AdversarialTrainer(BaseTrainer):
             # log results specific to batch
             self.logger.log_batch((epoch - 1) *
                                   len(self.test_data_loader) + i,
-                                  'test',
+                                  "test",
                                   loss,
                                   dic_metrics,
                                   data)
@@ -255,23 +255,23 @@ class AdversarialTrainer(BaseTrainer):
                          len(self.test_data_loader)).tolist()
         # add adversarial loss to custom metrics
         metr = self.get_metrics_dic(total_metrics)
-        metr['adversarial_loss'] = total_adv_loss
-        self.logger.log_epoch(epoch - 1, 'test',
+        metr["adversarial_loss"] = total_adv_loss
+        self.logger.log_epoch(epoch - 1, "test",
                               total_loss,
                               self.lrates,
                               metr)
         # return final log metrics
         return {
-            'test_loss': total_loss,
-            'test_adv_loss': total_adv_loss,
-            'test_metrics': total_metrics
+            "test_loss": total_loss,
+            "test_adv_loss": total_adv_loss,
+            "test_metrics": total_metrics
         }
 
     def eval_metrics(self, output, adversarial_output, target):
         """Evaluate all metrics"""
         metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            if hasattr(metric, 'adversarial') and metric.adversarial is True:
+            if hasattr(metric, "adversarial") and metric.adversarial is True:
                 metrics[i] = metric.forward(adversarial_output, target)
             else:
                 metrics[i] = metric.forward(output, target)

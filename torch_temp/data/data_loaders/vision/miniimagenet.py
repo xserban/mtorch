@@ -7,8 +7,8 @@ class MiniImageNetLoader(BaseDataLoader):
                  n_way, k_shot, k_query, resize,
                  shuffle=True, validation_split=0.0,
                  num_workers=1, training=True):
-        print('[INFO] Preparing MiniImageNet Dataset')
-        mode = 'train' if training is True else 'test'
+        print("[INFO] Preparing MiniImageNet Dataset")
+        mode = "train" if training is True else "test"
         self.dataset = MiniImageNet(
             data_dir, mode, batch_size, n_way, k_shot, k_query, resize)
         super().__init__(self.dataset, batch_size, shuffle,

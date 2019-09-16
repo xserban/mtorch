@@ -32,25 +32,25 @@ class TensorboardWriter():
                   "the 'config.json' file.")
 
         self.step = 0
-        self.mode = ''
+        self.mode = ""
 
         self.tb_writer_ftns = {
-            'add_scalar', 'add_scalars', 'add_image',
-            'add_images', 'add_audio', 'add_text',
-            'add_histogram', 'add_pr_curve', 'add_embedding'
+            "add_scalar", "add_scalars", "add_image",
+            "add_images", "add_audio", "add_text",
+            "add_histogram", "add_pr_curve", "add_embedding"
         }
-        self.tag_mode_exceptions = {'add_histogram', 'add_embedding'}
+        self.tag_mode_exceptions = {"add_histogram", "add_embedding"}
 
         self.timer = Timer()
 
-    def set_step(self, step, mode='train'):
+    def set_step(self, step, mode="train"):
         self.mode = mode
         self.step = step
         if step == 0:
             self.timer.reset()
         else:
             duration = self.timer.check()
-            self.add_scalar('steps_per_sec', 1 / duration)
+            self.add_scalar("steps_per_sec", 1 / duration)
 
     def __getattr__(self, name):
         """
@@ -67,7 +67,7 @@ class TensorboardWriter():
                 if add_data is not None:
                     # add mode(train/valid) tag
                     if name not in self.tag_mode_exceptions:
-                        tag = '{}/{}'.format(tag, self.mode)
+                        tag = "{}/{}".format(tag, self.mode)
                     add_data(tag, data, self.step, *args, **kwargs)
             return wrapper
         else:

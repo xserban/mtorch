@@ -51,9 +51,9 @@ class DefaultTrainer(BaseTrainer):
                 > log = {**log, **additional_log}
                 > return log
 
-            The metrics in log must have the key 'metrics'.
+            The metrics in log must have the key "metrics".
         """
-        print('[INFO] \t Starting Training Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Training Epoch {}:".format(epoch))
         self.model.train()
         total_loss = 0
 
@@ -66,7 +66,7 @@ class DefaultTrainer(BaseTrainer):
             total_loss += loss
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
-                                  'train',
+                                  "train",
                                   loss,
                                   {},
                                   data)
@@ -75,12 +75,12 @@ class DefaultTrainer(BaseTrainer):
                 break
         # log info specific to the whole epoch
         total_train_loss = total_loss / self.len_epoch
-        self.logger.log_epoch(epoch - 1, 'train',
+        self.logger.log_epoch(epoch - 1, "train",
                               total_train_loss,
                               self.lrates,
                               {})
         log = {
-            'loss': total_train_loss,
+            "loss": total_train_loss,
         }
         # run validation and testing
         self._validate(epoch, log)
@@ -123,9 +123,9 @@ class DefaultTrainer(BaseTrainer):
         """Validate after training an epoch
         :return: A log that contains information about validation
         Note:
-            The validation metrics in log must have the key 'val_metrics'.
+            The validation metrics in log must have the key "val_metrics".
         """
-        print('[INFO] \t Starting Validation Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
@@ -141,7 +141,7 @@ class DefaultTrainer(BaseTrainer):
                 self.logger.log_batch((epoch - 1) *
                                       len(self.valid_data_loader) +
                                       batch_idx,
-                                      'valid',
+                                      "valid",
                                       loss,
                                       dic_metrics,
                                       data)
@@ -149,21 +149,21 @@ class DefaultTrainer(BaseTrainer):
         total_loss = total_val_loss / len(self.valid_data_loader)
         total_metrics = (total_val_metrics /
                          len(self.valid_data_loader)).tolist()
-        self.logger.log_epoch(epoch - 1, 'valid',
+        self.logger.log_epoch(epoch - 1, "valid",
                               total_loss,
                               self.lrates,
                               self.get_metrics_dic(total_metrics))
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
-            epoch-1, 'valid', self.model.named_parameters())
+            epoch-1, "valid", self.model.named_parameters())
         # return final log metrics
         return {
-            'val_loss': total_loss,
-            'val_metrics': total_metrics
+            "val_loss": total_loss,
+            "val_metrics": total_metrics
         }
 
     def _test_epoch(self, epoch):
-        print('[INFO] \t Starting Test Epoch {}:'.format(epoch))
+        print("[INFO] \t Starting Test Epoch {}:".format(epoch))
         self.model.eval()
         total_test_loss = 0
         total_test_metrics = np.zeros(len(self.metrics))
@@ -178,7 +178,7 @@ class DefaultTrainer(BaseTrainer):
                 # log results specific to batch
                 self.logger.log_batch((epoch - 1) *
                                       len(self.test_data_loader) + i,
-                                      'test',
+                                      "test",
                                       loss,
                                       dic_metrics,
                                       data)
@@ -186,12 +186,12 @@ class DefaultTrainer(BaseTrainer):
         total_loss = total_test_loss / len(self.test_data_loader)
         total_metrics = (total_test_metrics /
                          len(self.test_data_loader)).tolist()
-        self.logger.log_epoch(epoch - 1, 'test',
+        self.logger.log_epoch(epoch - 1, "test",
                               total_loss,
                               self.lrates,
                               self.get_metrics_dic(total_metrics))
         # return final log metrics
         return {
-            'test_loss': total_loss,
-            'test_metrics': total_metrics
+            "test_loss": total_loss,
+            "test_metrics": total_metrics
         }

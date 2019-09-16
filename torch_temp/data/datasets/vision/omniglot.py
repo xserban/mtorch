@@ -15,15 +15,15 @@ from PIL import Image
 
 class OmniglotDataset(data.Dataset):
     urls = [
-        'https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip',
-        'https://github.com/brendenlake/omniglot/raw/master/python/images_evaluation.zip'
+        "https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip",
+        "https://github.com/brendenlake/omniglot/raw/master/python/images_evaluation.zip"
     ]
-    raw_folder = 'raw'
-    processed_folder = 'processed'
-    training_file = 'training.pt'
-    test_file = 'test.pt'
+    raw_folder = "raw"
+    processed_folder = "processed"
+    training_file = "training.pt"
+    test_file = "test.pt"
 
-    '''
+    """
     The items are (filename,category). The index of all the categories
     can be found in self.idx_classes
     Args:
@@ -31,7 +31,7 @@ class OmniglotDataset(data.Dataset):
     - transform: how to transform the input
     - target_transform: how to transform the target
     - download: need to download the dataset
-    '''
+    """
 
     def __init__(self, root, transform=None,
                  target_transform=None, download=False):
@@ -43,8 +43,8 @@ class OmniglotDataset(data.Dataset):
             if download:
                 self.download()
             else:
-                raise RuntimeError('Dataset not found.' +
-                                   ' You can use download=True to download it')
+                raise RuntimeError("Dataset not found." +
+                                   " You can use download=True to download it")
 
         self.all_items = find_classes(
             os.path.join(self.root, self.processed_folder))
@@ -52,7 +52,7 @@ class OmniglotDataset(data.Dataset):
 
     def __getitem__(self, index):
         filename = self.all_items[index][0]
-        img = str.join('/', [self.all_items[index][2], filename])
+        img = str.join("/", [self.all_items[index][2], filename])
 
         target = self.idx_classes[self.all_items[index][1]]
         if self.transform is not None:
@@ -90,15 +90,15 @@ class OmniglotDataset(data.Dataset):
                 raise
 
         for url in self.urls:
-            print('== Downloading ' + url)
+            print("== Downloading " + url)
             data = urllib.request.urlopen(url)
-            filename = url.rpartition('/')[2]
+            filename = url.rpartition("/")[2]
             file_path = os.path.join(self.root, self.raw_folder, filename)
-            with open(file_path, 'wb') as file:
+            with open(file_path, "wb") as file:
                 file.write(data.read())
             file_processed = os.path.join(self.root, self.processed_folder)
             print("== Unzip from " + file_path + " to " + file_processed)
-            zip_ref = zipfile.ZipFile(file_path, 'r')
+            zip_ref = zipfile.ZipFile(file_path, "r")
             zip_ref.extractall(file_processed)
             zip_ref.close()
         print("Download finished.")
@@ -109,7 +109,7 @@ def find_classes(root_dir):
     for (root, _, files) in os.walk(root_dir):
         for file in files:
             if file.endswith("png"):
-                retr = root.split('/')
+                retr = root.split("/")
                 lngrtr = len(retr)
                 retour.append(
                     (file, retr[lngrtr - 2] + "/" + retr[lngrtr - 1], root))
@@ -140,12 +140,12 @@ class OmniglotNShot:
         """
 
         self.resize = imgsz
-        if not os.path.isfile(os.path.join(root, 'omniglot.npy')):
+        if not os.path.isfile(os.path.join(root, "omniglot.npy")):
             # if root/data.npy does not exist, just download it
             self.input = OmniglotDataset(root, download=True,
                                          transform=transforms.Compose([
                                              lambda x: Image.open(
-                                                 x).convert('L'),
+                                                 x).convert("L"),
                                              lambda x: x.resize(
                                                  (imgsz, imgsz)),
                                              lambda x: np.reshape(
@@ -173,15 +173,15 @@ class OmniglotNShot:
             # [[20 imgs],..., 1623 classes in total]
             self.input = np.array(self.input).astype(np.float)
             # each character contains 20 imgs
-            print('data shape:', self.input.shape)  # [1623, 20, 84, 84, 1]
+            print("data shape:", self.input.shape)  # [1623, 20, 84, 84, 1]
             temp = []  # Free memory
             # save all dataset into npy file.
-            np.save(os.path.join(root, 'omniglot.npy'), self.input)
-            print('write into omniglot.npy.')
+            np.save(os.path.join(root, "omniglot.npy"), self.input)
+            print("write into omniglot.npy.")
         else:
             # if data.npy exists, just load it.
-            self.input = np.load(os.path.join(root, 'omniglot.npy'))
-            print('load from omniglot.npy.')
+            self.input = np.load(os.path.join(root, "omniglot.npy"))
+            print("load from omniglot.npy.")
 
         # [1623, 20, 84, 84, 1]
         # TODO: can not shuffle here, we must keep
@@ -242,7 +242,7 @@ class OmniglotNShot:
         querysz = self.k_query * self.n_way
         data_cache = []
 
-        # print('preload next 50 caches of batchsz of batch.')
+        # print("preload next 50 caches of batchsz of batch.")
         for _ in range(10):  # num of episodes
 
             x_spts, y_spts, x_qrys, y_qrys = [], [], [], []
@@ -299,7 +299,7 @@ class OmniglotNShot:
 
         return data_cache
 
-    def next(self, mode='train'):
+    def next(self, mode="train"):
         """
         Gets next batch from the dataset with name.
         :param mode: The name of the splitting (one of "train", "val", "test")

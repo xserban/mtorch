@@ -7,7 +7,7 @@ class ImageNetLoader(BaseDataLoader):
 
     def __init__(self, data_dir, batch_size, shuffle=True,
                  validation_split=0.0, num_workers=1, training=True):
-        print('[INFO] Preparing the ImageNet dataset ...')
+        print("[INFO] Preparing the ImageNet dataset ...")
         if training is True:
             trans = transforms.Compose([
                 transforms.RandomCrop(224, padding=4),
@@ -25,9 +25,9 @@ class ImageNetLoader(BaseDataLoader):
 
         self.data_dir = data_dir
         if training is True:
-            split = 'train'
+            split = "train"
         else:
-            split = 'val'
+            split = "val"
         self.dataset = datasets.ImageNet(
             self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
