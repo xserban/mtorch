@@ -1,10 +1,8 @@
 from abc import abstractmethod
 
+from torch.nn import Module
 
-class BaseLoss:
+
+class BaseLoss(Module):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    @abstractmethod
-    def forward(self):
-        raise NotImplementedError

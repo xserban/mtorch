@@ -2,9 +2,10 @@ import torch
 from .base import BaseMetric
 
 
-class EpochAccuracy(BaseMetric):
+class AdversarialAccuracy(BaseMetric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.adversarial = True
 
     def forward(self, output, target, *args, **kwargs):
         with torch.no_grad():
@@ -16,4 +17,4 @@ class EpochAccuracy(BaseMetric):
         return correct / len(target)
 
     def get_name(self):
-        return "EpochAccuracy"
+        return "AdversarialAccuracy"

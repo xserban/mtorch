@@ -17,7 +17,7 @@ from sacred import SETTINGS
 # Currently the discover sources flag must be set here.
 # Please see the issue on github:
 # https://github.com/IDSIA/sacred/issues/546
-SETTINGS['DISCOVER_SOURCES'] = 'none'
+SETTINGS['DISCOVER_SOURCES'] = 'dir'
 ex = Experiment()
 config = None
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         # init logger
         sacred_exp = Sacred(
             ex,
-            config=config.config['logger']['sacred_logs'],
+            config=config.config,
             auto_config=True,
         )
         config.init_logger(sacred_ex=sacred_exp.ex)

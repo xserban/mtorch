@@ -1,5 +1,5 @@
 {
-  "name": "Cifar10_ResNet_18",
+  "name": "CIFAR10_ResNet18_PGD",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
@@ -16,24 +16,28 @@
       "batch_size": 128,
       "shuffle": true,
       "validation_split": 0.1,
-      "num_workers": 1
+      "num_workers": 8
     }
   },
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.005,
+      "lr": 0.002,
       "weight_decay": 0,
       "amsgrad": true
     }
   },
   "loss_function": {
-    "type": "NLL",
+    "type": "CrossEntropy",
     "args": {}
   },
   "metrics": [
     {
       "type": "EpochAccuracy",
+      "args": {}
+    },
+    {
+      "type": "AdversarialAccuracy",
       "args": {}
     }
   ],
@@ -45,9 +49,20 @@
     }
   },
   "trainer": {
-    "type": "DefaultTrainer",
-    "args": {},
-    "epochs": 100,
+    "type": "AdversarialTrainer",
+    "args": {
+      "attack_type": "LinfPGDAttack",
+      "attack_params": {
+        "eps": 0.3,
+        "nb_iter": 30,
+        "eps_iter": 0.01,
+        "clip_min": 0.0,
+        "clip_max": 1.0,
+        "targeted": false
+      },
+      "worst_case_training": true
+    },
+    "epochs": 500,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -56,8 +71,8 @@
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 100,
-    "test_batch_size": 100
+    "test_epochs_interval": 1,
+    "test_batch_size": 128
   },
   "logger": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
@@ -69,7 +84,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -78,7 +93,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",

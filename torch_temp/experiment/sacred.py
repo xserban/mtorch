@@ -17,22 +17,12 @@ class Sacred(metaclass=Singleton):
         """
         super().__init__()
         self.ex = experiment
-        self.config = config
+        self.ex.add_config(config)
+        self.config = config['logger']['sacred_logs']
 
         if auto_config is True:
-            self.add_config(config)
-            self.add_mongo_observer(config)
-            self.add_settings(config['settings'])
-
-    def add_config(self, config=None):
-        print('[INFO] \t Setting Sacred Config File.')
-        if config is None and self.config is not None:
-            config = self.config
-        elif config is None and self.config is None:
-            raise TypeError('Config should not be none')
-        elif config is not None:
-            self.config = config
-        self.ex.add_config(config)
+            self.add_mongo_observer(self.config)
+            self.add_settings(self.config['settings'])
 
     def add_mongo_observer(self, config=None):
         print('[INFO] \t Configuring Sacred MongoDB Observer.')

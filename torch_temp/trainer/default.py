@@ -96,12 +96,12 @@ class DefaultTrainer(BaseTrainer):
         """
         self.optimizer.zero_grad()
         output = self.model(data)
-        loss = self.loss.forward(output, target)
+        loss = self.loss(output, target)
         if train is True:
             loss.backward()
             self.optimizer.step()
         if eval_metrics is True:
-            metrics = self._eval_metrics(output, target)
+            metrics = self.eval_metrics(output, target)
             return loss.item(), metrics, self.get_metrics_dic(metrics)
         else:
             return loss.item()

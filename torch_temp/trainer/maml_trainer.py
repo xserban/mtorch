@@ -116,7 +116,7 @@ class MamlTrainer(BaseTrainer):
 
             return loss_q, correct
 
-    def _eval_metrics(self, output, target):
+    def eval_metrics(self, output, target):
         """Evaluates all metrics and adds them to tensorboard"""
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):

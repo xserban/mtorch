@@ -1,19 +1,19 @@
 {
-  "name": "Cifar10_ResNet_18",
+  "name": "ImageNet_ResNet152",
   "hostname": "x4",
   "n_gpu": 2,
   "arch": {
-    "type": "ResNet18",
+    "type": "ResNet34",
     "args": {
       "num_channels": 3,
-      "num_classes": 10
+      "num_classes": 100
     }
   },
   "train_data_loader": {
-    "type": "CIFAR10Loader",
+    "type": "ImageNetLoader",
     "args": {
       "data_dir": "downloaded-data/",
-      "batch_size": 128,
+      "batch_size": 258,
       "shuffle": true,
       "validation_split": 0.1,
       "num_workers": 1
@@ -28,7 +28,7 @@
     }
   },
   "loss_function": {
-    "type": "NLL",
+    "type": "CrossEntropy",
     "args": {}
   },
   "metrics": [
@@ -47,7 +47,7 @@
   "trainer": {
     "type": "DefaultTrainer",
     "args": {},
-    "epochs": 100,
+    "epochs": 5000,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -56,7 +56,7 @@
   },
   "test": {
     "do": true,
-    "test_epochs_interval": 100,
+    "test_epochs_interval": 10,
     "test_batch_size": 100
   },
   "logger": {
@@ -69,7 +69,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -78,7 +78,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",

@@ -73,7 +73,7 @@ class BaseTrainer:
         :return log: dictionary with key values log metrics
         """
         for key, value in result.items():
-            if key == 'metrics':
+            if key == 'train_metrics':
                 log.update({mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
             elif key == 'val_metrics':
@@ -115,11 +115,13 @@ class BaseTrainer:
 
             if improved:
                 self.mnt_best = log[self.mnt_metric]
-                print('[INFO] \t Metric not improved. Setting flag to 0.')
+                print("[INFO] \t Early Stop Metric Improved. "
+                      "Setting flag to 0.")
                 self.not_improved = 0
                 best = True
             else:
-                print('[INFO] \t Incremental metric not improved.')
+                print("[INFO] \t Early Stop Metric not Improved. "
+                      "Incrementing flag.")
                 self.not_improved += 1
 
             if self.not_improved > self.early_stop:
@@ -257,7 +259,7 @@ class BaseTrainer:
             "Checkpoint loaded. Resume "
             "training from epoch {}".format(self.start_epoch))
 
-    def _eval_metrics(self, output, target):
+    def eval_metrics(self, output, target):
         """Evaluates all metrics"""
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):

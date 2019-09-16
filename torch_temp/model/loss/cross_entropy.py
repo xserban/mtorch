@@ -1,10 +1,7 @@
-import torch.nn.functional as F
+from torch.nn.modules.loss import CrossEntropyLoss
 from .base import BaseLoss
 
 
-class CrossEntropy(BaseLoss):
+class CrossEntropy(CrossEntropyLoss, BaseLoss):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def forward(self, output, target):
-        return F.cross_entropy(output, target)
