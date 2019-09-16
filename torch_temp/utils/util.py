@@ -12,19 +12,19 @@ def ensure_dir(dirname):
 
 
 def read_json(fname, dic=True):
-    with fname.open('rt') as handle:
+    with fname.open("rt") as handle:
         if dic is True:
             return json.load(handle, object_hook=OrderedDict)
         return json.load(handle)
 
 
 def write_json(content, fname):
-    with fname.open('wt') as handle:
+    with fname.open("wt") as handle:
         json.dump(content, handle, indent=4, sort_keys=False)
 
 
 def inf_loop(data_loader):
-    ''' wrapper function for endless data loader. '''
+    """Wrapper function for endless data loader."""
     for loader in repeat(data_loader):
         yield from loader
 

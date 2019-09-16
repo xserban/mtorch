@@ -18,8 +18,8 @@ class MamlTrainer(BaseTrainer):
 
         self.config = config
         self.data_loader = train_data_loader
-        self.update_step = kwargs['update_step']
-        self.update_lr = kwargs['update_lr']
+        self.update_step = kwargs["update_step"]
+        self.update_lr = kwargs["update_lr"]
 
         if len_epoch is None:
             self.len_epoch = len(self.data_loader)
