@@ -12,7 +12,7 @@ class BaseTrainer:
     def __init__(self, model, loss, metrics, optimizer, config):
         self.config = config
         self.py_logger = config.get_logger(
-            'trainer', config['trainer']['verbosity'])
+            "training_log", config["training"]["log_verbosity"])
         self.logger = config.logger
         self.loss = loss
         self.metrics = metrics
@@ -50,7 +50,7 @@ class BaseTrainer:
             result = self._train_epoch(epoch)
 
             # save logged informations into log dict
-            log = {'epoch': epoch}
+            log = {"epoch": epoch}
             log = self._log_epoch(log, result)
 
             # evaluate model performance according to configured metric,
@@ -73,22 +73,22 @@ class BaseTrainer:
         :return log: dictionary with key values log metrics
         """
         for key, value in result.items():
-            if key == 'train_metrics':
+            if key == "train_metrics":
                 log.update({mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
-            elif key == 'val_metrics':
-                log.update({'val_' + mtr.get_name(): value[i]
+            elif key == "val_metrics":
+                log.update({"val_" + mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
-            elif key == 'test_metrics':
-                log.update({'test_' + mtr.get_name(): value[i]
+            elif key == "test_metrics":
+                log.update({"test_" + mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
             else:
                 log[key] = value
 
         # print logged informations to the screen
-        print('[INFO] \t Evaluation:')
+        print("[INFO] \t Evaluation:")
         for key, value in log.items():
-            self.py_logger.info('    {:15s}: {}'.format(str(key), value))
+            self.py_logger.info("    {:15s}: {}".format(str(key), value))
         return log
 
     def _save_model(self, log):
@@ -98,19 +98,19 @@ class BaseTrainer:
         """
         best = False
         imprvd = True
-        if self.mnt_mode != 'off':
+        if self.mnt_mode != "off":
             try:
                 # check whether model performance
                 # improved or not, according to specified metric(mnt_metric)
-                improved = (self.mnt_mode == 'min' and
+                improved = (self.mnt_mode == "min" and
                             log[self.mnt_metric] <= self.mnt_best) or \
                     (self.mnt_mode ==
-                     'max' and log[self.mnt_metric] >= self.mnt_best)
+                     "max" and log[self.mnt_metric] >= self.mnt_best)
             except KeyError:
-                self.py_logger.warning("Warning: Metric '{}' is not found. "
+                self.py_logger.warning("Warning: Metric {} is not found. "
                                        "Model performance monitoring "
                                        "is disabled.".format(self.mnt_metric))
-                self.mnt_mode = 'off'
+                self.mnt_mode = "off"
                 improved = False
 
             if improved:
@@ -151,7 +151,7 @@ class BaseTrainer:
                                    "but only {} are available "
                                    "on this machine.".format(n_gpu_use, n_gpu))
             n_gpu_use = n_gpu
-        device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
+        device = torch.device("cuda:0" if n_gpu_use > 0 else "cpu")
         list_ids = list(range(n_gpu_use))
         return device, list_ids
 
@@ -160,7 +160,8 @@ class BaseTrainer:
         :param model:
         :param config: config json obj.
         """
-        self.device, device_ids = self._prepare_gpu_device(config['n_gpu'])
+        self.device, device_ids = self._prepare_gpu_device(
+            config["host"]["n_gpu"])
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -170,26 +171,26 @@ class BaseTrainer:
         :param config: json config obj.
         """
         # configure trainer
-        self.cfg_trainer = config['trainer']
-        self.epochs = self.cfg_trainer['epochs']
-        self.save_period = self.cfg_trainer['save_period']
-        self.monitor = self.cfg_trainer.get('monitor', 'off')
+        self.cfg_trainer = config["training"]
+        self.epochs = self.cfg_trainer["epochs"]
+        self.save_period = self.cfg_trainer["save_period"]
+        self.monitor = self.cfg_trainer.get("monitor", "off")
         # configure test flags
-        self.test_epochs_interval = config['test']['test_epochs_interval']
+        self.test_epochs_interval = config["testing"]["test_epochs_interval"]
 
     def _configure_monitor(self, config):
         """Configure performance monitor and save best model
         :param config: config json obj.
         """
-        if self.monitor == 'off':
-            self.mnt_mode = 'off'
+        if self.monitor == "off":
+            self.mnt_mode = "off"
             self.mnt_best = 0
         else:
             self.mnt_mode, self.mnt_metric = self.monitor.split()
-            assert self.mnt_mode in ['min', 'max']
+            assert self.mnt_mode in ["min", "max"]
 
-            self.mnt_best = inf if self.mnt_mode == 'min' else -inf
-            self.early_stop = self.cfg_trainer.get('early_stop', inf)
+            self.mnt_best = inf if self.mnt_mode == "min" else -inf
+            self.early_stop = self.cfg_trainer.get("early_stop", inf)
 
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
@@ -206,21 +207,21 @@ class BaseTrainer:
         """
         arch = type(self.model).__name__
         state = {
-            'arch': arch,
-            'epoch': epoch,
-            'state_dict': self.model.state_dict(),
-            'optimizer': self.optimizer.state_dict(),
-            'monitor_best': self.mnt_best,
-            'config': self.config.config
+            "arch": arch,
+            "epoch": epoch,
+            "state_dict": self.model.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+            "monitor_best": self.mnt_best,
+            "config": self.config.config
         }
         filename = str(self.checkpoint_dir /
-                       'checkpoint-epoch{}.pth'.format(epoch))
+                       "checkpoint-epoch{}.pth".format(epoch))
 
         torch.save(state, filename)
         self.py_logger.info(
             "[INFO] \t Saving checkpoint: {} ...".format(filename))
         if save_best:
-            best_path = str(self.checkpoint_dir / 'model_best.pth')
+            best_path = str(self.checkpoint_dir / "model_best.pth")
             torch.save(state, best_path)
             self.py_logger.info(
                 "[INFO] \t Saving current best: model_best.pth ...")
@@ -232,28 +233,28 @@ class BaseTrainer:
         resume_path = str(resume_path)
         self.py_logger.info("Loading checkpoint: {} ...".format(resume_path))
         checkpoint = torch.load(resume_path)
-        self.start_epoch = checkpoint['epoch'] + 1
-        self.mnt_best = checkpoint['monitor_best']
+        self.start_epoch = checkpoint["epoch"] + 1
+        self.mnt_best = checkpoint["monitor_best"]
 
         # load architecture params from checkpoint.
-        if checkpoint['config']['arch'] != self.config['arch']:
+        if checkpoint["config"]["arch"] != self.config["arch"]:
             self.py_logger.warning("[WARN] \t Warning: Architecture "
                                    "configuration given in config file "
                                    "is different from that of checkpoint."
                                    "This may yield an exception while "
                                    "state_dict is being loaded.")
-        self.model.load_state_dict(checkpoint['state_dict'])
+        self.model.load_state_dict(checkpoint["state_dict"])
 
         # load optimizer state from checkpoint only
         # when optimizer type is not changed.
-        if checkpoint['config']['optimizer']['type'] != \
-                self.config['optimizer']['type']:
+        if checkpoint["config"]["optimizer"]["opt"]["type"] != \
+                self.config["optimizer"]["opt"]["type"]:
             self.py_logger.warning("[WARN] \t Warning: Optimizer type "
                                    " given in config file is different "
                                    "from that of checkpoint. "
                                    "Optimizer parameters not being resumed.")
         else:
-            self.optimizer.load_state_dict(checkpoint['optimizer'])
+            self.optimizer.load_state_dict(checkpoint["optimizer"])
 
         self.py_logger.info(
             "Checkpoint loaded. Resume "
@@ -298,5 +299,5 @@ class BaseTrainer:
     def get_lrates(self):
         lrs = []
         for param_group in self.optimizer.param_groups:
-            lrs.append(param_group['lr'])
+            lrs.append(param_group["lr"])
         return lrs

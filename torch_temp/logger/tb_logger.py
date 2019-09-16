@@ -15,7 +15,7 @@ class TBLogger(BaseLogger):
         self._configure(config)
 
     def _configure(self, config):
-        self.tb_config = config['logger']
+        self.tb_config = config['logging']
         self.log_index_batches = self.tb_config['index_batches']
         self.log_params = self.tb_config['log_params']
         self.log_train_images = self.tb_config['log_train_images']

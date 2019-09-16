@@ -8,11 +8,11 @@ class InfraLogger:
     def __init__(self, config, logger):
         print("[INFO] \t Initializing Infrastructure Logger ...")
 
-        config["logger"]["infrastructure_logs"]["config"]["hostname"] = config["hostname"]
-        config["logger"]["infrastructure_logs"]["config"]["name"] = config["name"]
+        config["logging"]["infrastructure_logs"]["config"]["hostname"] = config["host"]["name"]
+        config["logging"]["infrastructure_logs"]["config"]["name"] = config["name"]
 
         self.elk_config = ConfigParser(
-            config["logger"]["infrastructure_logs"]["config"])
+            config["logging"]["infrastructure_logs"]["config"])
 
         try:
             self.es = Indexer(self.elk_config, logger)

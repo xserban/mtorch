@@ -33,7 +33,7 @@ class ConfigParser:
         self._config = _update_config(config, options, args)
 
         # set save_dir where trained model and log will be saved.
-        save_dir = Path(self.config['trainer']['save_dir'])
+        save_dir = Path(self.config['training']['save_dir'])
         timestamp = datetime.now().strftime(r'%m%d_%H%M%S') \
             if timestamp else ''
 
