@@ -1,35 +1,54 @@
 {
-  "name": "Cifar10_Resnet_18_005",
-  "hostname": "x4",
-  "n_gpu": 2,
-  "arch": {
-    "type": "ResNet18",
-    "args": {
-      "num_channels": 3,
-      "num_classes": 10
+  "name": "Cifar100_Resnet_101_002",
+  "host": {
+    "hostname": "x4",
+    "n_gpu": 2
+  },
+  "data": {
+    "loader": {
+      "type": "CIFAR10Loader",
+      "args": {
+        "data_dir": "downloaded-data/",
+        "batch_size": 128,
+        "shuffle": true,
+        "validation_split": 0.1,
+        "num_workers": 8
+      }
     }
   },
-  "train_data_loader": {
-    "type": "CIFAR10Loader",
-    "args": {
-      "data_dir": "downloaded-data/",
-      "batch_size": 128,
-      "shuffle": true,
-      "validation_split": 0.1,
-      "num_workers": 1
+  "model": {
+    "arch": {
+      "type": "ResNet18",
+      "args": {
+        "num_channels": 3,
+        "num_classes": 10
+      }
+    },
+    "loss_function": {
+      "type": "CrossEntropy",
+      "args": {}
     }
   },
   "optimizer": {
-    "type": "Adam",
-    "args": {
-      "lr": 0.1,
-      "weight_decay": 0,
-      "amsgrad": true
+    "opt": {
+      "type": "Adam",
+      "args": {
+        "lr": 0.005,
+        "weight_decay": 0,
+        "amsgrad": true
+      }
+    },
+    "lr_scheduler": {
+      "type": "StepLR",
+      "args": {
+        "step_size": 50,
+        "gamma": 0.1
+      }
+    },
+    "dynamic_lr_scheduler": {
+      "do": false,
+      "args": {}
     }
-  },
-  "loss_function": {
-    "type": "CrossEntropy",
-    "args": {}
   },
   "metrics": [
     {
@@ -37,40 +56,24 @@
       "args": {}
     }
   ],
-  "lr_scheduler": {
-    "type": "StepLR",
-    "args": {
-      "step_size": 50,
-      "gamma": 0.1
-    }
-  },
-  "dynamic_lr_scheduler": {
-    "do": true,
-    "args": {
-      "epochs": [
-        40
-      ],
-      "lr_values": [
-        0.01
-      ]
-    }
-  },
-  "trainer": {
-    "type": "DefaultTrainer",
-    "args": {},
-    "epochs": 500,
+  "training": {
+    "trainer": {
+      "type": "DefaultTrainer",
+      "args": {}
+    },
+    "epochs": 100,
     "save_dir": "saved/",
     "save_period": 1,
-    "verbosity": 2,
-    "monitor": "max val_EpochAccuracy",
-    "early_stop": 20
+    "log_verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 10
   },
-  "test": {
+  "testing": {
     "do": true,
-    "test_epochs_interval": 10,
-    "test_batch_size": 100
+    "test_epochs_interval": 1,
+    "test_batch_size": 128
   },
-  "logger": {
+  "logging": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
     "index_batches": false,
     "log_params": false,
@@ -80,7 +83,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -89,7 +92,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": true,
+      "do": false,
       "config": {
         "time": 5,
         "save_dir": "saved/",

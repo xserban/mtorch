@@ -18,7 +18,7 @@ class Sacred(metaclass=Singleton):
         super().__init__()
         self.ex = experiment
         self.ex.add_config(config)
-        self.config = config['logger']['sacred_logs']
+        self.config = config['logging']['sacred_logs']
 
         if auto_config is True:
             self.add_mongo_observer(self.config)

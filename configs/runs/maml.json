@@ -1,88 +1,145 @@
 {
   "name": "MAML",
-  "n_gpu": 2,
-  "arch": {
-    "type": "OmniNet",
-    "args": {
-      "inpt_c": 1,
-      "num_classes": 10
+  "host": {
+    "hostname": "x4",
+    "n_gpu": 2
+  },
+  "data": {
+    "loader": {
+      "type": "OmniglotLoader",
+      "args": {
+        "data_dir": "downloaded-data/",
+        "batch_size": 128,
+        "shuffle": true,
+        "validation_split": 0.1,
+        "num_workers": 2,
+        "tasks_num": 32,
+        "n_way": 5,
+        "k_shot": 1,
+        "k_query": 15,
+        "imgsz": 28
+      }
+    }
+  },
+  "model": {
+    "arch": {
+      "type": "OmniNet",
+      "args": {
+        "inpt_c": 1,
+        "num_classes": 10
+      }
+    },
+    "loss_function": {
+      "type": "CrossEntropy",
+      "args": {}
     }
   },
   "optimizer": {
-    "type": "Adam",
-    "args": {
-      "lr": 0.001,
-      "weight_decay": 0,
-      "amsgrad": true
+    "opt": {
+      "type": "Adam",
+      "args": {
+        "lr": 0.001,
+        "weight_decay": 0,
+        "amsgrad": true
+      }
+    },
+    "lr_scheduler": {
+      "type": "StepLR",
+      "args": {
+        "step_size": 50,
+        "gamma": 0.1
+      }
+    },
+    "dynamic_lr_scheduler": {
+      "do": false,
+      "args": {}
     }
-  },
-  "loss_function": {
-    "type": "CrossEntropy",
-    "args": {}
   },
   "metrics": [
     {
-      "type": "Accuracy",
+      "type": "EpochAccuracy",
       "args": {}
     }
   ],
-  "lr_scheduler": {
-    "type": "StepLR",
-    "args": {
-      "step_size": 50,
-      "gamma": 0.1
-    }
-  },
-  "dynamic_lr_scheduler": {
-    "do": false,
-    "args": {}
-  },
-  "train_data_loader": {
-    "type": "OmniglotLoader",
-    "args": {
-      "data_dir": "downloaded-data/",
-      "batch_size": 128,
-      "shuffle": true,
-      "validation_split": 0.1,
-      "num_workers": 2,
-      "tasks_num": 32,
-      "n_way": 5,
-      "k_shot": 1,
-      "k_query": 15,
-      "imgsz": 28
-    }
-  },
-  "trainer": {
-    "type": "MamlTrainer",
-    "args": {
-      "update_step": 5,
-      "update_lr": 0.4
+  "training": {
+    "trainer": {
+      "type": "MamlTrainer",
+      "args": {
+        "update_step": 5,
+        "update_lr": 0.4
+      }
     },
-    "epochs": 100,
+    "epochs": 10,
     "save_dir": "saved/",
     "save_period": 1,
-    "verbosity": 2,
+    "log_verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10,
-    "train_log_step": 10,
-    "tensorboard": {
-      "enabled": true,
-      "modules": [
-        "torch.utils.tensorboard",
-        "tensorboardX"
-      ]
-    },
-    "tensorboard_logs": {
-      "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-      "index_batches": true,
-      "log_params": true,
-      "log_train_images": false,
-      "log_test_images": false
-    }
+    "early_stop": 10
   },
-  "test": {
-    "do": false,
+  "testing": {
+    "do": true,
     "test_epochs_interval": 1,
-    "test_batch_size": 100
+    "test_batch_size": 128
+  },
+  "logging": {
+    "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
+    "index_batches": false,
+    "log_params": false,
+    "log_train_images": false,
+    "log_test_images": false,
+    "tensorboard_logs": {
+      "do": false
+    },
+    "sacred_logs": {
+      "do": false,
+      "mongo_url": "mongodb://192.168.178.26:27017",
+      "db_name": "sacred-db",
+      "settings": {
+        "DISCOVER_SOURCES": "sys",
+        "CAPTURE_MODE": "sys"
+      }
+    },
+    "infrastructure_logs": {
+      "do": false,
+      "config": {
+        "time": 5,
+        "save_dir": "saved/",
+        "metrics": [
+          {
+            "type": "CpuLoad"
+          },
+          {
+            "type": "CpuTemp",
+            "args": {
+              "tmp_key": "k10temp"
+            }
+          },
+          {
+            "type": "GPUs"
+          },
+          {
+            "type": "Memory"
+          }
+        ],
+        "elk": {
+          "elastic": {
+            "host": "http://192.168.178.26:9200/",
+            "index": {
+              "name": "experiment-metrics",
+              "config": {
+                "mappings": {
+                  "_default_": {
+                    "_timestamp": {
+                      "enabled": true,
+                      "store": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

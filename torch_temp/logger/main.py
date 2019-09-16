@@ -52,20 +52,20 @@ class Logger(BaseLogger, metaclass=Singleton):
             logging.basicConfig(level=default_level)
 
     def init_tb_logger(self, config):
-        if config["logger"]["tensorboard_logs"]["do"] is True:
+        if config["logging"]["tensorboard_logs"]["do"] is True:
             self.tb_logger = TBLogger(self.log_dir, config)
         else:
             self.tb_logger = None
 
     def init_sacred_logger(self, config, sacred_ex):
-        if config["logger"]["sacred_logs"]["do"] is True:
+        if config["logging"]["sacred_logs"]["do"] is True:
             self.sacred_logger = SacredLogger(config, sacred_ex)
         else:
             self.sacred_logger = None
 
     def init_infrastructure_logger(self, config):
         elk_logger = self.get_py_logger("elk_logger", 3)
-        if config["logger"]["infrastructure_logs"]["do"] is True:
+        if config["logging"]["infrastructure_logs"]["do"] is True:
             self.infra_logger = InfraLogger(
                 config,
                 elk_logger)
