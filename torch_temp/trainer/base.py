@@ -277,6 +277,24 @@ class BaseTrainer:
             dic_metrics[metric.get_name()] = metrics[i]
         return dic_metrics
 
+   ###
+   # Learning rate schedler helpers
+   ###
+
+    def adapt_lr(self, epoch):
+        """Adapts learning rate dynamically or as scheduled
+        The dynamic scheduler takes priority over the lr_scheduler
+        """
+        if self.dynamic_lr_scheduler is not None:
+            if self.dynamic_lr_scheduler.still_adapting():
+                self.dynamic_lr_scheduler.adapt_lr(epoch, self.optimizer)
+            elif self.lr_scheduler is not None:
+                self.lr_scheduler.step()
+        elif self.lr_scheduler is not None:
+            self.lr_scheduler.step()
+
+        self.lrates = self.get_lrates()
+
     def get_lrates(self):
         lrs = []
         for param_group in self.optimizer.param_groups:

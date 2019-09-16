@@ -79,11 +79,10 @@ class DefaultTrainer(BaseTrainer):
                               total_train_loss,
                               self.lrates,
                               {})
-
         log = {
             'loss': total_train_loss,
         }
-
+        # run validation and testing
         self._validate(epoch, log)
         self.adapt_lr(epoch)
 
@@ -196,17 +195,3 @@ class DefaultTrainer(BaseTrainer):
             'test_loss': total_loss,
             'test_metrics': total_metrics
         }
-
-    def adapt_lr(self, epoch):
-        """Adapts learning rate dynamically or as scheduled
-        The dynamic scheduler takes priority over the lr_scheduler
-        """
-        if self.dynamic_lr_scheduler is not None:
-            if self.dynamic_lr_scheduler.still_adapting():
-                self.dynamic_lr_scheduler.adapt_lr(epoch, self.optimizer)
-            elif self.lr_scheduler is not None:
-                self.lr_scheduler.step()
-        elif self.lr_scheduler is not None:
-            self.lr_scheduler.step()
-
-        self.lrates = self.get_lrates()
