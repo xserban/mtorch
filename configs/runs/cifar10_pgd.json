@@ -48,6 +48,10 @@
       "gamma": 0.1
     }
   },
+  "dynamic_lr_scheduler": {
+    "do": false,
+    "args": {}
+  },
   "trainer": {
     "type": "AdversarialTrainer",
     "args": {
