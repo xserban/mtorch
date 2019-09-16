@@ -22,7 +22,7 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 0.005,
+      "lr": 0.1,
       "weight_decay": 0,
       "amsgrad": true
     }
@@ -42,6 +42,17 @@
     "args": {
       "step_size": 50,
       "gamma": 0.1
+    }
+  },
+  "dynamic_lr_scheduler": {
+    "do": true,
+    "args": {
+      "epochs": [
+        40
+      ],
+      "lr_values": [
+        0.01
+      ]
     }
   },
   "trainer": {

@@ -33,6 +33,10 @@
       "gamma": 0.1
     }
   },
+  "dynamic_lr_scheduler": {
+    "do": false,
+    "args": {}
+  },
   "train_data_loader": {
     "type": "OmniglotLoader",
     "args": {

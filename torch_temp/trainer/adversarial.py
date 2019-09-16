@@ -22,6 +22,7 @@ class AdversarialTrainer(BaseTrainer):
                  valid_data_loader=None,
                  test_data_loader=None,
                  lr_scheduler=None,
+                 dynamic_lr_scheduler=None,
                  len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
 
@@ -41,7 +42,10 @@ class AdversarialTrainer(BaseTrainer):
 
         self.do_validation = self.valid_data_loader is not None
         self.do_testing = self.test_data_loader is not None
+
+        self.dynamic_lr_scheduler = dynamic_lr_scheduler
         self.lr_scheduler = lr_scheduler
+        self.lrates = self.get_lrates()
 
         # init adversarial attack
         self._init_attack(attack_type, attack_params)
@@ -109,6 +113,7 @@ class AdversarialTrainer(BaseTrainer):
         metr['adversarial_loss'] = total_adversarial_loss
         self.logger.log_epoch(epoch - 1, 'train',
                               total_train_loss,
+                              self.lrates,
                               metr)
         log = {
             'loss': total_train_loss,
@@ -117,8 +122,7 @@ class AdversarialTrainer(BaseTrainer):
         }
         # run validation and testing
         self._validate_and_test(epoch, log)
-        if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+        self.adapt_lr(epoch)
 
         return log
 
@@ -210,6 +214,7 @@ class AdversarialTrainer(BaseTrainer):
         metr['adversarial_loss'] = total_adv_loss
         self.logger.log_epoch(epoch - 1, 'valid',
                               total_loss,
+                              self.lrates,
                               metr)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
@@ -253,6 +258,7 @@ class AdversarialTrainer(BaseTrainer):
         metr['adversarial_loss'] = total_adv_loss
         self.logger.log_epoch(epoch - 1, 'test',
                               total_loss,
+                              self.lrates,
                               metr)
         # return final log metrics
         return {
