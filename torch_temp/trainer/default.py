@@ -15,6 +15,7 @@ class DefaultTrainer(BaseTrainer):
                  optimizer, config, train_data_loader,
                  valid_data_loader=None,
                  test_data_loader=None,
+                 dynamic_lr_scheduler=None,
                  lr_scheduler=None,
                  len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
@@ -34,7 +35,10 @@ class DefaultTrainer(BaseTrainer):
         self.test_data_loader = test_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.do_testing = self.test_data_loader is not None
+
+        self.dynamic_lr_scheduler = dynamic_lr_scheduler
         self.lr_scheduler = lr_scheduler
+        self.lrates = self.get_lrates()
 
     def _train_epoch(self, epoch):
         """Training logic for an epoch
@@ -73,15 +77,15 @@ class DefaultTrainer(BaseTrainer):
         total_train_loss = total_loss / self.len_epoch
         self.logger.log_epoch(epoch - 1, 'train',
                               total_train_loss,
+                              self.lrates,
                               {})
 
         log = {
             'loss': total_train_loss,
         }
-        # run validation and testing
+
         self._validate(epoch, log)
-        if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+        self.adapt_lr(epoch)
 
         return log
 
@@ -148,6 +152,7 @@ class DefaultTrainer(BaseTrainer):
                          len(self.valid_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, 'valid',
                               total_loss,
+                              self.lrates,
                               self.get_metrics_dic(total_metrics))
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
@@ -184,9 +189,24 @@ class DefaultTrainer(BaseTrainer):
                          len(self.test_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, 'test',
                               total_loss,
+                              self.lrates,
                               self.get_metrics_dic(total_metrics))
         # return final log metrics
         return {
             'test_loss': total_loss,
             'test_metrics': total_metrics
         }
+
+    def adapt_lr(self, epoch):
+        """Adapts learning rate dynamically or as scheduled
+        The dynamic scheduler takes priority over the lr_scheduler
+        """
+        if self.dynamic_lr_scheduler is not None:
+            if self.dynamic_lr_scheduler.still_adapting():
+                self.dynamic_lr_scheduler.adapt_lr(epoch, self.optimizer)
+            elif self.lr_scheduler is not None:
+                self.lr_scheduler.step()
+        elif self.lr_scheduler is not None:
+            self.lr_scheduler.step()
+
+        self.lrates = self.get_lrates()

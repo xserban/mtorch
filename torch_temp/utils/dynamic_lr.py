@@ -9,7 +9,7 @@ class DynamicLR():
         :param lr_values: a list of learning rates
           corresponding to the epochs
         """
-        assert len(epochs) != len(lr_values)
+        assert len(epochs) == len(lr_values)
 
         self.change_epochs = epochs
         self.lr_values = lr_values
@@ -36,7 +36,7 @@ class DynamicLR():
 
     def increment_index(self):
         """Increments current epochs index or stops adaptation"""
-        if len(self.change_epochs) >= self.current_epochs_index + 1:
+        if len(self.change_epochs) > self.current_epochs_index + 1:
             self.current_epochs_index += 1
         else:
             self.adapt = False

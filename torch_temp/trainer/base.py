@@ -259,6 +259,9 @@ class BaseTrainer:
             "Checkpoint loaded. Resume "
             "training from epoch {}".format(self.start_epoch))
 
+    ###
+    # Measurements Helpers
+    ###
     def eval_metrics(self, output, target):
         """Evaluates all metrics"""
         acc_metrics = np.zeros(len(self.metrics))
@@ -273,3 +276,9 @@ class BaseTrainer:
         for i, metric in enumerate(self.metrics):
             dic_metrics[metric.get_name()] = metrics[i]
         return dic_metrics
+
+    def get_lrates(self):
+        lrs = []
+        for param_group in self.optimizer.param_groups:
+            lrs.append(param_group['lr'])
+        return lrs
