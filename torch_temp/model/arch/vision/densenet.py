@@ -1,8 +1,9 @@
-from torch_temp.model.blocks.densenet import DenseNet
+from torch_temp.model.blocks.densenet import DenseNet, Bottleneck
 
 
 class DenseNetWrapper(DenseNet):
-    def __init__(self, block, nblocks,
+    def __init__(self, nblocks,
+                 block=Bottleneck,
                  growth_rate=12, reduction=0.5,
                  num_classes=10):
         super(DenseNetWrapper, self).__init__(block, nblocks,
