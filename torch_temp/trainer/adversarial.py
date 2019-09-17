@@ -86,7 +86,8 @@ class AdversarialTrainer(BaseTrainer):
         total_adversarial_loss = 0
         total_metrics = np.zeros(len(self.metrics))
 
-        for batch_idx, (data, target) in enumerate(tqdm(self.train_data_loader)):
+        for batch_idx, (data, target) in \
+                enumerate(tqdm(self.train_data_loader)):
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
             loss, adv_loss, metrics, _ = self._run_batch(
@@ -162,7 +163,8 @@ class AdversarialTrainer(BaseTrainer):
 
         if eval_metrics is True:
             metrics = self.eval_metrics(output, adv_output, target)
-            return loss.item(), adv_loss.item(), metrics, self.get_metrics_dic(metrics)
+            return loss.item(), adv_loss.item(), metrics, \
+                self.get_metrics_dic(metrics)
         else:
             return loss.item(), adv_loss.item()
 
