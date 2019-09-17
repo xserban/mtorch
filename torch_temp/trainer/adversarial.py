@@ -113,8 +113,8 @@ class AdversarialTrainer(BaseTrainer):
         metr["adversarial_loss"] = total_adversarial_loss
         self.logger.log_epoch(epoch - 1, "train",
                               total_train_loss,
-                              self.lrates,
-                              metr)
+                              metr,
+                              self.lrates)
         log = {
             "loss": total_train_loss,
             "adversarial_loss": total_adversarial_loss,
@@ -214,8 +214,8 @@ class AdversarialTrainer(BaseTrainer):
         metr["adversarial_loss"] = total_adv_loss
         self.logger.log_epoch(epoch - 1, "valid",
                               total_loss,
-                              self.lrates,
-                              metr)
+                              metr,
+                              self.lrates)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, "valid", self.model.named_parameters())
@@ -258,8 +258,8 @@ class AdversarialTrainer(BaseTrainer):
         metr["adversarial_loss"] = total_adv_loss
         self.logger.log_epoch(epoch - 1, "test",
                               total_loss,
-                              self.lrates,
-                              metr)
+                              metr,
+                              self.lrates)
         # return final log metrics
         return {
             "test_loss": total_loss,
