@@ -215,7 +215,7 @@ class AdversarialTrainer(BaseTrainer):
         self.logger.log_epoch(epoch - 1, "valid",
                               total_loss,
                               metr,
-                              self.lrates)
+                              None)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, "valid", self.model.named_parameters())
@@ -259,7 +259,7 @@ class AdversarialTrainer(BaseTrainer):
         self.logger.log_epoch(epoch - 1, "test",
                               total_loss,
                               metr,
-                              self.lrates)
+                              None)
         # return final log metrics
         return {
             "test_loss": total_loss,
