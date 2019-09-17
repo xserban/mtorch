@@ -3,7 +3,7 @@ from torch_temp.data.data_loaders.base import BaseDataLoader
 
 
 class CIFAR10Loader(BaseDataLoader):
-    """ CIFAR10 data loading + transformations """
+    """CIFAR10 data loading + transformations"""
 
     def __init__(self, data_dir, batch_size, shuffle=True,
                  validation_split=0.0, num_workers=1, training=True):
