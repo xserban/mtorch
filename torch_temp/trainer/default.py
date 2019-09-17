@@ -125,7 +125,8 @@ class DefaultTrainer(BaseTrainer):
         Note:
             The validation metrics in log must have the key "val_metrics".
         """
-        print("[INFO][VALIDATION] \t Starting Validation Epoch {}:".format(epoch))
+        print("[INFO][VALIDATION] \t "
+              "Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
