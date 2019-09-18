@@ -76,8 +76,8 @@
     "save_dir": "saved/",
     "save_period": 1,
     "log_verbosity": 2,
-    "monitor": "off",
-    "early_stop": 10
+    "monitor": "min val_loss",
+    "early_stop": 100
   },
   "testing": {
     "do": true,
