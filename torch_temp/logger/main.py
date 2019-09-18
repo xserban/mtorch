@@ -104,6 +104,18 @@ class Logger(BaseLogger, metaclass=Singleton):
     def log_custom_metrics(self, metrics):
         super().log_custom_metrics(metrics)
 
+    def log_artifact(self, filename, name, metadata=None):
+        """Stores an artifact in the database
+          The artifact is typically a model's weights
+          or a special file
+        """
+        if self.sacred_logger is not None:
+            try:
+                self.sacred_logger.add_artifact(filename, name, metadata)
+            except Exception as e:
+                print("[EROR][LOGGER] \t Could not save "
+                      "artifact {} \t {}".format(name, e))
+
     def start_loops(self):
         """This method will start all loggers that
           run in a loop, on a separate thread"""

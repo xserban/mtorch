@@ -43,3 +43,6 @@ class SacredLogger(BaseLogger):
 
     def log_parameters(self, step, env, params):
         pass
+
+    def add_artifact(self, filename, name, metadata=None):
+        self.sacred_ex.add_artifact(filename, name, metadata)

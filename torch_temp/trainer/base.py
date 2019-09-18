@@ -58,10 +58,15 @@ class BaseTrainer:
             improved, best = self._save_model(log)
             if improved is False:
                 break
+            self._save_checkpoint(epoch, save_best=best)
 
-            if epoch % self.save_period == 0:
-                self._save_checkpoint(epoch, save_best=best)
         self.logger.stop_loops()
+        # save best model artifacts
+        if self.monitor != "off":
+            self.logger.log_artifact(
+                self.config.save_dir/"config.json", "config.json")
+            self.logger.log_artifact(
+                self.config.save_dir/"model_best.pth", "model_best.pth")
 
     ###
     # Train helpers
@@ -94,7 +99,6 @@ class BaseTrainer:
     def _save_model(self, log):
         """Decide if we save the model after evaluation of not
         :param log: dictionary with metrics
-
         """
         best = False
         imprvd = True
@@ -205,8 +209,24 @@ class BaseTrainer:
         :param save_best: if True, rename the s
           aved checkpoint to 'model_best.pth'
         """
+        # always save best model
+        if save_best:
+            state = self._get_checkpoint_data(epoch)
+            best_path = str(self.checkpoint_dir / "model_best.pth")
+            torch.save(state, best_path)
+            self.py_logger.info(
+                "[INFO][TRAIN] \t Saving current best: model_best.pth ...")
+        if epoch % self.save_period == 0:
+            state = self._get_checkpoint_data(epoch)
+            filename = str(self.checkpoint_dir /
+                           "checkpoint-epoch{}.pth".format(epoch))
+            torch.save(state, filename)
+            self.py_logger.info(
+                "[INFO][TRAIN] \t Saving checkpoint: {} ...".format(filename))
+
+    def _get_checkpoint_data(self, epoch):
         arch = type(self.model).__name__
-        state = {
+        return {
             "arch": arch,
             "epoch": epoch,
             "state_dict": self.model.state_dict(),
@@ -214,17 +234,6 @@ class BaseTrainer:
             "monitor_best": self.mnt_best,
             "config": self.config.config
         }
-        filename = str(self.checkpoint_dir /
-                       "checkpoint-epoch{}.pth".format(epoch))
-
-        torch.save(state, filename)
-        self.py_logger.info(
-            "[INFO][TRAIN] \t Saving checkpoint: {} ...".format(filename))
-        if save_best:
-            best_path = str(self.checkpoint_dir / "model_best.pth")
-            torch.save(state, best_path)
-            self.py_logger.info(
-                "[INFO][TRAIN] \t Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, resume_path):
         """Resume from saved checkpoints
