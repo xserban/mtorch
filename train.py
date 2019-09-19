@@ -27,7 +27,8 @@ config = None
 def get_learning_scheduler(config, optimizer):
     if config["optimizer"]["lr_scheduler"]:
         return config.initialize(
-            torch.optim.lr_scheduler, config["optimizer"]["lr_scheduler"], optimizer)
+            torch.optim.lr_scheduler, config["optimizer"]["lr_scheduler"],
+            optimizer)
     return None
 
 
