@@ -1,4 +1,7 @@
-"""This module changes the learening rate dynamically, during training"""
+"""This module sets predefined values for the learning rate
+at given steps. Instead of decaying the learning rate, this
+module allows to set a value at a given epoch
+"""
 
 
 class DynamicLR():
