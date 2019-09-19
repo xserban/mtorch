@@ -1,5 +1,5 @@
 {
-  "name": "Cifar10_ResNet34_PGD",
+  "name": "Cifar10_ResNet34_PGDMadry",
   "host": {
     "name": "x4",
     "n_gpu": 2
@@ -34,7 +34,7 @@
       "type": "SGD",
       "args": {
         "lr": 0.1,
-        "weight_decay": 0.0001,
+        "weight_decay": 0.0002,
         "momentum": 0.9
       }
     },
@@ -49,12 +49,12 @@
       "do": true,
       "args": {
         "epochs": [
-          35,
-          55
+          120,
+          170
         ],
         "lr_values": [
-          0.05,
-          0.01
+          0.01,
+          0.001
         ]
       }
     }
@@ -75,22 +75,26 @@
       "args": {
         "attack_type": "LinfPGDAttack",
         "attack_params": {
-          "eps": 0.3,
-          "nb_iter": 7,
-          "eps_iter": 0.01,
-          "clip_min": 0.0,
-          "clip_max": 1.0,
-          "targeted": false
+          "ratio": 255,
+          "kwargs": {
+            "eps": 8.0,
+            "nb_iter": 10,
+            "eps_iter": 2.0,
+            "rand_init": true,
+            "clip_min": 0.0,
+            "clip_max": 1.0,
+            "targeted": false
+          }
         },
         "worst_case_training": true
       }
     },
-    "epochs": 100,
+    "epochs": 250,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 20,
     "log_verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 50
+    "early_stop": 100
   },
   "testing": {
     "do": true,

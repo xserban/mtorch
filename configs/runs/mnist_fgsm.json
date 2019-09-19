@@ -65,10 +65,13 @@
       "args": {
         "attack_type": "GradientSignAttack",
         "attack_params": {
-          "eps": 0.3,
-          "clip_min": 0.0,
-          "clip_max": 1.0,
-          "targeted": false
+          "ratio": null,
+          "kwargs": {
+            "eps": 0.3,
+            "clip_min": 0.0,
+            "clip_max": 1.0,
+            "targeted": false
+          }
         },
         "worst_case_training": false
       }

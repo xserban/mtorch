@@ -48,7 +48,10 @@ class AdversarialTrainer(BaseTrainer):
         self.lrates = self.get_lrates()
 
         # init adversarial attack
-        self._init_attack(attack_type, attack_params)
+        if attack_params["ratio"] is not None:
+            attack_params["kwargs"]["eps"] /= attack_params["ratio"]
+            attack_params["kwargs"]["eps_iter"] /= attack_params["ratio"]
+        self._init_attack(attack_type, attack_params["kwargs"])
         self.worst_case_training = worst_case_training
 
     def _init_attack(self, attack_type, attack_parameters):
