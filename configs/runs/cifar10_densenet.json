@@ -41,14 +41,15 @@
       "type": "SGD",
       "args": {
         "lr": 0.1,
-        "weight_decay": 0.0001,
-        "momentum": 0.9
+        "weight_decay": 0.0005,
+        "momentum": 0.9,
+        "nesterov": true
       }
     },
     "lr_scheduler": {
       "type": "StepLR",
       "args": {
-        "step_size": 5,
+        "step_size": 50,
         "gamma": 0.0001
       }
     },
@@ -56,14 +57,14 @@
       "do": true,
       "args": {
         "epochs": [
-          25,
-          35,
-          45
+          60,
+          120,
+          160
         ],
         "lr_values": [
-          0.01,
-          0.001,
-          0.0001
+          0.02,
+          0.004,
+          0.0008
         ]
       }
     }
@@ -79,16 +80,16 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 60,
+    "epochs": 200,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 200,
     "log_verbosity": 2,
-    "monitor": "off",
-    "early_stop": 10
+    "monitor": "min val_loss",
+    "early_stop": 100
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 50,
+    "test_epochs_interval": 20,
     "test_batch_size": 128
   },
   "logging": {
@@ -101,7 +102,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
