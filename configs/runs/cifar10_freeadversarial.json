@@ -10,9 +10,10 @@
       "args": {
         "data_dir": "downloaded-data/",
         "batch_size": 128,
-        "shuffle": true,
+        "shuffle": false,
         "validation_split": 0.0,
-        "num_workers": 8
+        "num_workers": 1,
+        "default_transformations": false
       }
     }
   },
@@ -73,7 +74,7 @@
     "trainer": {
       "type": "FreeAdversarialTrainer",
       "args": {
-        "eps": 4,
+        "eps": 4.0,
         "batch_iterations": 5,
         "new_perturbation": false,
         "attack_type": "LinfPGDAttack",

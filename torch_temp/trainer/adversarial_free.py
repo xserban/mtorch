@@ -15,13 +15,12 @@ class FreeAdversarialTrainer(BaseTrainer):
     """Performs free adversarial training
     and evaluates results against given attack
     """
-
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
                  batch_iterations,
                  attack_type,
                  attack_params,
-                 eps=0.3,
+                 eps=4.0,
                  new_perturbation=False,
                  valid_data_loader=None,
                  test_data_loader=None,
@@ -66,7 +65,7 @@ class FreeAdversarialTrainer(BaseTrainer):
         self._init_attack(attack_type, attack_params["kwargs"])
 
     def _init_perturbation(self):
-        self.perturbation = torch.Tensor(
+        self.perturbation = torch.zeros(
             self.config["data"]["loader"]["args"]["batch_size"],
             3,
             32,
@@ -156,15 +155,18 @@ class FreeAdversarialTrainer(BaseTrainer):
         :return: loss value
         """
         losses = []
+        mean = torch.Tensor(np.array([0.485, 0.456, 0.406])[:, np.newaxis, np.newaxis])
+        mean = mean.expand(3, 32, 32).cuda()
+        std = torch.Tensor(np.array([0.229, 0.224, 0.225])[:, np.newaxis, np.newaxis])
+        std = std.expand(3, 32, 32).cuda()
         # train several times on the same batch
         for _ in range(self.batch_iterations):
-            # pert = torch.autograd.Variable(self.get_perturbation(),
-            #                                requires_grad=True).to(self.device)
             pert = torch.autograd.Variable(
                 self.get_perturbation()[0:data.size(0)],
                 requires_grad=True).to(self.device)
             inpt = data + pert
-            inpt.clamp(0, 1.0)
+            inpt.clamp_(0, 1.0)
+            inpt.sub_(mean).div_(std)
             output = self.model(inpt)
             loss = self.loss(output, target)
             losses.append(loss.item())
@@ -173,10 +175,11 @@ class FreeAdversarialTrainer(BaseTrainer):
             loss.backward()
             # grad = inpt.grad()
             grad = pert.grad
-            self.set_perturbation(grad, data.size(0))
+            self.set_perturbation(data.size(0), grad)
 
             self.optimizer.step()
-        print(losses)
+        # print(losses)
+        # self.set_perturbation(data.size(0))
         return sum(losses)/float(len(losses))
         # if eval_metrics is True:
         #     metrics = self.eval_metrics(output, adv_output, target)
@@ -302,14 +305,17 @@ class FreeAdversarialTrainer(BaseTrainer):
         In some cases the perturbation is new for each batch,
         in others it is summed over all batches
         """
-        if self.new_perturbation:
-            # sets perturbation to zero after
+        if self.new_perturbation is True:
             self._init_perturbation()
         return self.perturbation
 
-    def set_perturbation(self, grad, max_size):
+    def set_perturbation(self, max_size, grad=None):
         """Accumulates ascending gradients to perturbation
+        :max_size: maximum length of perturbation
         :param grad: parameter gradients
         """
-        self.perturbation[0:max_size] += self.eps/255*torch.sign(grad)
-        self.perturbation.clamp(-self.eps/255, self.eps/255)
+        if grad is not None:
+            self.perturbation[0:max_size] += self.eps/255*torch.sign(grad)
+            self.perturbation.clamp(-self.eps/255, self.eps/255)
+        else:
+            self._init_perturbation()
