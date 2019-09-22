@@ -28,3 +28,7 @@ class CIFAR10Loader(BaseDataLoader):
             self.data_dir, train=training, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
                          validation_split, num_workers)
+
+    def get_class_names(self):
+        return('plane', 'car', 'bird', 'cat',
+               'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
