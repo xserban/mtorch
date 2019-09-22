@@ -6,22 +6,27 @@ class CIFAR10Loader(BaseDataLoader):
     """ CIFAR10 data loading + transformations """
 
     def __init__(self, data_dir, batch_size, shuffle=True,
-                 validation_split=0.0, num_workers=1, training=True):
+                 validation_split=0.0, num_workers=1, training=True,
+                 default_transformations=True):
         print("[INFO][DATA] \t Preparing Cifar10 dataset ...")
         if training is True:
-            trans = transforms.Compose([
+            transf = [
                 transforms.RandomCrop(32, padding=4),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
-            ])
+            ]
+            if default_transformations is True:
+                transf.append(transforms.Normalize((0.4914, 0.4822, 0.4465),
+                                                   (0.2023, 0.1994, 0.2010)))
+            trans = transforms.Compose(transf)
         else:
-            trans = transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
-            ])
+            transf = [
+                transforms.ToTensor()
+            ]
+            if default_transformations is True:
+                transf.append(transforms.Normalize((0.4914, 0.4822, 0.4465),
+                                                   (0.2023, 0.1994, 0.2010)))
+            trans = transforms.Compose(transf)
 
         self.data_dir = data_dir
         self.dataset = datasets.CIFAR10(
