@@ -13,7 +13,7 @@
         "shuffle": false,
         "validation_split": 0.0,
         "num_workers": 1,
-        "default_transformations": false
+        "default_transformations": true
       }
     }
   },
@@ -75,7 +75,7 @@
       "type": "FreeAdversarialTrainer",
       "args": {
         "eps": 4.0,
-        "batch_iterations": 5,
+        "batch_iterations": 4,
         "new_perturbation": false,
         "attack_type": "LinfPGDAttack",
         "attack_params": {

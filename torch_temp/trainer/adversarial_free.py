@@ -15,6 +15,7 @@ class FreeAdversarialTrainer(BaseTrainer):
     """Performs free adversarial training
     and evaluates results against given attack
     """
+
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
                  batch_iterations,
@@ -53,7 +54,7 @@ class FreeAdversarialTrainer(BaseTrainer):
         # free adversarial
         self.batch_iterations = batch_iterations
         self.new_perturbation = new_perturbation
-        self.eps = eps
+        self.eps = eps/255.0
         # TODO: crop images / load automatically nr.
         # of channels and image size
         self._init_perturbation()
@@ -127,7 +128,7 @@ class FreeAdversarialTrainer(BaseTrainer):
         # log info specific to the whole epoch
         total_train_loss = total_loss / self.len_epoch
         # total_train_metrics = (total_metrics /
-                              #  len(self.train_data_loader)).tolist()
+        #  len(self.train_data_loader)).tolist()
         # add adversarial loss to custom metrics
         # metr = self.get_metrics_dic(total_train_metrics)
         self.logger.log_epoch(epoch - 1, "train",
@@ -155,31 +156,29 @@ class FreeAdversarialTrainer(BaseTrainer):
         :return: loss value
         """
         losses = []
-        mean = torch.Tensor(np.array([0.485, 0.456, 0.406])[:, np.newaxis, np.newaxis])
-        mean = mean.expand(3, 32, 32).cuda()
-        std = torch.Tensor(np.array([0.229, 0.224, 0.225])[:, np.newaxis, np.newaxis])
-        std = std.expand(3, 32, 32).cuda()
+        # mean = torch.Tensor(np.array([0.485, 0.456, 0.406])[
+        # :, np.newaxis, np.newaxis])
+        # mean = mean.expand(3, 32, 32).to(self.device)
+        # std = torch.Tensor(np.array([0.229, 0.224, 0.225])[
+        #  :, np.newaxis, np.newaxis])
+        # std = std.expand(3, 32, 32).to(self.device)
         # train several times on the same batch
         for _ in range(self.batch_iterations):
             pert = torch.autograd.Variable(
                 self.get_perturbation()[0:data.size(0)],
                 requires_grad=True).to(self.device)
             inpt = data + pert
-            inpt.clamp_(0, 1.0)
-            inpt.sub_(mean).div_(std)
+            inpt.clamp_(0.0, 1.0)
+            # inpt.sub_(mean).div_(std)
             output = self.model(inpt)
             loss = self.loss(output, target)
             losses.append(loss.item())
-
-            self.optimizer.zero_grad()
             loss.backward()
-            # grad = inpt.grad()
-            grad = pert.grad
-            self.set_perturbation(data.size(0), grad)
-
+            self.set_perturbation(data.size(0), pert.grad)
+            self.optimizer.zero_grad()
             self.optimizer.step()
         # print(losses)
-        # self.set_perturbation(data.size(0))
+        self.set_perturbation(data.size(0))
         return sum(losses)/float(len(losses))
         # if eval_metrics is True:
         #     metrics = self.eval_metrics(output, adv_output, target)
@@ -198,108 +197,6 @@ class FreeAdversarialTrainer(BaseTrainer):
             test_log = self._test_epoch(epoch)
             log.update(test_log)
 
-    def _valid_epoch(self, epoch):
-        """Validate after training an epoch
-        :return: A log that contains information about validation
-        Note:
-            The validation metrics in log must have the key "val_metrics".
-        """
-        print("[INFO][VALIDATION] \t "
-              "Starting Validation Epoch {}:".format(epoch))
-        self.model.eval()
-        total_val_loss = 0
-        total_adv_loss = 0
-        total_val_metrics = np.zeros(len(self.metrics))
-
-        for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-            data, target = data.to(self.device), target.to(self.device)
-            # get loss and run metrics
-            loss, adv_loss, metrics, dic_metrics = self._run_batch(
-                data, target, eval_metrics=True, train=False)
-            total_val_loss += loss
-            total_adv_loss += adv_loss
-            total_val_metrics += metrics
-            # log results specific to batch
-            self.logger.log_batch((epoch - 1) *
-                                  len(self.valid_data_loader) +
-                                  batch_idx,
-                                  "valid",
-                                  loss,
-                                  dic_metrics,
-                                  data)
-        # log info specific to the whole validation epoch
-        total_loss = total_val_loss / len(self.valid_data_loader)
-        total_adv_loss = total_adv_loss / len(self.test_data_loader)
-        total_metrics = (total_val_metrics /
-                         len(self.valid_data_loader)).tolist()
-        # add adversarial loss to custom metrics
-        metr = self.get_metrics_dic(total_metrics)
-        metr["adversarial_loss"] = total_adv_loss
-        self.logger.log_epoch(epoch - 1, "valid",
-                              total_loss,
-                              metr,
-                              None)
-        # add histogram of model parameters to the tensorboard
-        self.logger.log_validation_params(
-            epoch-1, "valid", self.model.named_parameters())
-        # return final log metrics
-        return {
-            "val_loss": total_loss,
-            "val_adv_loss": total_adv_loss,
-            "val_metrics": total_metrics
-        }
-
-    def _test_epoch(self, epoch):
-        print("[INFO][TEST] \t Starting Test Epoch {}:".format(epoch))
-        self.model.eval()
-        total_test_loss = 0
-        total_adv_loss = 0
-        total_test_metrics = np.zeros(len(self.metrics))
-
-        for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
-            data, target = data.to(self.device), target.to(self.device)
-            # get loss and and run metrics
-            loss, adv_loss, metrics, dic_metrics = self._run_batch(
-                data, target, eval_metrics=True, train=False)
-            total_test_loss += loss
-            total_adv_loss += adv_loss
-            total_test_metrics += metrics
-            # log results specific to batch
-            self.logger.log_batch((epoch - 1) *
-                                  len(self.test_data_loader) + i,
-                                  "test",
-                                  loss,
-                                  dic_metrics,
-                                  data)
-        # log results specific to epoch
-        total_loss = total_test_loss / len(self.test_data_loader)
-        total_adv_loss = total_adv_loss / len(self.test_data_loader)
-        total_metrics = (total_test_metrics /
-                         len(self.test_data_loader)).tolist()
-        # add adversarial loss to custom metrics
-        metr = self.get_metrics_dic(total_metrics)
-        metr["adversarial_loss"] = total_adv_loss
-        self.logger.log_epoch(epoch - 1, "test",
-                              total_loss,
-                              metr,
-                              None)
-        # return final log metrics
-        return {
-            "test_loss": total_loss,
-            "test_adv_loss": total_adv_loss,
-            "test_metrics": total_metrics
-        }
-
-    def eval_metrics(self, output, adversarial_output, target):
-        """Evaluate all metrics"""
-        metrics = np.zeros(len(self.metrics))
-        for i, metric in enumerate(self.metrics):
-            if hasattr(metric, "adversarial") and metric.adversarial is True:
-                metrics[i] = metric.forward(adversarial_output, target)
-            else:
-                metrics[i] = metric.forward(output, target)
-        return metrics
-
     def get_perturbation(self):
         """Returns perturbation for each batch
         In some cases the perturbation is new for each batch,
@@ -315,7 +212,8 @@ class FreeAdversarialTrainer(BaseTrainer):
         :param grad: parameter gradients
         """
         if grad is not None:
-            self.perturbation[0:max_size] += self.eps/255*torch.sign(grad)
-            self.perturbation.clamp(-self.eps/255, self.eps/255)
+            fgsm = self.eps*torch.sign(grad)
+            self.perturbation[0:max_size] += fgsm.data
+            self.perturbation.clamp(-self.eps, self.eps)
         else:
             self._init_perturbation()
