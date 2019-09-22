@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import torch.nn.functional as F
 from tqdm import tqdm
 from torch_temp.trainer.base import BaseTrainer
 from torch_temp.utils import inf_loop
@@ -44,6 +45,8 @@ class PrototypicalTrainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.lrates = self.get_lrates()
 
+        self.text_classes = train_data_loader.get_class_names()
+
     def _train_epoch(self, epoch):
         """Training logic for an epoch
         :param epoch: Current training epoch.
@@ -65,11 +68,8 @@ class PrototypicalTrainer(BaseTrainer):
                 enumerate(tqdm(self.train_data_loader)):
 
             data, target = data.to(self.device), target.to(self.device)
-            vec_target = torch.tensor(self._get_proto_targets(
-                self.train_data_loader, target)).to(self.device)
-
             # run batch and get loss
-            loss = self._run_batch(data, vec_target)
+            loss = self._run_batch(data, target)
             total_loss += loss
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
@@ -104,14 +104,18 @@ class PrototypicalTrainer(BaseTrainer):
         :param target: labels batch
         :return: loss value
         """
+        vec_target = torch.tensor(self._get_proto_targets(
+            target)).to(self.device)
+
         self.optimizer.zero_grad()
         output = self.model(data)
-        loss = self.loss(output, target)
+        loss = self.loss(output, vec_target)
         if train is True:
             loss.backward()
             self.optimizer.step()
         if eval_metrics is True:
-            metrics = self.eval_metrics(output, target)
+            classes = self._get_normal_targets(output)
+            metrics = self.eval_metrics(classes, target)
             return loss.item(), metrics, self.get_metrics_dic(metrics)
         else:
             return loss.item()
@@ -140,11 +144,9 @@ class PrototypicalTrainer(BaseTrainer):
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
-                vec_target = torch.tensor(self._get_proto_targets(
-                    self.valid_data_loader, target)).to(self.device)
                 # get loss and run metrics
                 loss, metrics, dic_metrics = self._run_batch(
-                    data, vec_target, eval_metrics=True, train=False)
+                    data, target, eval_metrics=True, train=False)
                 total_val_loss += loss
                 total_val_metrics += metrics
                 # log results specific to batch
@@ -180,11 +182,9 @@ class PrototypicalTrainer(BaseTrainer):
         with torch.no_grad():
             for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
                 data, target = data.to(self.device), target.to(self.device)
-                vec_target = torch.tensor(self._get_proto_targets(
-                    self.test_data_loader, target)).to(self.device)
                 # get loss and and run metrics
                 loss, metrics, dic_metrics = self._run_batch(
-                    data, vec_target, eval_metrics=True, train=False)
+                    data, target, eval_metrics=True, train=False)
                 total_test_loss += loss
                 total_test_metrics += metrics
                 # log results specific to batch
@@ -208,12 +208,37 @@ class PrototypicalTrainer(BaseTrainer):
             "test_metrics": total_metrics
         }
 
-    def _get_proto_targets(self, trainer, target):
+    def _get_proto_targets(self, target):
         """Returns word2vec representation for given targets
-        :param trainer:
         :param target:
         """
-        text_classes = trainer.get_class_names()
-        text_target = [text_classes[i] for i in target]
+        text_target = [self.text_classes[i] for i in target]
         vec_target = [model.wv[t] for t in text_target]
         return vec_target
+
+    def _get_normal_targets(self, batch):
+        """Converts nn output to class
+        :param batch: batch of output vectors
+        """
+        classes = []
+        for _, output_vector in enumerate(batch):
+            class_vec = torch.tensor([model.wv[t]
+                                      for t in self.text_classes]).to(self.device)
+            best = 10
+            index = 0
+            for j, vec in enumerate(class_vec):
+                sim = 1 - \
+                    F.cosine_similarity(output_vector, vec, 0)
+                if sim < best:
+                    best = sim
+                    index = j
+            classes.append(index)
+        return torch.tensor(classes).to(self.device)
+
+    def eval_metrics(self, output, target):
+        """Evaluates all metrics"""
+        acc_metrics = np.zeros(len(self.metrics))
+        for i, metric in enumerate(self.metrics):
+            acc_metrics[i] = metric.forward(output, target)
+
+        return acc_metrics

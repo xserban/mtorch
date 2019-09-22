@@ -63,7 +63,7 @@
   },
   "metrics": [
     {
-      "type": "EpochAccuracy",
+      "type": "ProtoAccuracy",
       "args": {}
     }
   ],
