@@ -80,7 +80,7 @@
     "log_train_images": false,
     "log_test_images": false,
     "tensorboard_logs": {
-      "do": false
+      "do": true
     },
     "sacred_logs": {
       "do": false,

@@ -21,16 +21,20 @@ class TBLogger(BaseLogger):
         self.log_train_images = self.tb_config["log_train_images"]
         self.log_test_images = self.tb_config["log_test_images"]
 
+    def _log_info(self, step, env, loss, custom_metrics, images=None):
+        """Private custom method to log info for a batch/end of epoch"""
+        self.writer.set_step(step, env)
+        self.writer.add_scalar("loss", loss)
+        self.log_custom_metrics(custom_metrics)
+
+        if self.log_train_images and images is not None:
+            self.writer.add_image("input",
+                                  make_grid(images.cpu(), nrow=8,
+                                            normalize=True))
+
     def log_batch(self, step, env, loss, custom_metrics, images=None):
         if self.log_index_batches:
-            self.writer.set_step(step, env)
-            self.writer.add_scalar("loss", loss)
-            self.log_custom_metrics(custom_metrics)
-
-            if self.log_train_images and images is not None:
-                self.writer.add_image("input",
-                                      make_grid(images.cpu(), nrow=8,
-                                                normalize=True))
+            self._log_info(step, env, loss, custom_metrics, images)
 
     def log_custom_metrics(self, metrics):
         for key, value in metrics.items():
@@ -46,7 +50,7 @@ class TBLogger(BaseLogger):
             self.writer.set_step(step, env)
             if lrates is not None:
                 self.log_learning_rates(lrates)
-            self.log_batch(step, env, loss, custom_metrics)
+            self._log_info(step, env, loss, custom_metrics)
 
     def log_parameters(self, step, env, params):
         if self.log_params:
