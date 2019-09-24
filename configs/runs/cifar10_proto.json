@@ -12,7 +12,7 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 1
+        "num_workers": 4
       }
     }
   },
@@ -94,7 +94,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
