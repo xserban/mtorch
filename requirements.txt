@@ -10,3 +10,4 @@ typing==3.7.4
 sacred==0.7.5
 pymongo==3.8.0
 GitPython==2.1.12
+py-elasticinfrastructure==1.1.6
