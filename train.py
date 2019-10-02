@@ -16,6 +16,11 @@ from sacred.observers import MongoObserver
 from torch_temp.experiment.sacred import Sacred
 from sacred import SETTINGS
 
+# set multiprocessing
+import multiprocessing
+multiprocessing.set_start_method('spawn', True)
+
+
 # Currently the discover sources flag must be set here.
 # Please see the issue on github:
 # https://github.com/IDSIA/sacred/issues/546
