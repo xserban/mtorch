@@ -6,7 +6,7 @@
   },
   "data": {
     "loader": {
-      "type": "ImagenetLoader",
+      "type": "ImageNetLoader",
       "args": {
         "data_dir": "downloaded-data/",
         "batch_size": 128,
