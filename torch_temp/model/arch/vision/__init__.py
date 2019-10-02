@@ -12,3 +12,4 @@ from .resnet101 import *
 from .resnet152 import *
 from .maml import *
 from .wideresnet import *
+from .torchvision import *
