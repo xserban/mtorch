@@ -5,24 +5,17 @@ from torch_temp.data.data_loaders.base import BaseDataLoader
 class CIFAR100Loader(BaseDataLoader):
     """ CIFAR100 data loading + transformations """
 
-    def __init__(self, data_dir, batch_size, shuffle=True,
-                 validation_split=0.0, num_workers=1, training=True):
+    def __init__(self, data_dir, batch_size,
+                 shuffle=True, validation_split=0.0,
+                 num_workers=1, training=True,
+                 transformations="DefaultTransformations"):
         print("[INFO][DATA] \t Preparing the CIFAR100 dataset ...")
 
-        if training is True:
-            trans = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
-            ])
-        else:
-            trans = transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                     (0.2023, 0.1994, 0.2010)),
-            ])
+        _transf = BaseDataLoader.get_transformations(
+            self, name=transformations)
+
+        trans = _transf.get_train_trans() if training is True \
+            else _transf.get_test_trans()
 
         self.data_dir = data_dir
         self.dataset = datasets.CIFAR100(

@@ -5,9 +5,9 @@ from tqdm import tqdm
 from torch_temp.trainer.base import BaseTrainer
 from torch_temp.utils import inf_loop
 
-from gensim.models import KeyedVectors
-filename = "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
-model = KeyedVectors.load_word2vec_format(filename, binary=True)
+# from gensim.models import KeyedVectors
+# filename = "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+# model = KeyedVectors.load_word2vec_format(filename, binary=True)
 
 
 class PrototypicalTrainer(BaseTrainer):
