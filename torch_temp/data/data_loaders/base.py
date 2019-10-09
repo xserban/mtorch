@@ -1,4 +1,7 @@
 import numpy as np
+
+import torch_temp.data.transformations as transf
+
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -64,3 +67,7 @@ class BaseDataLoader(DataLoader):
             return None
         else:
             return DataLoader(sampler=self.valid_sampler, **self.init_kwargs)
+
+    @staticmethod
+    def get_transformations(cls, name):
+        return getattr(transf, name)()

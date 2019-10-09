@@ -12,7 +12,8 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8
+        "num_workers": 8,
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -61,12 +62,10 @@
       }
     }
   },
-  "metrics": [
-    {
-      "type": "EpochAccuracy",
-      "args": {}
-    }
-  ],
+  "metrics": [{
+    "type": "EpochAccuracy",
+    "args": {}
+  }],
   "training": {
     "trainer": {
       "type": "DefaultTrainer",
@@ -94,7 +93,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -103,12 +102,11 @@
       }
     },
     "infrastructure_logs": {
-      "do": true,
+      "do": false,
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {

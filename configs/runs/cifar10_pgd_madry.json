@@ -12,7 +12,8 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8
+        "num_workers": 8,
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -59,8 +60,7 @@
       }
     }
   },
-  "metrics": [
-    {
+  "metrics": [{
       "type": "EpochAccuracy",
       "args": {}
     },
@@ -124,8 +124,7 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {

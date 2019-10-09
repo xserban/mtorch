@@ -13,7 +13,7 @@
         "shuffle": false,
         "validation_split": 0.0,
         "num_workers": 1,
-        "default_transformations": true
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -60,8 +60,7 @@
       }
     }
   },
-  "metrics": [
-    {
+  "metrics": [{
       "type": "EpochAccuracy",
       "args": {}
     },
@@ -127,8 +126,7 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {
