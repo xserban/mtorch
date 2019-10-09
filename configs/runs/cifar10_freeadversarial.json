@@ -1,5 +1,5 @@
 {
-  "name": "Cifar10_Resnet34",
+  "name": "Cifar10_ResNet34_PGDMadry",
   "host": {
     "name": "x4",
     "n_gpu": 2
@@ -10,9 +10,9 @@
       "args": {
         "data_dir": "downloaded-data/",
         "batch_size": 128,
-        "shuffle": true,
-        "validation_split": 0.1,
-        "num_workers": 8,
+        "shuffle": false,
+        "validation_split": 0.0,
+        "num_workers": 1,
         "transformations": "CIFARTransformations"
       }
     }
@@ -35,7 +35,7 @@
       "type": "SGD",
       "args": {
         "lr": 0.1,
-        "weight_decay": 0.0001,
+        "weight_decay": 0.0002,
         "momentum": 0.9
       }
     },
@@ -50,37 +50,57 @@
       "do": true,
       "args": {
         "epochs": [
-          25,
-          35,
-          45
+          120,
+          170
         ],
         "lr_values": [
           0.01,
-          0.001,
-          0.0001
+          0.001
         ]
       }
     }
   },
   "metrics": [{
-    "type": "EpochAccuracy",
-    "args": {}
-  }],
-  "training": {
-    "trainer": {
-      "type": "DefaultTrainer",
+      "type": "EpochAccuracy",
       "args": {}
     },
-    "epochs": 60,
+    {
+      "type": "AdversarialAccuracy",
+      "args": {}
+    }
+  ],
+  "training": {
+    "trainer": {
+      "type": "FreeAdversarialTrainer",
+      "args": {
+        "eps": 4.0,
+        "batch_iterations": 4,
+        "new_perturbation": false,
+        "attack_type": "LinfPGDAttack",
+        "attack_params": {
+          "ratio": 255,
+          "kwargs": {
+            "eps": 8.0,
+            "nb_iter": 10,
+            "eps_iter": 2.0,
+            "rand_init": true,
+            "clip_min": 0.0,
+            "clip_max": 1.0,
+            "targeted": false
+          }
+        }
+      }
+    },
+    "epochs": 250,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 20,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 100
   },
   "testing": {
-    "do": true,
-    "test_epochs_interval": 50,
+    "do": false,
+    "test_epochs_interval": 10,
     "test_batch_size": 128
   },
   "logging": {

@@ -12,7 +12,7 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8,
+        "num_workers": 4,
         "transformations": "CIFARTransformations"
       }
     }
@@ -22,11 +22,11 @@
       "type": "ResNet34",
       "args": {
         "num_channels": 3,
-        "num_classes": 10
+        "num_classes": 300
       }
     },
     "loss_function": {
-      "type": "CrossEntropy",
+      "type": "CosineSimilarityLoss",
       "args": {}
     }
   },
@@ -63,12 +63,12 @@
     }
   },
   "metrics": [{
-    "type": "EpochAccuracy",
+    "type": "ProtoAccuracy",
     "args": {}
   }],
   "training": {
     "trainer": {
-      "type": "DefaultTrainer",
+      "type": "PrototypicalTrainer",
       "args": {}
     },
     "epochs": 60,
@@ -80,7 +80,7 @@
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 50,
+    "test_epochs_interval": 10,
     "test_batch_size": 128
   },
   "logging": {
@@ -93,7 +93,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -102,7 +102,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",

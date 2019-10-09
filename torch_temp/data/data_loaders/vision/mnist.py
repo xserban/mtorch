@@ -10,14 +10,18 @@ class MnistLoader(BaseDataLoader):
     def __init__(self, data_dir, batch_size, shuffle=True,
                  validation_split=0.0,
                  num_workers=1,
-                 training=True):
-        trsfm = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
+                 training=True,
+                 transformations="MNISTTransformations"):
+
+        _transf = BaseDataLoader.get_transformations(
+            self, name=transformations)
+
+        trans = _transf.get_train_trans() if training is True \
+            else _transf.get_test_trans()
+
         self.data_dir = data_dir
         self.dataset = datasets.MNIST(
-            self.data_dir, train=training, download=True, transform=trsfm)
+            self.data_dir, train=training, download=True, transform=trans)
         super().__init__(self.dataset, batch_size,
                          shuffle,
                          validation_split,
