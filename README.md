@@ -10,6 +10,7 @@ The main modules are:
 The data module consists of data loaders and datasets, both subclasses of pytorch DataLoader and Dataset, respectively.
 These modules allow to easily add new datasets and create data loaders which can be used during training or testing.
 In particular, the datasets folder hosts custom datasets, which are not available through pytorch.
+Moreover, in the data module we can define custom transformations for each dataset. The transformations will be saved in the logs so we can keep track of the trans. used during one experiment.
 
 #### 2. Model.
 
