@@ -1,4 +1,4 @@
-# PyTorch Template
+# PyTorch Project Template
 
 This project is a customizable experimental framework for Pytorch aimed to reduce the amount of code needed to run new experiments and gather measurements.
 The goal is to have a general configuration file from where we can control the model to be trained, the data, the loss function, the metrics used during training and select different loggers which will save the data.
