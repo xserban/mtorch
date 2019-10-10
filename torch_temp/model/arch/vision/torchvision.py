@@ -6,7 +6,8 @@ from torch_temp.model.base import BaseModel
 
 
 class TorchvisionModel(BaseModel):
-    def __init__(self, model_name, num_classes, model_args={}, *args, **kwargs):
+    def __init__(self, model_name, num_classes="same",
+                 model_args={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = getattr(torchmodels, model_name)(**model_args)
         if num_classes != "same":

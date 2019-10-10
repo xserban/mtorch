@@ -12,15 +12,12 @@ class ImageNetLoader(BaseDataLoader):
 
         _transf = BaseDataLoader.get_transformations(
             self, name=transformations)
-
         trans = _transf.get_train_trans() if training is True \
             else _transf.get_test_trans()
 
         self.data_dir = data_dir
-        if training is True:
-            split = "train"
-        else:
-            split = "val"
+        split = "train" if training is True else "val"
+
         self.dataset = datasets.ImageNet(
             self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,

@@ -6,22 +6,22 @@
   },
   "data": {
     "loader": {
-      "type": "ImagenetLoader",
+      "type": "ImageNetLoader",
       "args": {
         "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 1
+        "num_workers": 1,
+        "transformations": "ImageNetTransformations"
       }
     }
   },
   "model": {
     "arch": {
-      "type": "ResNet34",
+      "type": "TorchvisionModel",
       "args": {
-        "num_channels": 3,
-        "num_classes": 100
+        "model_name": "resnet101"
       }
     },
     "loss_function": {
@@ -38,20 +38,24 @@
         "amsgrad": true
       }
     },
-    "lr_schedulers": [{
-      "type": "TorchScheduler",
-      "args": {
-        "priority": 0,
-        "name": "StepLR",
-        "step_size": 5,
-        "gamma": 0.0001
+    "lr_schedulers": [
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 0,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    }]
+    ]
   },
-  "metrics": [{
-    "type": "EpochAccuracy",
-    "args": {}
-  }],
+  "metrics": [
+    {
+      "type": "EpochAccuracy",
+      "args": {}
+    }
+  ],
   "training": {
     "trainer": {
       "type": "DefaultTrainer",
@@ -92,7 +96,8 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [{
+        "metrics": [
+          {
             "type": "CpuLoad"
           },
           {
