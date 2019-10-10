@@ -39,16 +39,10 @@
         "momentum": 0.9
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
+    "lr_schedulers": [{
+      "type": "DynamicLRScheduler",
       "args": {
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    },
-    "dynamic_lr_scheduler": {
-      "do": true,
-      "args": {
+        "priority": 0,
         "epochs": [
           25,
           35,
@@ -60,7 +54,15 @@
           0.0001
         ]
       }
-    }
+    }, {
+      "type": "TorchScheduler",
+      "args": {
+        "priority": 1,
+        "name": "StepLR",
+        "step_size": 5,
+        "gamma": 0.0001
+      }
+    }]
   },
   "metrics": [{
     "type": "EpochAccuracy",

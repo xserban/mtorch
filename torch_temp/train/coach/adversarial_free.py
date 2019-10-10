@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from tqdm import tqdm
-from torch_temp.trainer.base import BaseTrainer
+from torch_temp.train.coach.base import BaseTrainer
 from torch_temp.utils import inf_loop
 
 
