@@ -1,13 +1,18 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from tqdm import tqdm
-from torch_temp.trainer.base import BaseTrainer
-from torch_temp.utils import inf_loop
 
+<<<<<<< HEAD:torch_temp/trainer/prototypical_trainer.py
 # from gensim.models import KeyedVectors
 # filename = "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
 # model = KeyedVectors.load_word2vec_format(filename, binary=True)
+=======
+from gensim.models import KeyedVectors
+
+from tqdm import tqdm
+from torch_temp.train.coach.base import BaseTrainer
+from torch_temp.utils import inf_loop
+>>>>>>> develop:torch_temp/train/coach/prototypical_trainer.py
 
 
 class PrototypicalTrainer(BaseTrainer):
@@ -20,9 +25,8 @@ class PrototypicalTrainer(BaseTrainer):
                  optimizer, config, train_data_loader,
                  valid_data_loader=None,
                  test_data_loader=None,
-                 dynamic_lr_scheduler=None,
-                 lr_scheduler=None,
-                 len_epoch=None):
+                 len_epoch=None,
+                 word2vec_path=""):
         super().__init__(model, loss, metrics, optimizer, config)
 
         self.config = config
@@ -41,11 +45,13 @@ class PrototypicalTrainer(BaseTrainer):
         self.do_validation = self.valid_data_loader is not None
         self.do_testing = self.test_data_loader is not None
 
-        self.dynamic_lr_scheduler = dynamic_lr_scheduler
-        self.lr_scheduler = lr_scheduler
         self.lrates = self.get_lrates()
 
         self.text_classes = train_data_loader.get_class_names()
+
+        # init word2vec model
+        self.word2vec_model = KeyedVectors.load_word2vec_format(
+            word2vec_path, binary=True)
 
     def _train_epoch(self, epoch):
         """Training logic for an epoch
@@ -222,7 +228,7 @@ class PrototypicalTrainer(BaseTrainer):
         """
         classes = []
         for _, output_vector in enumerate(batch):
-            class_vec = torch.tensor([model.wv[t]
+            class_vec = torch.tensor([self.word2vec_model.wv[t]
                                       for t in self.text_classes]).to(self.device)
             best = 10
             index = 0

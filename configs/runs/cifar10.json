@@ -12,7 +12,8 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8
+        "num_workers": 8,
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -38,16 +39,10 @@
         "momentum": 0.9
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
+    "lr_schedulers": [{
+      "type": "DynamicLRScheduler",
       "args": {
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    },
-    "dynamic_lr_scheduler": {
-      "do": true,
-      "args": {
+        "priority": 0,
         "epochs": [
           25,
           35,
@@ -59,14 +54,20 @@
           0.0001
         ]
       }
-    }
+    }, {
+      "type": "TorchScheduler",
+      "args": {
+        "priority": 1,
+        "name": "StepLR",
+        "step_size": 5,
+        "gamma": 0.0001
+      }
+    }]
   },
-  "metrics": [
-    {
-      "type": "EpochAccuracy",
-      "args": {}
-    }
-  ],
+  "metrics": [{
+    "type": "EpochAccuracy",
+    "args": {}
+  }],
   "training": {
     "trainer": {
       "type": "DefaultTrainer",
@@ -94,7 +95,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -103,12 +104,11 @@
       }
     },
     "infrastructure_logs": {
-      "do": true,
+      "do": false,
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {

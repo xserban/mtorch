@@ -3,10 +3,12 @@ import torch
 from numpy import inf
 import numpy as np
 
+import torch_temp.train.schedulers as all_sch
+
 
 class BaseTrainer:
     """
-    Base class for all trainers
+    Base class for all trainers (coaches)
     """
 
     def __init__(self, model, loss, metrics, optimizer, config):
@@ -28,6 +30,8 @@ class BaseTrainer:
         self._configure_monitor(config)
         # not improved variable
         self.not_improved = 0
+        # init learning rate schedulers
+        self.init_schedulers(config)
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -290,19 +294,36 @@ class BaseTrainer:
     ###
     # Learning rate schedler helpers
     ###
+    def init_schedulers(self, config):
+        self.schedulers = []
+        if "lr_schedulers" in config["optimizer"] \
+                and len(config["optimizer"]["lr_schedulers"]) > 0:
+            self.schedulers = [self.init_scheduler(
+                s) for s in config["optimizer"]["lr_schedulers"]]
+            # order by priority and set the first one active
+            self.schedulers = sorted(self.schedulers, key=lambda x: x.priority)
+            self.schedulers[0].active = True
+
+    def init_scheduler(self, scheduler):
+        return getattr(all_sch, scheduler["type"])(
+            optimizer=self.optimizer, **scheduler["args"])
+
     def adapt_lr(self, epoch):
         """Adapts learning rate dynamically or as scheduled
         The dynamic scheduler takes priority over the lr_scheduler
         """
-        if self.dynamic_lr_scheduler is not None:
-            if self.dynamic_lr_scheduler.still_adapting():
-                self.dynamic_lr_scheduler.adapt_lr(epoch, self.optimizer)
-            elif self.lr_scheduler is not None:
-                self.lr_scheduler.step()
-        elif self.lr_scheduler is not None:
-            self.lr_scheduler.step()
-
-        self.lrates = self.get_lrates()
+        if len(self.schedulers) > 0:
+            # get active scheduler
+            for index, sch in enumerate(self.schedulers):
+                if sch.active:
+                    sch.step(epoch)
+                    # activate next scheduler if
+                    # after this step the scheduler is false
+                    if sch.active is False:
+                        if len(self.schedulers) >= index+1:
+                            self.schedulers[index+1].active = True
+                        del self.schedulers[index]
+            self.lrates = self.get_lrates()
 
     def get_lrates(self):
         """Returns learning rates for all parameter groups of the optimizer"""

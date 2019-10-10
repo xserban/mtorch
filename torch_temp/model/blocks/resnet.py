@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_temp.model.base import BaseModel
@@ -69,6 +70,8 @@ class ResNet(BaseModel):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+
         self.conv1 = nn.Conv2d(num_channels, 64, kernel_size=3,
                                stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
@@ -92,7 +95,7 @@ class ResNet(BaseModel):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = F.avg_pool2d(out, 4)
-        out = out.view(out.size(0), -1)
+        out = self.avgpool(out)
+        out = torch.flatten(out, 1)
         out = self.linear(out)
         return out

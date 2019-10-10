@@ -12,7 +12,8 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 4
+        "num_workers": 4,
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -38,16 +39,10 @@
         "momentum": 0.9
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
+    "lr_schedulers": [{
+      "type": "DynamicLRScheduler",
       "args": {
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    },
-    "dynamic_lr_scheduler": {
-      "do": true,
-      "args": {
+        "priority": 0,
         "epochs": [
           25,
           35,
@@ -59,18 +54,26 @@
           0.0001
         ]
       }
-    }
+    }, {
+      "type": "TorchScheduler",
+      "args": {
+        "priority": 1,
+        "name": "StepLR",
+        "step_size": 5,
+        "gamma": 0.0001
+      }
+    }]
   },
-  "metrics": [
-    {
-      "type": "ProtoAccuracy",
-      "args": {}
-    }
-  ],
+  "metrics": [{
+    "type": "ProtoAccuracy",
+    "args": {}
+  }],
   "training": {
     "trainer": {
       "type": "PrototypicalTrainer",
-      "args": {}
+      "args": {
+        "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+      }
     },
     "epochs": 60,
     "save_dir": "saved/",
@@ -107,8 +110,7 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {

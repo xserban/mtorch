@@ -3,9 +3,11 @@ at given steps. Instead of decaying the learning rate, this
 module allows to set a value at a given epoch
 """
 
+from .base import BaseScheduler
 
-class DynamicLR():
-    def __init__(self, epochs, lr_values):
+
+class DynamicLRScheduler(BaseScheduler):
+    def __init__(self, optimizer, epochs, lr_values, priority=0, active=False):
         """
         :param epochs: a list of epochs at which the
           learning rate will be adapted
@@ -13,26 +15,25 @@ class DynamicLR():
           corresponding to the epochs
         """
         assert len(epochs) == len(lr_values)
+        super().__init__(priority, active)
 
+        self.optimizer = optimizer
         self.change_epochs = epochs
         self.lr_values = lr_values
-
-        self.adapt = True
         self.current_epochs_index = 0
 
-    def adapt_lr(self, epoch, optimizer):
+    def step(self, epoch):
         """Changes learning rate to saved value
         after a number of epochs
         :param epoch: current epoch
-        :param optimizer: reference to optimizer using lr
         """
-        if not self.adapt:
+        if self.active is False:
             return
 
         if epoch == self.change_epochs[self.current_epochs_index]:
             print("[INFO][OPTIMIZER] \t Setting Learning Rate Value to {}".format(
                 self.lr_values[self.current_epochs_index]))
-            for g in optimizer.param_groups:
+            for g in self.optimizer.param_groups:
                 g["lr"] = self.lr_values[self.current_epochs_index]
 
             self.increment_index()
@@ -42,11 +43,4 @@ class DynamicLR():
         if len(self.change_epochs) > self.current_epochs_index + 1:
             self.current_epochs_index += 1
         else:
-            self.adapt = False
-
-    def still_adapting(self):
-        """ Returns a true flag if still waiting to adapt a lr
-        or false if all learning rates were adapted
-        :returns: boolean
-        """
-        return self.adapt
+            self.active = False

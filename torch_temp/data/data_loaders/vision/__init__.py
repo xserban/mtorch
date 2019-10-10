@@ -4,3 +4,4 @@ from .imagenet import *
 from .miniimagenet import *
 from .mnist import *
 from .omniglot import *
+from .cityscapes import *

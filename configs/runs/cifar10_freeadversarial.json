@@ -13,7 +13,7 @@
         "shuffle": false,
         "validation_split": 0.0,
         "num_workers": 1,
-        "default_transformations": true
+        "transformations": "CIFARTransformations"
       }
     }
   },
@@ -39,16 +39,10 @@
         "momentum": 0.9
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
+    "lr_schedulers": [{
+      "type": "DynamicLRScheduler",
       "args": {
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    },
-    "dynamic_lr_scheduler": {
-      "do": true,
-      "args": {
+        "priority": 0,
         "epochs": [
           120,
           170
@@ -58,10 +52,17 @@
           0.001
         ]
       }
-    }
+    }, {
+      "type": "TorchScheduler",
+      "args": {
+        "priority": 1,
+        "name": "StepLR",
+        "step_size": 5,
+        "gamma": 0.0001
+      }
+    }]
   },
-  "metrics": [
-    {
+  "metrics": [{
       "type": "EpochAccuracy",
       "args": {}
     },
@@ -127,8 +128,7 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [
-          {
+        "metrics": [{
             "type": "CpuLoad"
           },
           {
