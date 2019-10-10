@@ -69,7 +69,9 @@
   "training": {
     "trainer": {
       "type": "PrototypicalTrainer",
-      "args": {}
+      "args": {
+        "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+      }
     },
     "epochs": 60,
     "save_dir": "saved/",
