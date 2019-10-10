@@ -18,10 +18,9 @@
   },
   "model": {
     "arch": {
-      "type": "ResNet34",
+      "type": "TorchvisionModel",
       "args": {
-        "num_channels": 3,
-        "num_classes": 100
+        "model_name": "resnet18"
       }
     },
     "loss_function": {
