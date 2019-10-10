@@ -2,17 +2,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-<<<<<<< HEAD:torch_temp/trainer/prototypical_trainer.py
-# from gensim.models import KeyedVectors
-# filename = "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
-# model = KeyedVectors.load_word2vec_format(filename, binary=True)
-=======
 from gensim.models import KeyedVectors
 
 from tqdm import tqdm
 from torch_temp.train.coach.base import BaseTrainer
 from torch_temp.utils import inf_loop
->>>>>>> develop:torch_temp/train/coach/prototypical_trainer.py
 
 
 class PrototypicalTrainer(BaseTrainer):
