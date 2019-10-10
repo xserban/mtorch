@@ -74,16 +74,4 @@ For running an elasticsearch cluster see the project [readme](https://github.com
 
 ##### Historical considerations:
 
-This project started with a few changes to the project [pytorch-template](https://github.com/victoresque/pytorch-template), but evolved into a stand-alone framework, with deep structural changes:
-
-* Everything is written in an OOP fashion - each loss, metric, trainer is a class which inherits from a base class.
-* There is a new 'datasets' module used to load data not included pytorch.
-* New loss functions are now defined as classes and must implement a 'forward' function, similar to the nn.Module in pytorch.
-* New metrics are now defined as classes and must implement a 'forward' function, similar to the nn.Module in pytorch.
-* It is easier to write models using the included building blocks. The models are more modular now.
-* New Trainers can easily be written and configured in the .json file.
-* Testing can also be done during training.
-* Logging is rebuild in order to make it easy to add new loggers. The old project only allowed tensorboard. This project also implements [sacred](https://github.com/IDSIA/sacred).
-* Logging is improved so we can either log at the end of one epoch or at the end of each batch.
-* The loggers are now defined as classes. Besides tensorboard, sacred and py-elasticinfrastructure were added.
-* More models + configs (with new to come, feel free to add any)
+This project started with a few changes to the project [pytorch-template](https://github.com/victoresque/pytorch-template), but evolved into a stand-alone framework, with deep structural changes.
