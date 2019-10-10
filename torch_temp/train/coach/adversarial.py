@@ -21,8 +21,6 @@ class AdversarialTrainer(BaseTrainer):
                  worst_case_training,
                  valid_data_loader=None,
                  test_data_loader=None,
-                 lr_scheduler=None,
-                 dynamic_lr_scheduler=None,
                  len_epoch=None):
         super().__init__(model, loss, metrics, optimizer, config)
 
@@ -43,8 +41,6 @@ class AdversarialTrainer(BaseTrainer):
         self.do_validation = self.valid_data_loader is not None
         self.do_testing = self.test_data_loader is not None
 
-        self.dynamic_lr_scheduler = dynamic_lr_scheduler
-        self.lr_scheduler = lr_scheduler
         self.lrates = self.get_lrates()
 
         # init adversarial attack
