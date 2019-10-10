@@ -9,7 +9,7 @@
       "type": "ImageNetLoader",
       "args": {
         "data_dir": "downloaded-data/",
-        "batch_size": 256,
+        "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
         "num_workers": 1,
@@ -21,7 +21,7 @@
     "arch": {
       "type": "TorchvisionModel",
       "args": {
-        "model_name": "resnet18"
+        "model_name": "resnet101"
       }
     },
     "loss_function": {

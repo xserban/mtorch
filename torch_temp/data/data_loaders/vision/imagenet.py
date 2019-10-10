@@ -19,6 +19,6 @@ class ImageNetLoader(BaseDataLoader):
         split = "train" if training is True else "val"
 
         self.dataset = datasets.ImageNet(
-            self.data_dir, split=split, download=True)  # , transform=trans)
+            self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
                          validation_split, num_workers)
