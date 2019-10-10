@@ -46,12 +46,9 @@ Self explainable.
 
 Self explainable.
 
-#### 7. Learning rate scheduler.
+#### 7. Learning schedulers.
 
-This project provides a dynamic learning rate scheduler which allows to set the value of the learning rate at different epochs.
-For example, you may run the first 40 epochs at 0.01, then up to epoch 60 with learning rate 0.1, etc.
-The dynamic learning rate takes priority over the pytorch learning rate scheduler (if used).
-This means after the dynamic learning rate scheduler updated all learning rates, the pytorch learning rate scheduler kicks in and can dicrease the learning rate every n-epochs (if the StepLR is used), etc.
+Several learning schedulers can be configured using priorities. The project also implements a custom, dynamic learnning rate scheduler.
 
 
 ### Running an experiment:
