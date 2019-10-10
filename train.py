@@ -9,7 +9,6 @@ import torch_temp.model.arch as module_arch
 import torch_temp.train.coach as module_train
 
 from torch_temp.utils.parse_config import ConfigParser
-from torch_temp.utils.dynamic_lr import DynamicLR
 
 from sacred import Experiment
 from sacred.observers import MongoObserver
