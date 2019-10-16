@@ -2,7 +2,16 @@
   "name": "MNIST_Standard",
   "host": {
     "name": "x4",
-    "n_gpu": 2
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": false,
+        "id": 1
+      },
+      "multiple_gpus": {
+        "do": true,
+        "nr_gpus": 2
+      }
+    }
   },
   "data": {
     "loader": {
@@ -38,20 +47,24 @@
         "amsgrad": true
       }
     },
-    "lr_schedulers": [{
-      "type": "TorchScheduler",
-      "args": {
-        "priority": 0,
-        "name": "StepLR",
-        "step_size": 5,
-        "gamma": 0.0001
+    "lr_schedulers": [
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 0,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    }]
+    ]
   },
-  "metrics": [{
-    "type": "EpochAccuracy",
-    "args": {}
-  }],
+  "metrics": [
+    {
+      "type": "EpochAccuracy",
+      "args": {}
+    }
+  ],
   "training": {
     "trainer": {
       "type": "DefaultTrainer",
@@ -92,7 +105,8 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [{
+        "metrics": [
+          {
             "type": "CpuLoad"
           },
           {
