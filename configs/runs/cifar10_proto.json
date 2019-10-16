@@ -2,7 +2,18 @@
   "name": "Cifar10_Resnet34",
   "host": {
     "name": "x4",
-    "n_gpu": 2
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": false,
+        "ids": [
+          0
+        ]
+      },
+      "multiple_gpus": {
+        "do": true,
+        "nr_gpus": 2
+      }
+    }
   },
   "data": {
     "loader": {
