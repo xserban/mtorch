@@ -4,13 +4,13 @@
     "name": "x4",
     "gpu_settings": {
       "custom_gpu": {
-        "do": false,
+        "do": true,
         "ids": [
           0
         ]
       },
       "multiple_gpus": {
-        "do": true,
+        "do": false,
         "nr_gpus": 2
       }
     }
@@ -19,7 +19,7 @@
     "loader": {
       "type": "CIFAR10Loader",
       "args": {
-        "data_dir": "downloaded-data/",
+        "data_dir": "/mnt/bay-hdd-1/downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
@@ -88,7 +88,7 @@
     "trainer": {
       "type": "PrototypicalTrainer",
       "args": {
-        "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+        "word2vec_path": "/mnt/bay-hdd-1/downloaded-data/GoogleNews-vectors-negative300.bin"
       }
     },
     "epochs": 90,
