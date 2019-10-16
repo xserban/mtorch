@@ -5,7 +5,9 @@
     "gpu_settings": {
       "custom_gpu": {
         "do": false,
-        "id": 0
+        "ids": [
+          0
+        ]
       },
       "multiple_gpus": {
         "do": true,

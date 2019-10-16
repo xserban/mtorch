@@ -4,11 +4,13 @@
     "name": "x4",
     "gpu_settings": {
       "custom_gpu": {
-        "do": false,
-        "id": 1
+        "do": true,
+        "ids": [
+          0
+        ]
       },
       "multiple_gpus": {
-        "do": true,
+        "do": false,
         "nr_gpus": 2
       }
     }
