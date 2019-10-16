@@ -2,7 +2,18 @@
   "name": "Transfer_Segmentation",
   "host": {
     "name": "x4",
-    "n_gpu": 2
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": false,
+        "ids": [
+          0
+        ]
+      },
+      "multiple_gpus": {
+        "do": true,
+        "nr_gpus": 2
+      }
+    }
   },
   "data": {
     "loader": {
@@ -44,35 +55,40 @@
         "momentum": 0.9
       }
     },
-    "lr_schedulers": [{
-      "type": "DynamicLRScheduler",
-      "args": {
-        "priority": 0,
-        "epochs": [
-          25,
-          35,
-          45
-        ],
-        "lr_values": [
-          0.01,
-          0.001,
-          0.0001
-        ]
+    "lr_schedulers": [
+      {
+        "type": "DynamicLRScheduler",
+        "args": {
+          "priority": 0,
+          "epochs": [
+            25,
+            35,
+            45
+          ],
+          "lr_values": [
+            0.01,
+            0.001,
+            0.0001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    }, {
-      "type": "TorchScheduler",
-      "args": {
-        "priority": 1,
-        "name": "StepLR",
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    }]
+    ]
   },
-  "metrics": [{
-    "type": "EpochAccuracy",
-    "args": {}
-  }],
+  "metrics": [
+    {
+      "type": "EpochAccuracy",
+      "args": {}
+    }
+  ],
   "training": {
     "trainer": {
       "type": "DefaultTrainer",
@@ -113,7 +129,8 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [{
+        "metrics": [
+          {
             "type": "CpuLoad"
           },
           {
