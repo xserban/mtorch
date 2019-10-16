@@ -39,35 +39,40 @@
         "momentum": 0.9
       }
     },
-    "lr_schedulers": [{
-      "type": "DynamicLRScheduler",
-      "args": {
-        "priority": 0,
-        "epochs": [
-          25,
-          35,
-          45
-        ],
-        "lr_values": [
-          0.01,
-          0.001,
-          0.0001
-        ]
+    "lr_schedulers": [
+      {
+        "type": "DynamicLRScheduler",
+        "args": {
+          "priority": 0,
+          "epochs": [
+            35,
+            55,
+            75
+          ],
+          "lr_values": [
+            0.01,
+            0.001,
+            0.0001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    }, {
-      "type": "TorchScheduler",
-      "args": {
-        "priority": 1,
-        "name": "StepLR",
-        "step_size": 5,
-        "gamma": 0.0001
-      }
-    }]
+    ]
   },
-  "metrics": [{
-    "type": "ProtoAccuracy",
-    "args": {}
-  }],
+  "metrics": [
+    {
+      "type": "ProtoAccuracy",
+      "args": {}
+    }
+  ],
   "training": {
     "trainer": {
       "type": "PrototypicalTrainer",
@@ -75,7 +80,7 @@
         "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
       }
     },
-    "epochs": 60,
+    "epochs": 90,
     "save_dir": "saved/",
     "save_period": 1,
     "log_verbosity": 2,
@@ -110,7 +115,8 @@
       "config": {
         "time": 5,
         "save_dir": "saved/",
-        "metrics": [{
+        "metrics": [
+          {
             "type": "CpuLoad"
           },
           {

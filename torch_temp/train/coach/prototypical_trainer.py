@@ -213,7 +213,7 @@ class PrototypicalTrainer(BaseTrainer):
         :param target:
         """
         text_target = [self.text_classes[i] for i in target]
-        vec_target = [model.wv[t] for t in text_target]
+        vec_target = [self.word2vec_model.wv[t] for t in text_target]
         return vec_target
 
     def _get_normal_targets(self, batch):
