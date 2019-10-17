@@ -23,8 +23,11 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8,
         "transformations": "CIFARTransformations"
+      },
+      "_comment": "args are default parameters for base data loaders and kwargs are optional parameters, typically for torch dataloader class",
+      "kwargs": {
+        "pin_memory": true
       }
     }
   },

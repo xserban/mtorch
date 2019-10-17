@@ -13,7 +13,7 @@ class BaseDataLoader(DataLoader):
     """
 
     def __init__(self, dataset, batch_size, shuffle,
-                 validation_split, num_workers, collate_fn=default_collate):
+                 validation_split, **kwargs):
         self.validation_split = validation_split
         self.shuffle = shuffle
 
@@ -23,14 +23,13 @@ class BaseDataLoader(DataLoader):
         self.sampler, self.valid_sampler = self._split_sampler(
             self.validation_split)
 
-        self.init_kwargs = {
+        self.default_kwargs = {
             "dataset": dataset,
             "batch_size": batch_size,
             "shuffle": self.shuffle,
-            "collate_fn": collate_fn,
-            "num_workers": num_workers
+            "collate_fn": default_collate,
         }
-        super().__init__(sampler=self.sampler, **self.init_kwargs)
+        super().__init__(sampler=self.sampler, **self.default_kwargs, **kwargs)
 
     def _split_sampler(self, split):
         if split == 0.0:
@@ -66,7 +65,7 @@ class BaseDataLoader(DataLoader):
         if self.valid_sampler is None:
             return None
         else:
-            return DataLoader(sampler=self.valid_sampler, **self.init_kwargs)
+            return DataLoader(sampler=self.valid_sampler, **self.default_kwargs)
 
     @staticmethod
     def get_transformations(cls, name):

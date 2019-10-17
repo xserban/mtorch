@@ -22,8 +22,10 @@
         "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
-        "validation_split": 0.1,
-        "num_workers": 1
+        "validation_split": 0.1
+      },
+      "kwargs": {
+        "pin_memory": true
       }
     }
   },

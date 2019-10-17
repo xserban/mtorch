@@ -19,12 +19,14 @@
     "loader": {
       "type": "ImageNetLoader",
       "args": {
-        "data_dir": "downloaded-data/",
+        "data_dir": "/mnt/bay-hdd-1/downloaded-data/imagenet/",
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 1,
         "transformations": "ImageNetTransformations"
+      },
+      "kwargs": {
+        "pin_memory": true
       }
     }
   },

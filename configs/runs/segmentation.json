@@ -22,11 +22,11 @@
         "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
-        "validation_split": 0.1,
-        "num_workers": 8,
-        "kwargs": {
-          "target_type": "semantic"
-        }
+        "validation_split": 0.1
+      },
+      "kwargs": {
+        "pin_memory": true,
+        "target_type": "semantic"
       }
     }
   },

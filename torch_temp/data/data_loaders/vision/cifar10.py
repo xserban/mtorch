@@ -6,11 +6,13 @@ class CIFAR10Loader(BaseDataLoader):
     """ CIFAR10 data loading + transformations """
 
     def __init__(self, data_dir,
-                 batch_size, shuffle=True,
-                 validation_split=0.0, num_workers=1,
-                 training=True, transformations="DefaultTransformations"):
+                 batch_size=128,
+                 training=True,
+                 validation_split=0.0,
+                 shuffle=False,
+                 transformations="DefaultTransformations",
+                 **kwargs):
         print("[INFO][DATA] \t Preparing Cifar10 dataset ...")
-
         _transf = BaseDataLoader.get_transformations(
             self, name=transformations)
 
@@ -21,7 +23,7 @@ class CIFAR10Loader(BaseDataLoader):
         self.dataset = datasets.CIFAR10(
             self.data_dir, train=training, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
-                         validation_split, num_workers)
+                         validation_split, **kwargs)
 
     def get_class_names(self):
         return('plane', 'car', 'bird', 'cat',

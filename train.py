@@ -33,7 +33,7 @@ def main_normal():
 
     # setup data_loader instances
     train_data_loader = config.initialize(
-        module_data, config["data"]["loader"])
+        module_data, config["data"]["loader"], **config["data"]["loader"]["kwargs"])
     valid_data_loader = train_data_loader.split_validation()
 
     if config["testing"]["do"]:
@@ -44,7 +44,7 @@ def main_normal():
             shuffle=False,
             validation_split=0.0,
             training=False,
-            num_workers=config["data"]["loader"]["args"]["num_workers"]
+            **config["data"]["loader"]["kwargs"]
         )
     else:
         test_data_loader = None
@@ -97,12 +97,7 @@ if __name__ == "__main__":
     # custom cli options to modify configuration
     # from default values given in json file.
     CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
-    options = [
-        CustomArgs(["--lr", "--learning_rate"], type=float,
-                   target=("optimizer", "args", "lr")),
-        CustomArgs(["--bs", "--batch_size"], type=int,
-                   target=("data_loader", "args", "batch_size"))
-    ]
+    options = []
     config = ConfigParser(args, options)
 
     if config["logging"]["sacred_logs"]["do"] is False:
