@@ -6,8 +6,9 @@ class ImageNetLoader(BaseDataLoader):
     """ ImageNet data loading + transformations """
 
     def __init__(self, data_dir, batch_size, shuffle=True,
-                 validation_split=0.0, num_workers=1,
-                 training=True, transformations="DefaultTransformations"):
+                 validation_split=0.0,
+                 training=True, transformations="DefaultTransformations",
+                 **kwargs):
         print("[INFO][DATA] \t Preparing the ImageNet dataset ...")
 
         _transf = BaseDataLoader.get_transformations(
@@ -21,4 +22,4 @@ class ImageNetLoader(BaseDataLoader):
         self.dataset = datasets.ImageNet(
             self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
-                         validation_split, num_workers)
+                         validation_split, **kwargs)

@@ -7,8 +7,9 @@ class CIFAR100Loader(BaseDataLoader):
 
     def __init__(self, data_dir, batch_size,
                  shuffle=True, validation_split=0.0,
-                 num_workers=1, training=True,
-                 transformations="DefaultTransformations"):
+                 training=True,
+                 transformations="DefaultTransformations",
+                 **kwargs):
         print("[INFO][DATA] \t Preparing the CIFAR100 dataset ...")
 
         _transf = BaseDataLoader.get_transformations(
@@ -21,4 +22,5 @@ class CIFAR100Loader(BaseDataLoader):
         self.dataset = datasets.CIFAR100(
             self.data_dir, train=training, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
-                         validation_split, num_workers)
+                         validation_split,
+                         **kwargs)
