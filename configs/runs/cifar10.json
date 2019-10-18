@@ -4,13 +4,13 @@
     "name": "x4",
     "gpu_settings": {
       "custom_gpu": {
-        "do": false,
+        "do": true,
         "ids": [
           0
         ]
       },
       "multiple_gpus": {
-        "do": true,
+        "do": false,
         "nr_gpus": 2
       }
     }
@@ -94,7 +94,7 @@
     },
     "epochs": 60,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 100

@@ -76,7 +76,7 @@
     },
     "epochs": 10,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 10

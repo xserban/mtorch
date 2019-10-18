@@ -112,7 +112,7 @@
     },
     "epochs": 250,
     "save_dir": "saved/",
-    "save_period": 20,
+    "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 100
