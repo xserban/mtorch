@@ -51,33 +51,33 @@ class DefaultTrainer(BaseTrainer):
         """
         print("[INFO][TRAIN] \t Starting Training Epoch {}:".format(epoch))
         self.model.train()
-        total_loss = 0
-
-        for batch_idx, (data, target) in \
-                enumerate(tqdm(self.train_data_loader)):
-
+        total_loss, total_metrics = 0, np.zeros(len(self.metrics))
+        for batch_idx, (data, target) in enumerate(tqdm(self.train_data_loader)):
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
-            loss = self._run_batch(data, target)
+            loss, metrics, dic_metrics = self._run_batch(
+                data, target, eval_metrics=True, train=True)
             total_loss += loss
+            total_metrics += metrics
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
                                   "train",
                                   loss,
-                                  {},
+                                  dic_metrics,
                                   data)
 
             if batch_idx == self.len_epoch:
                 break
         # log info specific to the whole epoch
-        total_train_loss = total_loss / self.len_epoch
+        avg_loss = total_loss / self.len_epoch
+        avg_metrics = (total_metrics / self.len_epoch).tolist()
         self.logger.log_epoch(epoch - 1, "train",
-                              total_train_loss,
-                              {},
+                              avg_loss,
+                              self.get_metrics_dic(avg_metrics),
                               self.lrates)
         log = {
-            "loss": total_train_loss,
-        }
+            "loss": avg_loss,
+            "train_metrics": avg_metrics}
         # run validation and testing
         self._validate(epoch, log)
         self.adapt_lr(epoch)
@@ -124,8 +124,7 @@ class DefaultTrainer(BaseTrainer):
         print("[INFO][VALIDATION] \t "
               "Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
-        total_val_loss = 0
-        total_val_metrics = np.zeros(len(self.metrics))
+        total_val_loss, total_val_metrics = 0, np.zeros(len(self.metrics))
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
@@ -143,27 +142,26 @@ class DefaultTrainer(BaseTrainer):
                                       dic_metrics,
                                       data)
         # log info specific to the whole validation epoch
-        total_loss = total_val_loss / len(self.valid_data_loader)
-        total_metrics = (total_val_metrics /
-                         len(self.valid_data_loader)).tolist()
+        avg_loss = total_val_loss / len(self.valid_data_loader)
+        avg_metrics = (total_val_metrics /
+                       len(self.valid_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, "valid",
-                              total_loss,
-                              self.get_metrics_dic(total_metrics),
+                              avg_loss,
+                              self.get_metrics_dic(avg_metrics),
                               None)
         # add histogram of model parameters to the tensorboard
         self.logger.log_validation_params(
             epoch-1, "valid", self.model.named_parameters())
         # return final log metrics
         return {
-            "val_loss": total_loss,
-            "val_metrics": total_metrics
+            "val_loss": avg_loss,
+            "val_metrics": avg_metrics
         }
 
     def _test_epoch(self, epoch):
         print("[INFO][TEST] \t Starting Test Epoch {}:".format(epoch))
         self.model.eval()
-        total_test_loss = 0
-        total_test_metrics = np.zeros(len(self.metrics))
+        total_test_loss, total_test_metrics = 0, np.zeros(len(self.metrics))
         with torch.no_grad():
             for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
                 data, target = data.to(self.device), target.to(self.device)
@@ -180,15 +178,15 @@ class DefaultTrainer(BaseTrainer):
                                       dic_metrics,
                                       data)
         # log results specific to epoch
-        total_loss = total_test_loss / len(self.test_data_loader)
-        total_metrics = (total_test_metrics /
-                         len(self.test_data_loader)).tolist()
+        avg_loss = total_test_loss / len(self.test_data_loader)
+        avg_metrics = (total_test_metrics /
+                       len(self.test_data_loader)).tolist()
         self.logger.log_epoch(epoch - 1, "test",
-                              total_loss,
-                              self.get_metrics_dic(total_metrics),
+                              avg_loss,
+                              self.get_metrics_dic(avg_metrics),
                               None)
         # return final log metrics
         return {
-            "test_loss": total_loss,
-            "test_metrics": total_metrics
+            "test_loss": avg_loss,
+            "test_metrics": avg_metrics
         }

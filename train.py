@@ -37,6 +37,7 @@ def main_normal():
     valid_data_loader = train_data_loader.split_validation()
 
     if config["testing"]["do"]:
+        # TODO: find a better manner to write this call
         test_data_loader = getattr(module_data,
                                    config["data"]["loader"]["type"])(
             config["data"]["loader"]["args"]["data_dir"],
@@ -44,6 +45,7 @@ def main_normal():
             shuffle=False,
             validation_split=0.0,
             training=False,
+            transformations=config["data"]["loader"]["args"]["transformations"],
             **config["data"]["loader"]["kwargs"]
         )
     else:

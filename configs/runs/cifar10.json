@@ -23,25 +23,31 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "transformations": "CIFARTransformations"
+        "transformations": "CIFARTransformations",
+        "num_workers": 2
       },
       "_comment": "args are default parameters for base data loaders and kwargs are optional parameters, typically for torch dataloader class",
-      "kwargs": {
-        "pin_memory": true
-      }
+      "kwargs": {}
     }
   },
   "model": {
     "arch": {
-      "type": "ResNet34",
+      "type": "TorchvisionModel",
       "args": {
-        "num_channels": 3,
-        "num_classes": 10
+        "model_name": "resnet34",
+        "num_classes": 10,
+        "model_args": {
+          "pretrained": false
+        }
       }
     },
     "loss_function": {
-      "type": "CrossEntropy",
-      "args": {}
+      "type": "TorchLoss",
+      "args": {
+        "l_name": "CrossEntropyLoss",
+        "bargs": {},
+        "kwargs": {}
+      }
     }
   },
   "optimizer": {
@@ -59,9 +65,9 @@
         "args": {
           "priority": 0,
           "epochs": [
-            25,
             35,
-            45
+            55,
+            75
           ],
           "lr_values": [
             0.01,
@@ -92,7 +98,7 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 60,
+    "epochs": 100,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
@@ -101,12 +107,12 @@
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 50,
-    "test_batch_size": 128
+    "test_epochs_interval": 1,
+    "test_batch_size": 100
   },
   "logging": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-    "index_batches": false,
+    "index_batches": true,
     "log_params": false,
     "log_train_images": false,
     "log_test_images": false,
@@ -123,7 +129,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",
