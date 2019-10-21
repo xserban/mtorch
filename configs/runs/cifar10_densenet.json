@@ -46,8 +46,12 @@
       }
     },
     "loss_function": {
-      "type": "CrossEntropy",
-      "args": {}
+      "type": "TorchLoss",
+      "args": {
+        "l_name": "CrossEntropyLoss",
+        "bargs": {},
+        "kwargs": {}
+      }
     }
   },
   "optimizer": {
