@@ -1,5 +1,5 @@
 import importlib
-from torch_temp.utils import Timer
+from torch_temp.utils.timer import Timer
 
 
 class TensorboardWriter():
