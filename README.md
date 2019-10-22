@@ -1,7 +1,10 @@
-# PyTorch Project Template
+# PyTorch Experiment Management Framework
 
-This project is a customizable experimental framework for Pytorch aimed to reduce the amount of code needed to run new experiments and gather measurements.
+This project is a customizable experimental management framework for Pytorch aimed to reduce the amount of code needed to run new experiments and gather measurements.
 The goal is to have a general configuration file from where we can control the model to be trained, the data, the loss function, the metrics used during training and select different loggers which will save the data.
+Sharing experiments should only involve sharing the config file.
+
+The framework also integrates natively with other projects such as [sacred](https://github.com/IDSIA/sacred).
 
 The main modules are:
 
@@ -53,12 +56,12 @@ Several learning schedulers can be configured using priorities. The project also
 
 ### Running an experiment:
 
-In order to run an experiment, you have to add a configuration file in 'configs/runs', specifying the data, the model, the optimizer, the loss functions, the metrics, the trainer and configuring the logger.
+In order to run an experiment, you have to add a configuration file in 'mtorch/configs/runs', specifying the data, the model, the optimizer, the loss functions, the metrics, the trainer and configuring the logger.
 The file 'default.json' is self explainable.
 
 After configuring this file you can run an experimeng using:
 ```
-python train.py --config=configs/runs/default.json
+python mtorch/train.py --config=mtorch/configs/runs/default.json
 ```
 
 Currently, the Sacred logger indexes everything is a MongoDB database and uses [Omniboard](https://vivekratnavel.github.io/omniboard/#/) for visualizations.
