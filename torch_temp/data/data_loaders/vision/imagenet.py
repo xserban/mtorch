@@ -6,29 +6,20 @@ class ImageNetLoader(BaseDataLoader):
     """ ImageNet data loading + transformations """
 
     def __init__(self, data_dir, batch_size, shuffle=True,
-                 validation_split=0.0, num_workers=1, training=True):
+                 validation_split=0.0,
+                 training=True, transformations="DefaultTransformations",
+                 **kwargs):
         print("[INFO][DATA] \t Preparing the ImageNet dataset ...")
-        if training is True:
-            trans = transforms.Compose([
-                transforms.RandomCrop(224, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.485, 0.456, 0.406),
-                                     (0.229, 0.224, 0.225)),
-            ])
-        else:
-            trans = transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Normalize((0.485, 0.456, 0.406),
-                                     (0.229, 0.224, 0.225)),
-            ])
+
+        _transf = BaseDataLoader.get_transformations(
+            self, name=transformations)
+        trans = _transf.get_train_trans() if training is True \
+            else _transf.get_test_trans()
 
         self.data_dir = data_dir
-        if training is True:
-            split = "train"
-        else:
-            split = "val"
+        split = "train" if training is True else "val"
+
         self.dataset = datasets.ImageNet(
             self.data_dir, split=split, download=True, transform=trans)
         super().__init__(self.dataset, batch_size, shuffle,
-                         validation_split, num_workers)
+                         validation_split, **kwargs)

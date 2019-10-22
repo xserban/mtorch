@@ -1,5 +1,5 @@
 {
-  "name": "ImageNet_ResNet152",
+  "name": "Cifar10_ResNet34_PGDMadry",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -17,13 +17,13 @@
   },
   "data": {
     "loader": {
-      "type": "ImageNetLoader",
+      "type": "CIFAR10Loader",
       "args": {
-        "data_dir": "/mnt/bay-hdd-1/downloaded-data/imagenet/",
+        "data_dir": "downloaded-data/",
         "batch_size": 128,
-        "shuffle": true,
-        "validation_split": 0.1,
-        "transformations": "ImageNetTransformations"
+        "shuffle": false,
+        "validation_split": 0.0,
+        "transformations": "CIFARTransformations"
       },
       "kwargs": {
         "pin_memory": true
@@ -32,9 +32,10 @@
   },
   "model": {
     "arch": {
-      "type": "TorchvisionModel",
+      "type": "ResNet34",
       "args": {
-        "model_name": "resnet101"
+        "num_channels": 3,
+        "num_classes": 10
       }
     },
     "loss_function": {
@@ -48,18 +49,32 @@
   },
   "optimizer": {
     "opt": {
-      "type": "Adam",
+      "type": "SGD",
       "args": {
-        "lr": 0.001,
-        "weight_decay": 0,
-        "amsgrad": true
+        "lr": 0.1,
+        "weight_decay": 0.0002,
+        "momentum": 0.9
       }
     },
     "lr_schedulers": [
       {
-        "type": "TorchScheduler",
+        "type": "DynamicLRScheduler",
         "args": {
           "priority": 0,
+          "epochs": [
+            120,
+            170
+          ],
+          "lr_values": [
+            0.01,
+            0.001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
           "name": "StepLR",
           "step_size": 5,
           "gamma": 0.0001
@@ -71,23 +86,44 @@
     {
       "type": "EpochAccuracy",
       "args": {}
+    },
+    {
+      "type": "AdversarialAccuracy",
+      "args": {}
     }
   ],
   "training": {
     "trainer": {
-      "type": "DefaultTrainer",
-      "args": {}
+      "type": "FreeAdversarialTrainer",
+      "args": {
+        "eps": 4.0,
+        "batch_iterations": 4,
+        "new_perturbation": false,
+        "attack_type": "LinfPGDAttack",
+        "attack_params": {
+          "ratio": 255,
+          "kwargs": {
+            "eps": 8.0,
+            "nb_iter": 10,
+            "eps_iter": 2.0,
+            "rand_init": true,
+            "clip_min": 0.0,
+            "clip_max": 1.0,
+            "targeted": false
+          }
+        }
+      }
     },
-    "epochs": 5000,
+    "epochs": 250,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10
+    "early_stop": 100
   },
   "testing": {
-    "do": true,
-    "test_epochs_interval": 1,
+    "do": false,
+    "test_epochs_interval": 10,
     "test_batch_size": 128
   },
   "logging": {

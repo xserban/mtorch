@@ -6,14 +6,13 @@ class EpochAccuracy(BaseMetric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def forward(self, output, target, *args, **kwargs):
+    def forward(self, output, targets, *args, **kwargs):
+        assert output.size(0) == targets.size(0)
         with torch.no_grad():
-            pred = torch.argmax(output, dim=1)
-            assert pred.shape[0] == len(target)
-            correct = 0
-            correct += torch.sum(pred == target).item()
+            _, pred = output.max(1)
+            correct = pred.eq(targets).sum().item()
 
-        return correct / len(target)
+        return 100*(correct / targets.size(0))
 
     def get_name(self):
         return "EpochAccuracy"

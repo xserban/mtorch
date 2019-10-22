@@ -1,5 +1,5 @@
 {
-  "name": "ImageNet_ResNet152",
+  "name": "Cifar10_Resnet34",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -17,13 +17,13 @@
   },
   "data": {
     "loader": {
-      "type": "ImageNetLoader",
+      "type": "CIFAR10Loader",
       "args": {
-        "data_dir": "/mnt/bay-hdd-1/downloaded-data/imagenet/",
+        "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "transformations": "ImageNetTransformations"
+        "transformations": "CIFARTransformations"
       },
       "kwargs": {
         "pin_memory": true
@@ -32,34 +32,47 @@
   },
   "model": {
     "arch": {
-      "type": "TorchvisionModel",
+      "type": "ResNet34",
       "args": {
-        "model_name": "resnet101"
+        "num_channels": 3,
+        "num_classes": 300
       }
     },
     "loss_function": {
-      "type": "TorchLoss",
-      "args": {
-        "l_name": "CrossEntropyLoss",
-        "bargs": {},
-        "kwargs": {}
-      }
+      "type": "CosineSimilarityLoss",
+      "args": {}
     }
   },
   "optimizer": {
     "opt": {
-      "type": "Adam",
+      "type": "SGD",
       "args": {
-        "lr": 0.001,
-        "weight_decay": 0,
-        "amsgrad": true
+        "lr": 0.1,
+        "weight_decay": 0.0001,
+        "momentum": 0.9
       }
     },
     "lr_schedulers": [
       {
-        "type": "TorchScheduler",
+        "type": "DynamicLRScheduler",
         "args": {
           "priority": 0,
+          "epochs": [
+            35,
+            55,
+            75
+          ],
+          "lr_values": [
+            0.01,
+            0.001,
+            0.0001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
           "name": "StepLR",
           "step_size": 5,
           "gamma": 0.0001
@@ -69,25 +82,27 @@
   },
   "metrics": [
     {
-      "type": "EpochAccuracy",
+      "type": "ProtoAccuracy",
       "args": {}
     }
   ],
   "training": {
     "trainer": {
-      "type": "DefaultTrainer",
-      "args": {}
+      "type": "PrototypicalTrainer",
+      "args": {
+        "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+      }
     },
-    "epochs": 5000,
+    "epochs": 90,
     "save_dir": "saved/",
-    "save_period": 50,
+    "save_period": 1,
     "log_verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10
+    "early_stop": 100
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 1,
+    "test_epochs_interval": 10,
     "test_batch_size": 128
   },
   "logging": {
@@ -100,7 +115,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": false,
+      "do": true,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -109,7 +124,7 @@
       }
     },
     "infrastructure_logs": {
-      "do": false,
+      "do": true,
       "config": {
         "time": 5,
         "save_dir": "saved/",

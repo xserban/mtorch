@@ -1,5 +1,5 @@
 {
-  "name": "ImageNet_ResNet152",
+  "name": "Transfer_Segmentation",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -17,16 +17,16 @@
   },
   "data": {
     "loader": {
-      "type": "ImageNetLoader",
+      "type": "CityscapesLoader",
       "args": {
-        "data_dir": "/mnt/bay-hdd-1/downloaded-data/imagenet/",
+        "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
-        "validation_split": 0.1,
-        "transformations": "ImageNetTransformations"
+        "validation_split": 0.1
       },
       "kwargs": {
-        "pin_memory": true
+        "pin_memory": true,
+        "target_type": "semantic"
       }
     }
   },
@@ -34,7 +34,11 @@
     "arch": {
       "type": "TorchvisionModel",
       "args": {
-        "model_name": "resnet101"
+        "model_name": "fcn_resnet101",
+        "num_classes": 21,
+        "model_args": {
+          "pretrained": true
+        }
       }
     },
     "loss_function": {
@@ -48,18 +52,34 @@
   },
   "optimizer": {
     "opt": {
-      "type": "Adam",
+      "type": "SGD",
       "args": {
-        "lr": 0.001,
-        "weight_decay": 0,
-        "amsgrad": true
+        "lr": 0.1,
+        "weight_decay": 0.0001,
+        "momentum": 0.9
       }
     },
     "lr_schedulers": [
       {
-        "type": "TorchScheduler",
+        "type": "DynamicLRScheduler",
         "args": {
           "priority": 0,
+          "epochs": [
+            25,
+            35,
+            45
+          ],
+          "lr_values": [
+            0.01,
+            0.001,
+            0.0001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
           "name": "StepLR",
           "step_size": 5,
           "gamma": 0.0001
@@ -78,16 +98,16 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 5000,
+    "epochs": 60,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 10
+    "early_stop": 100
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 1,
+    "test_epochs_interval": 50,
     "test_batch_size": 128
   },
   "logging": {

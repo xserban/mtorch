@@ -12,7 +12,7 @@ from tqdm import tqdm
 class MamlTrainer(BaseTrainer):
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader, valid_data_loader=None,
-                 test_data_loader=None, lr_scheduler=None,
+                 test_data_loader=None,
                  len_epoch=None, *args, **kwargs):
         super().__init__(model, loss, metrics, optimizer, config)
 
@@ -29,7 +29,6 @@ class MamlTrainer(BaseTrainer):
 
         self.valid_data_loader = valid_data_loader
         self.do_valdation = self.valid_data_loader is not None
-        self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(self.data_loader.batch_size))
 
     def _train_epoch(self, epoch):

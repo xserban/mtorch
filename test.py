@@ -1,10 +1,11 @@
 import argparse
 import torch
 from tqdm import tqdm
-import torch_temp.data.data_loader.data_loaders as module_data
+import torch_temp.data.data_loaders as module_data
 import torch_temp.model.loss as module_loss
-import torch_temp.model.metric as module_metric
-import torch_temp.model.model as module_arch
+import torch_temp.model.metrics as module_metric
+import torch_temp.model.arch as module_arch
+
 from torch_temp.utils.parse_config import ConfigParser
 
 
@@ -12,8 +13,8 @@ def main(config):
     logger = config.get_logger('test')
 
     # setup data_loader instances
-    data_loader = getattr(module_data, config['train_data_loader']['type'])(
-        config['train_data_loader']['args']['data_dir'],
+    data_loader = getattr(module_data, config['data']['loader']['type'])(
+        config['data']['loader']['args']['data_dir'],
         batch_size=512,
         shuffle=False,
         validation_split=0.0,

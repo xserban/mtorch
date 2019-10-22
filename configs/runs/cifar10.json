@@ -2,7 +2,18 @@
   "name": "Cifar10_Resnet34",
   "host": {
     "name": "x4",
-    "n_gpu": 2
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": true,
+        "ids": [
+          0
+        ]
+      },
+      "multiple_gpus": {
+        "do": false,
+        "nr_gpus": 2
+      }
+    }
   },
   "data": {
     "loader": {
@@ -12,21 +23,31 @@
         "batch_size": 128,
         "shuffle": true,
         "validation_split": 0.1,
-        "num_workers": 8
-      }
+        "transformations": "CIFARTransformations",
+        "num_workers": 2
+      },
+      "_comment": "args are default parameters for base data loaders and kwargs are optional parameters, typically for torch dataloader class",
+      "kwargs": {}
     }
   },
   "model": {
     "arch": {
-      "type": "ResNet34",
+      "type": "TorchvisionModel",
       "args": {
-        "num_channels": 3,
-        "num_classes": 10
+        "model_name": "resnet34",
+        "num_classes": 10,
+        "model_args": {
+          "pretrained": false
+        }
       }
     },
     "loss_function": {
-      "type": "CrossEntropy",
-      "args": {}
+      "type": "TorchLoss",
+      "args": {
+        "l_name": "CrossEntropyLoss",
+        "bargs": {},
+        "kwargs": {}
+      }
     }
   },
   "optimizer": {
@@ -38,28 +59,33 @@
         "momentum": 0.9
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
-      "args": {
-        "step_size": 5,
-        "gamma": 0.0001
+    "lr_schedulers": [
+      {
+        "type": "DynamicLRScheduler",
+        "args": {
+          "priority": 0,
+          "epochs": [
+            35,
+            55,
+            75
+          ],
+          "lr_values": [
+            0.01,
+            0.001,
+            0.0001
+          ]
+        }
+      },
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 1,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    },
-    "dynamic_lr_scheduler": {
-      "do": true,
-      "args": {
-        "epochs": [
-          25,
-          35,
-          45
-        ],
-        "lr_values": [
-          0.01,
-          0.001,
-          0.0001
-        ]
-      }
-    }
+    ]
   },
   "metrics": [
     {
@@ -72,21 +98,21 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 60,
+    "epochs": 100,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 100
   },
   "testing": {
     "do": true,
-    "test_epochs_interval": 50,
-    "test_batch_size": 128
+    "test_epochs_interval": 1,
+    "test_batch_size": 100
   },
   "logging": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-    "index_batches": false,
+    "index_batches": true,
     "log_params": false,
     "log_train_images": false,
     "log_test_images": false,
@@ -94,7 +120,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {

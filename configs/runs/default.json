@@ -2,7 +2,18 @@
   "name": "Default",
   "host": {
     "name": "x4",
-    "n_gpu": 2
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": false,
+        "ids": [
+          0
+        ]
+      },
+      "multiple_gpus": {
+        "do": true,
+        "nr_gpus": 2
+      }
+    }
   },
   "data": {
     "loader": {
@@ -11,8 +22,10 @@
         "data_dir": "downloaded-data/",
         "batch_size": 128,
         "shuffle": true,
-        "validation_split": 0.1,
-        "num_workers": 1
+        "validation_split": 0.1
+      },
+      "kwargs": {
+        "pin_memory": true
       }
     }
   },
@@ -25,8 +38,12 @@
       }
     },
     "loss_function": {
-      "type": "CrossEntropy",
-      "args": {}
+      "type": "TorchLoss",
+      "args": {
+        "l_name": "CrossEntropyLoss",
+        "bargs": {},
+        "kwargs": {}
+      }
     }
   },
   "optimizer": {
@@ -38,17 +55,17 @@
         "amsgrad": true
       }
     },
-    "lr_scheduler": {
-      "type": "StepLR",
-      "args": {
-        "step_size": 50,
-        "gamma": 0.1
+    "lr_schedulers": [
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 0,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
       }
-    },
-    "dynamic_lr_scheduler": {
-      "do": false,
-      "args": {}
-    }
+    ]
   },
   "metrics": [
     {
@@ -63,7 +80,7 @@
     },
     "epochs": 100,
     "save_dir": "saved/",
-    "save_period": 1,
+    "save_period": 50,
     "log_verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 10
@@ -80,7 +97,7 @@
     "log_train_images": false,
     "log_test_images": false,
     "tensorboard_logs": {
-      "do": false
+      "do": true
     },
     "sacred_logs": {
       "do": false,

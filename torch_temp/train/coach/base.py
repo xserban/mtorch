@@ -3,10 +3,12 @@ import torch
 from numpy import inf
 import numpy as np
 
+import torch_temp.train.schedulers as all_sch
+
 
 class BaseTrainer:
     """
-    Base class for all trainers
+    Base class for all trainers (coaches)
     """
 
     def __init__(self, model, loss, metrics, optimizer, config):
@@ -28,6 +30,8 @@ class BaseTrainer:
         self._configure_monitor(config)
         # not improved variable
         self.not_improved = 0
+        # init learning rate schedulers
+        self.init_schedulers(config)
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -79,7 +83,7 @@ class BaseTrainer:
         """
         for key, value in result.items():
             if key == "train_metrics":
-                log.update({mtr.get_name(): value[i]
+                log.update({"train_" + mtr.get_name(): value[i]
                             for i, mtr in enumerate(self.metrics)})
             elif key == "val_metrics":
                 log.update({"val_" + mtr.get_name(): value[i]
@@ -139,24 +143,48 @@ class BaseTrainer:
     ###
     # Setup Helpers
     ###
-    def _prepare_gpu_device(self, n_gpu_use):
-        """
-        setup GPU device if available, move model into configured device
-        """
+    def _prepare_gpu_devices(self, config):
+        """Configures GPU(s)"""
+        custom_gpu = config["custom_gpu"]
+        multiple_gpus = config["multiple_gpus"]
+
         n_gpu = torch.cuda.device_count()
-        if n_gpu_use > 0 and n_gpu == 0:
-            self.py_logger.warning("[WARN] \t Warning: There\'s "
-                                   "no GPU available on this machine,"
+        n_gpu_use, list_ids, device = 0, [], None
+
+        if (custom_gpu["do"] is True or multiple_gpus["do"] is True) \
+                and n_gpu == 0:
+            self.py_logger.warning("[WARN] \t No GPU "
+                                   "available on this machine, "
                                    "training will be performed on CPU.")
             n_gpu_use = 0
-        if n_gpu_use > n_gpu:
-            self.py_logger.warning("[WARN] \t Warning: The number of "
-                                   "GPU\'s configured to use is {}, "
-                                   "but only {} are available "
-                                   "on this machine.".format(n_gpu_use, n_gpu))
+            device = torch.device("cpu")
+        elif custom_gpu["do"] is True:
+
+            if max(custom_gpu["ids"]) > n_gpu-1:
+                self.py_logger.warning("[WARN] \t Max GPU id is higher"
+                                       " than the max. number of GPUs."
+                                       " Trying to run on the max nr. of GPUs")
+                n_gpu_use = n_gpu
+                list_ids = list(range(n_gpu_use))
+                device = torch.device("cuda", 0)
+            else:
+                ids = custom_gpu["ids"]
+                n_gpu_use = len(ids)
+                list_ids = ids
+                device = torch.device("cuda", custom_gpu["ids"][0]) if len(ids) == 1 else \
+                    torch.device("cuda", 0)
+        elif multiple_gpus["do"] is True:
+            if multiple_gpus["nr_gpus"] > n_gpu:
+                self.py_logger.warning("[WARN] \t Warning: The number of "
+                                       "GPU\'s configured to use is {}, "
+                                       "but only {} are available "
+                                       "on this machine."
+                                       .format(multiple_gpus["nr_gpus"],
+                                               n_gpu))
             n_gpu_use = n_gpu
-        device = torch.device("cuda:0" if n_gpu_use > 0 else "cpu")
-        list_ids = list(range(n_gpu_use))
+            list_ids = list(range(n_gpu_use))
+            device = torch.device("cuda", 0)
+
         return device, list_ids
 
     def _configure_gpu(self, model, config):
@@ -164,8 +192,8 @@ class BaseTrainer:
         :param model:
         :param config: config json obj.
         """
-        self.device, device_ids = self._prepare_gpu_device(
-            config["host"]["n_gpu"])
+        self.device, device_ids = self._prepare_gpu_devices(
+            config["host"]["gpu_settings"])
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -290,19 +318,36 @@ class BaseTrainer:
     ###
     # Learning rate schedler helpers
     ###
+    def init_schedulers(self, config):
+        self.schedulers = []
+        if "lr_schedulers" in config["optimizer"] \
+                and len(config["optimizer"]["lr_schedulers"]) > 0:
+            self.schedulers = [self.init_scheduler(
+                s) for s in config["optimizer"]["lr_schedulers"]]
+            # order by priority and set the first one active
+            self.schedulers = sorted(self.schedulers, key=lambda x: x.priority)
+            self.schedulers[0].active = True
+
+    def init_scheduler(self, scheduler):
+        return getattr(all_sch, scheduler["type"])(
+            optimizer=self.optimizer, **scheduler["args"])
+
     def adapt_lr(self, epoch):
         """Adapts learning rate dynamically or as scheduled
         The dynamic scheduler takes priority over the lr_scheduler
         """
-        if self.dynamic_lr_scheduler is not None:
-            if self.dynamic_lr_scheduler.still_adapting():
-                self.dynamic_lr_scheduler.adapt_lr(epoch, self.optimizer)
-            elif self.lr_scheduler is not None:
-                self.lr_scheduler.step()
-        elif self.lr_scheduler is not None:
-            self.lr_scheduler.step()
-
-        self.lrates = self.get_lrates()
+        if len(self.schedulers) > 0:
+            # get active scheduler
+            for index, sch in enumerate(self.schedulers):
+                if sch.active:
+                    sch.step(epoch)
+                    # activate next scheduler if
+                    # after this step the scheduler is false
+                    if sch.active is False:
+                        if len(self.schedulers) >= index+1:
+                            self.schedulers[index+1].active = True
+                        del self.schedulers[index]
+            self.lrates = self.get_lrates()
 
     def get_lrates(self):
         """Returns learning rates for all parameter groups of the optimizer"""
