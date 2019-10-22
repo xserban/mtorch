@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # custom cli options to modify configuration
     # from default values given in json file.
     CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
-    options = []
+    options = {}
     config = ConfigParser(args, options)
 
     runner = Runner(config)
