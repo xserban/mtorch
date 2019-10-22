@@ -61,17 +61,21 @@ class MRunners:
             threads = []
             for c in task["configs"]:
                 r = Runner(c)
-                t = Thread(target=r.run_experiment())
+                t = Thread(target=r.run_experiment)
                 threads.append(t)
             # Start all threads
-            for x in threads:
-                x.start()
+            for t in threads:
+                t.start()
             # Wait for all of them to finish
-            for x in threads:
-                x.join()
+            # TODO: change this so when a thread
+            # stops a new task is performed
+            # with the current implementation, a task finishes
+            # only when all config files are ran. So one experiment
+            # may "wait" for the others and not use resources wisely
+            for t in threads:
+                t.join()
 
     def find_pairs(self, task, sgroups):
-        print(len(sgroups))
         max_gpu = torch.cuda.device_count()
         options = [x for x in sgroups if (x["len_ids"]+task["len_ids"])
                    <= max_gpu and x["str_ids"] != task["str_ids"]]
@@ -84,8 +88,10 @@ class MRunners:
 
         if len(options) > 0:
             # merge tasks
+            task["str_ids"] += " " + options[0]["str_ids"]
+            task["ids"] += options[0]["ids"]
             task["len_ids"] += options[0]["len_ids"]
-            task["configs"].append(options[0]["configs"])
+            task["configs"] += options[0]["configs"]
             sgroups.pop(sgroups.index(options[0]))
             # search for another concurrent task
             if ((task["len_ids"]) < max_gpu):
@@ -97,15 +103,15 @@ class MRunners:
         grps = []
         for cnf in self.cgpus:
             ids = cnf["host"]["gpu_settings"]["custom_gpu"]["ids"]
-            ex = [x for x in grps if x['str_ids'] == str(ids)]
+        # ex = [x for x in grps if x['str_ids'] == str(ids)]
 
-            if len(ex) > 0:
-                ex[0]["configs"].append(cnf)
-            else:
-                grps.append({
-                    "str_ids": str(ids),
-                    "ids": ids,
-                    "len_ids": len(ids),
-                    "configs": [cnf]
-                })
+        # if len(ex) > 0:
+        # ex[0]["configs"].append(cnf)
+        # else:
+            grps.append({
+                "str_ids": str(ids),
+                "ids": ids,
+                "len_ids": len(ids),
+                "configs": [cnf]
+            })
         return grps

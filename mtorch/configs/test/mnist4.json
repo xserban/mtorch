@@ -6,8 +6,8 @@
       "custom_gpu": {
         "do": true,
         "ids": [
-          1,
-          2
+          0,
+          1
         ]
       },
       "multiple_gpus": {
@@ -79,7 +79,7 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 10,
+    "epochs": 2,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,

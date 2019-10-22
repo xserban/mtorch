@@ -78,7 +78,7 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 10,
+    "epochs": 2,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
