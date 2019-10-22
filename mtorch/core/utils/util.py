@@ -1,16 +1,22 @@
 import json
+import numpy as np
+import torch
+import os
+
 from pathlib import Path
 from datetime import datetime
 from itertools import repeat
 from collections import OrderedDict
-import numpy as np
-import torch
 
 
 def ensure_dir(dirname):
     dirname = Path(dirname)
     if not dirname.is_dir():
         dirname.mkdir(parents=True, exist_ok=False)
+
+
+def read_dir_files(path):
+    return [f for f in os.listdir(path)]
 
 
 def read_json(fname, dic=True):
@@ -23,6 +29,13 @@ def read_json(fname, dic=True):
 def write_json(content, fname):
     with fname.open("wt") as handle:
         json.dump(content, handle, indent=4, sort_keys=False)
+
+
+def remove_from_dic(elements, dic):
+    for el in dic:
+        if el in elements:
+            del el
+    return dic
 
 
 def inf_loop(data_loader):

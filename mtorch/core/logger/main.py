@@ -20,7 +20,7 @@ class Logger(BaseLogger, metaclass=Singleton):
                  config,
                  log_dir,
                  log_levels,
-                 py_log_config="core/logger/py_logger_config.json",
+                 py_log_config="mtorch/core/logger/py_logger_config.json",
                  py_default_level=logging.ERROR,
                  sacred_ex=None):
         super(Logger, self).__init__()
