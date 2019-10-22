@@ -1,0 +1,154 @@
+{
+  "name": "MNIST_Standard",
+  "host": {
+    "name": "x4",
+    "gpu_settings": {
+      "custom_gpu": {
+        "do": false,
+        "ids": [
+          1
+        ]
+      },
+      "multiple_gpus": {
+        "do": true,
+        "nr_gpus": 2
+      }
+    }
+  },
+  "data": {
+    "loader": {
+      "type": "MnistLoader",
+      "args": {
+        "data_dir": "downloaded-data/",
+        "batch_size": 128,
+        "shuffle": true,
+        "validation_split": 0.1,
+        "transformations": "MNISTTransformations"
+      },
+      "kwargs": {
+        "pin_memory": true
+      }
+    }
+  },
+  "model": {
+    "arch": {
+      "type": "LeNet",
+      "args": {
+        "num_classes": 10
+      }
+    },
+    "loss_function": {
+      "type": "TorchLoss",
+      "args": {
+        "l_name": "CrossEntropyLoss",
+        "bargs": {},
+        "kwargs": {}
+      }
+    }
+  },
+  "optimizer": {
+    "opt": {
+      "type": "Adam",
+      "args": {
+        "lr": 0.001,
+        "weight_decay": 0,
+        "amsgrad": true
+      }
+    },
+    "lr_schedulers": [
+      {
+        "type": "TorchScheduler",
+        "args": {
+          "priority": 0,
+          "name": "StepLR",
+          "step_size": 5,
+          "gamma": 0.0001
+        }
+      }
+    ]
+  },
+  "metrics": [
+    {
+      "type": "EpochAccuracy",
+      "args": {}
+    }
+  ],
+  "training": {
+    "trainer": {
+      "type": "DefaultTrainer",
+      "args": {}
+    },
+    "epochs": 10,
+    "save_dir": "saved/",
+    "save_period": 50,
+    "log_verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 10
+  },
+  "testing": {
+    "do": true,
+    "test_epochs_interval": 1,
+    "test_batch_size": 128
+  },
+  "logging": {
+    "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
+    "index_batches": false,
+    "log_params": false,
+    "log_train_images": false,
+    "log_test_images": false,
+    "tensorboard_logs": {
+      "do": false
+    },
+    "sacred_logs": {
+      "do": true,
+      "mongo_url": "mongodb://192.168.178.26:27017",
+      "db_name": "sacred-db",
+      "settings": {
+        "DISCOVER_SOURCES": "sys",
+        "CAPTURE_MODE": "sys"
+      }
+    },
+    "infrastructure_logs": {
+      "do": false,
+      "config": {
+        "time": 5,
+        "save_dir": "saved/",
+        "metrics": [
+          {
+            "type": "CpuLoad"
+          },
+          {
+            "type": "CpuTemp",
+            "args": {
+              "tmp_key": "k10temp"
+            }
+          },
+          {
+            "type": "GPUs"
+          },
+          {
+            "type": "Memory"
+          }
+        ],
+        "elk": {
+          "elastic": {
+            "host": "http://192.168.178.26:9200/",
+            "index": {
+              "name": "experiment-metrics",
+              "config": {
+                "mappings": {
+                  "_default_": {
+                    "_timestamp": {
+                      "enabled": true,
+                      "store": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,26 +11,22 @@ from core.utils import read_json, write_json
 
 class ConfigParser:
     def __init__(self, args, options="", timestamp=True):
-        # parse default and custom cli options
-        for opt in options:
-            args.add_argument(*opt.flags, default=None, type=opt.type)
         args = args.parse_args()
+        args = vars(args)
+        for key, value in options.items():
+            args[key] = value
 
-        if args.device:
-            os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-        if args.resume:
-            self.resume = Path(args.resume)
+        if args["resume"]:
+            self.resume = Path(args["resume"])
             self.cfg_fname = self.resume.parent / "config.json"
         else:
             msg_no_cfg = "Configuration file need to be "
             "specified. Add '-c config.json', for example."
-            assert args.config is not None, msg_no_cfg
+            assert args["config"] is not None, msg_no_cfg
             self.resume = None
-            self.cfg_fname = Path(args.config)
+            self.cfg_fname = Path(args["config"])
 
-        # load config file and apply custom cli options
-        config = read_json(self.cfg_fname)
-        self._config = _update_config(config, options, args)
+        self._config = read_json(self.cfg_fname)
 
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config["training"]["save_dir"])
@@ -93,15 +89,6 @@ class ConfigParser:
     @property
     def log_dir(self):
         return self._log_dir
-
-
-# helper functions used to update config dict with custom cli options
-def _update_config(config, options, args):
-    for opt in options:
-        value = getattr(args, _get_opt_name(opt.flags))
-        if value is not None:
-            _set_by_path(config, opt.target, value)
-    return config
 
 
 def _get_opt_name(flags):

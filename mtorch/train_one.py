@@ -1,18 +1,7 @@
 import argparse
 import collections
-import os
-import torch
-import core.data.data_loaders as module_data
-import core.model.loss as module_loss
-import core.model.metrics as module_metric
-import core.model.arch as module_arch
-import core.train.coach as module_train
 
 from core.utils.parse_config import ConfigParser
-
-from sacred import Experiment
-from sacred.observers import MongoObserver
-from core.experiment.sacred import Sacred
 from core.experiment.runner import Runner
 
 
