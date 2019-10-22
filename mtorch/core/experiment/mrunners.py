@@ -83,7 +83,7 @@ class MRunners:
             options, key=lambda o: (o["len_ids"]+task["len_ids"]))
 
         if len(options) > 0:
-                # merge tasks
+            # merge tasks
             task["len_ids"] += options[0]["len_ids"]
             task["configs"].append(options[0]["configs"])
             sgroups.pop(sgroups.index(options[0]))
