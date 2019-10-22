@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from itertools import repeat
 from collections import OrderedDict
+import numpy as np
 import torch
 
 
@@ -30,10 +31,14 @@ def inf_loop(data_loader):
         yield from loader
 
 
-def sample_n_random_datapoints(data, labels, n=100):
+def sample_n_datapoints(data, labels, n=100):
     """Selects n random datapoints and their
     corresponding labels from a dataset
     """
     assert len(data) == len(labels)
+    # convert to np arrays because labels
+    # are usually python lists
+    data = np.array(data)
+    labels = np.array(labels)
     perm = torch.randperm(len(data))
     return data[perm][:n], labels[perm][:n]
