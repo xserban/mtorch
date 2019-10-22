@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from itertools import repeat
 from collections import OrderedDict
+import torch
 
 
 def ensure_dir(dirname):
@@ -29,15 +30,10 @@ def inf_loop(data_loader):
         yield from loader
 
 
-class Timer:
-    def __init__(self):
-        self.cache = datetime.now()
-
-    def check(self):
-        now = datetime.now()
-        duration = now - self.cache
-        self.cache = now
-        return duration.total_seconds()
-
-    def reset(self):
-        self.cache = datetime.now()
+def sample_n_random_datapoints(data, labels, n=100):
+    """Selects n random datapoints and their
+    corresponding labels from a dataset
+    """
+    assert len(data) == len(labels)
+    perm = torch.randperm(len(data))
+    return data[perm][:n], labels[perm][:n]
