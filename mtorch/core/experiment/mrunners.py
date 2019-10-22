@@ -38,7 +38,7 @@ class MRunners:
 
     def run_all(self):
         print("[INFO] \t Running all experiments on multiple GPUs")
-        # self.run_multiple_gpus()
+        self.run_multiple_gpus()
         print("[INFO] \t Running all experiments on custom GPUs")
         self.run_custom_gpus()
 
