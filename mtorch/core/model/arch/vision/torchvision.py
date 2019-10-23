@@ -12,7 +12,11 @@ class TorchvisionModel(BaseModel):
         self.model = getattr(torchmodels, model_name)(**model_args)
         if num_classes != "same":
             assert isinstance(num_classes, int)
-            num_ftrs = self.model.fc.in_features
+            # pythorch is inconsistent with the final layer
+            if hasattr(self.model, 'fc'):
+                num_ftrs = self.model.fc.in_features
+            if hasattr(self.model, 'classifier'):
+                num_ftrs = self.model.classifier.in_features
             self.model.fc = nn.Linear(num_ftrs, num_classes)
 
     def forward(self, inputs):
