@@ -3,8 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torch.autograd import Variable
-
 
 class Bottleneck(nn.Module):
     def __init__(self, in_planes, growth_rate):
@@ -32,11 +30,11 @@ class Transition(nn.Module):
     def forward(self, x):
         out = self.conv(F.relu(self.bn(x)))
         out = F.avg_pool2d(out, 2)
+        return out
 
 
 class DenseNet(nn.Module):
-    def __init__(self, block, nblocks, growth_rate=12,
-                 reduction=0.5, num_classes=10):
+    def __init__(self, block, nblocks, growth_rate=12, reduction=0.5, num_classes=10):
         super(DenseNet, self).__init__()
         self.growth_rate = growth_rate
 
@@ -45,7 +43,7 @@ class DenseNet(nn.Module):
             3, num_planes, kernel_size=3, padding=1, bias=False)
 
         self.dense1 = self._make_dense_layers(block, num_planes, nblocks[0])
-        num_planes = nblocks[0]*growth_rate
+        num_planes += nblocks[0]*growth_rate
         out_planes = int(math.floor(num_planes*reduction))
         self.trans1 = Transition(num_planes, out_planes)
         num_planes = out_planes
@@ -70,7 +68,7 @@ class DenseNet(nn.Module):
 
     def _make_dense_layers(self, block, in_planes, nblock):
         layers = []
-        for _ in range(nblock):
+        for i in range(nblock):
             layers.append(block(in_planes, self.growth_rate))
             in_planes += self.growth_rate
         return nn.Sequential(*layers)

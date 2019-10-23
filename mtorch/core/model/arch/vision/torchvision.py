@@ -15,9 +15,21 @@ class TorchvisionModel(BaseModel):
             # pythorch is inconsistent with the final layer
             if hasattr(self.model, 'fc'):
                 num_ftrs = self.model.fc.in_features
-            if hasattr(self.model, 'classifier'):
-                num_ftrs = self.model.classifier.in_features
-            self.model.fc = nn.Linear(num_ftrs, num_classes)
+                self.model.fc = nn.Linear(num_ftrs, num_classes)
+            elif hasattr(self.model, 'classifier'):
+                try:
+                    if len(self.model.classifier) > 1:
+                        num_ftrs = self.model.classifier[-1].in_features
+                        self.model.classifier[-1] = nn.Linear(
+                            num_ftrs, num_classes)
+                except Exception as e:
+                    try:
+                        num_ftrs = self.model.classifier.in_features
+                        self.model.classifier = nn.Linear(
+                            num_ftrs, num_classes)
+                    except Exception as e:
+                        print("[WARN] \t ", e)
+                        raise e
 
     def forward(self, inputs):
         return self.model.forward(inputs)
