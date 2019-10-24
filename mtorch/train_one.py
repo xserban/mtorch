@@ -2,6 +2,7 @@ import argparse
 import collections
 
 from core.utils.parse_config import ConfigParser
+from core.utils.util import set_seed
 from core.experiment.runner import Runner
 
 
@@ -20,5 +21,6 @@ if __name__ == "__main__":
     options = {}
     config = ConfigParser(args, options)
 
+    set_seed(123)
     runner = Runner(config)
     runner.run_experiment()

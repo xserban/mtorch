@@ -5,6 +5,7 @@ import argparse
 import collections
 import os
 import torch
+
 import core.data.data_loaders as module_data
 import core.model.loss as module_loss
 import core.model.metrics as module_metric
@@ -102,8 +103,3 @@ class Runner:
             lambda p: p.requires_grad, model.parameters())
         return self.config.initialize(
             torch.optim, self.config["optimizer"]["opt"], trainable_params)
-
-
-# @ex.main
-# def run_sacred(main):
-#     print("FAKE", main)

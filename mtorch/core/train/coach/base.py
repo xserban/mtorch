@@ -344,9 +344,9 @@ class BaseTrainer:
                     # activate next scheduler if
                     # after this step the scheduler is false
                     if sch.active is False:
+                        del self.schedulers[index]
                         if len(self.schedulers) >= index+1:
                             self.schedulers[index+1].active = True
-                        del self.schedulers[index]
             self.lrates = self.get_lrates()
 
     def get_lrates(self):

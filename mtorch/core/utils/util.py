@@ -9,6 +9,13 @@ from itertools import repeat
 from collections import OrderedDict
 
 
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+
+
 def ensure_dir(dirname):
     dirname = Path(dirname)
     if not dirname.is_dir():

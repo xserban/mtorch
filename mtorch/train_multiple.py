@@ -2,7 +2,7 @@ import argparse
 
 from core.experiment.mrunners import MRunners
 from core.utils.parse_config import ConfigParser
-from core.utils.util import read_dir_files, read_json
+from core.utils.util import read_dir_files, read_json, set_seed
 
 from pathlib import Path
 
@@ -25,11 +25,5 @@ if __name__ == "__main__":
     for f in files:
         configs.append(ConfigParser(args, options={"config": str(fpath / f)}))
 
+    set_seed(123)
     runner = MRunners(configs)
-    # configs = [ConfigParser(fpath / f) for f in files]
-    # print(jsons)
-
-    # config = ConfigParser(args)
-
-    # runner = Runner(config)
-    # runner.run_experiment()
