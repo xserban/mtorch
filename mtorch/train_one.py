@@ -21,6 +21,6 @@ if __name__ == "__main__":
     options = {}
     config = ConfigParser(args, options)
 
-    set_seed(123)
+    set_seed(0)
     runner = Runner(config)
     runner.run_experiment()

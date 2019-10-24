@@ -25,5 +25,5 @@ if __name__ == "__main__":
     for f in files:
         configs.append(ConfigParser(args, options={"config": str(fpath / f)}))
 
-    set_seed(123)
+    set_seed(0)
     runner = MRunners(configs)
