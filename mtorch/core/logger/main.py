@@ -112,8 +112,10 @@ class Logger(BaseLogger, metaclass=Singleton):
         if self.sacred_logger is not None:
             try:
                 self.sacred_logger.add_artifact(filename, name, metadata)
+                print("[LOGGER] \t Saved artifact to database {}"
+                      .format(str(name)))
             except Exception as e:
-                print("[EROR][LOGGER] \t Could not save "
+                print("[ERROR][LOGGER] \t Could not save "
                       "artifact {} \t {}".format(name, e))
 
     def start_loops(self):
