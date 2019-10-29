@@ -90,7 +90,7 @@
     "trainer": {
       "type": "PrototypicalTrainer",
       "args": {
-        "word2vec_path": "/home/fester/Documents/Projects/torch/template/pytorch-template/downloaded-data/GoogleNews-vectors-negative300.bin"
+        "word2vec_path": "/mnt/bay-hdd-1/downloaded-data/GoogleNews-vectors-negative300.bin"
       }
     },
     "epochs": 90,
