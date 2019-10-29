@@ -19,11 +19,11 @@ class CityscapesLoader(BaseDataLoader):
         _transf = BaseDataLoader.get_transformations(
             self, name=transformations)
 
-        trans = _transf.get_train_trans() if split == "train" \
+        self.trans = _transf.get_train_trans() if split == "train" \
             else _transf.get_test_trans()
 
         self.data_dir = data_dir
         self.dataset = datasets.Cityscapes(
-            self.data_dir, split=split, transform=trans, **kwargs)
+            self.data_dir, split=split, transform=self.trans, **kwargs)
         super().__init__(self.dataset, batch_size, shuffle,
                          validation_split)
