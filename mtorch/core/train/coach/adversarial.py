@@ -81,9 +81,8 @@ class AdversarialTrainer(BaseTrainer):
         """
         print("[INFO][TRAIN] \t Starting Training Epoch {}:".format(epoch))
         self.model.train()
-        total_loss = 0
-        total_adversarial_loss = 0
-        total_metrics = np.zeros(len(self.metrics))
+        total_loss, total_adversarial_loss, total_metrics = 0, 0, np.zeros(
+            len(self.metrics))
 
         for batch_idx, (data, target) in \
                 enumerate(tqdm(self.train_data_loader)):
@@ -98,27 +97,27 @@ class AdversarialTrainer(BaseTrainer):
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
                                   "train",
                                   loss,
-                                  {},
+                                  metrics,
                                   data)
 
             if batch_idx == self.len_epoch:
                 break
         # log info specific to the whole epoch
-        total_train_loss = total_loss / self.len_epoch
-        total_adversarial_loss = total_adversarial_loss / self.len_epoch
-        total_train_metrics = (total_metrics /
-                               len(self.train_data_loader)).tolist()
+        avg_loss = total_loss / self.len_epoch
+        avg_loss_adv = total_adversarial_loss / self.len_epoch
+        avg_metrics = (total_metrics /
+                       len(self.train_data_loader)).tolist()
         # add adversarial loss to custom metrics
-        metr = self.get_metrics_dic(total_train_metrics)
-        metr["adversarial_loss"] = total_adversarial_loss
+        metr = self.get_metrics_dic(avg_metrics)
+        metr["adversarial_loss"] = avg_loss_adv
         self.logger.log_epoch(epoch - 1, "train",
-                              total_train_loss,
+                              avg_loss,
                               metr,
                               self.lrates)
         log = {
-            "loss": total_train_loss,
-            "adversarial_loss": total_adversarial_loss,
-            "train_metrics": total_train_metrics
+            "loss": avg_loss,
+            "adversarial_loss": avg_loss_adv,
+            "train_metrics": avg_metrics
         }
         # run validation and testing
         self._validate_and_test(epoch, log)
@@ -186,9 +185,8 @@ class AdversarialTrainer(BaseTrainer):
         print("[INFO][VALIDATION] \t "
               "Starting Validation Epoch {}:".format(epoch))
         self.model.eval()
-        total_val_loss = 0
-        total_adv_loss = 0
-        total_val_metrics = np.zeros(len(self.metrics))
+        total_val_loss, total_adv_loss, total_val_metrics = 0, 0, np.zeros(
+            len(self.metrics))
 
         for batch_idx, (data, target) in enumerate(self.valid_data_loader):
             data, target = data.to(self.device), target.to(self.device)
@@ -207,15 +205,15 @@ class AdversarialTrainer(BaseTrainer):
                                   dic_metrics,
                                   data)
         # log info specific to the whole validation epoch
-        total_loss = total_val_loss / len(self.valid_data_loader)
-        total_adv_loss = total_adv_loss / len(self.test_data_loader)
-        total_metrics = (total_val_metrics /
-                         len(self.valid_data_loader)).tolist()
+        avg_loss = total_val_loss / len(self.valid_data_loader)
+        avg_loss_adv = total_adv_loss / len(self.test_data_loader)
+        avg_metrics = (total_val_metrics /
+                       len(self.valid_data_loader)).tolist()
         # add adversarial loss to custom metrics
-        metr = self.get_metrics_dic(total_metrics)
-        metr["adversarial_loss"] = total_adv_loss
+        metr = self.get_metrics_dic(avg_metrics)
+        metr["adversarial_loss"] = avg_loss_adv
         self.logger.log_epoch(epoch - 1, "valid",
-                              total_loss,
+                              avg_loss,
                               metr,
                               None)
         # add histogram of model parameters to the tensorboard
@@ -223,17 +221,16 @@ class AdversarialTrainer(BaseTrainer):
             epoch-1, "valid", self.model.named_parameters())
         # return final log metrics
         return {
-            "val_loss": total_loss,
-            "val_adv_loss": total_adv_loss,
-            "val_metrics": total_metrics
+            "val_loss": avg_loss,
+            "val_adv_loss": avg_loss_adv,
+            "val_metrics": avg_metrics
         }
 
     def _test_epoch(self, epoch):
         print("[INFO][TEST] \t Starting Test Epoch {}:".format(epoch))
         self.model.eval()
-        total_test_loss = 0
-        total_adv_loss = 0
-        total_test_metrics = np.zeros(len(self.metrics))
+        total_test_loss, total_adv_loss, total_test_metrics = 0, 0, np.zeros(
+            len(self.metrics))
 
         for i, (data, target) in enumerate(tqdm(self.test_data_loader)):
             data, target = data.to(self.device), target.to(self.device)
@@ -251,22 +248,22 @@ class AdversarialTrainer(BaseTrainer):
                                   dic_metrics,
                                   data)
         # log results specific to epoch
-        total_loss = total_test_loss / len(self.test_data_loader)
-        total_adv_loss = total_adv_loss / len(self.test_data_loader)
-        total_metrics = (total_test_metrics /
-                         len(self.test_data_loader)).tolist()
+        avg_loss = total_test_loss / len(self.test_data_loader)
+        avg_loss_adv = total_adv_loss / len(self.test_data_loader)
+        avg_metrics = (total_test_metrics /
+                       len(self.test_data_loader)).tolist()
         # add adversarial loss to custom metrics
-        metr = self.get_metrics_dic(total_metrics)
-        metr["adversarial_loss"] = total_adv_loss
+        metr = self.get_metrics_dic(avg_metrics)
+        metr["adversarial_loss"] = avg_loss_adv
         self.logger.log_epoch(epoch - 1, "test",
-                              total_loss,
+                              avg_loss,
                               metr,
                               None)
         # return final log metrics
         return {
-            "test_loss": total_loss,
-            "test_adv_loss": total_adv_loss,
-            "test_metrics": total_metrics
+            "test_loss": avg_loss,
+            "test_adv_loss": avg_loss_adv,
+            "test_metrics": avg_metrics
         }
 
     def eval_metrics(self, output, adversarial_output, target):
