@@ -1,3 +1,8 @@
+# Implementation for paper https://arxiv.org/pdf/1904.12843.pdf
+# We can supply an attack type to this trainer and the trainer will
+# evaluate the model using this attack. Training, however, is done
+# by accumulating FGSM perturbations; as in the paper.
+###
 import advertorch.attacks as attacks
 from advertorch.context import ctx_noparamgrad_and_eval
 
@@ -9,16 +14,19 @@ from core.train.coach.base import BaseTrainer
 from core.utils import inf_loop
 
 
-class AdversarialTrainer(BaseTrainer):
+class FreeAdversarialTrainer2(BaseTrainer):
     """Performs adversarial training
        using a given attack
     """
 
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
+                 batch_iterations,
                  attack_type,
                  attack_params,
-                 worst_case_training,
+                 eps=4.0,
+                 worst_case_training=False,
+                 new_perturbation=False,
                  valid_data_loader=None,
                  test_data_loader=None,
                  len_epoch=None):
@@ -49,6 +57,22 @@ class AdversarialTrainer(BaseTrainer):
             attack_params["kwargs"]["eps_iter"] /= attack_params["ratio"]
         self._init_attack(attack_type, attack_params["kwargs"])
         self.worst_case_training = worst_case_training
+
+        # free adversarial
+        self.batch_iterations = batch_iterations
+        self.new_perturbation = new_perturbation
+        # TODO make this automatic
+        self.eps = eps/255.0
+        self._init_perturbation()
+
+    def _init_perturbation(self):
+        # TODO: automatically take the inputs, channels etc
+        self.perturbation = torch.zeros(
+            self.config["data"]["loader"]["args"]["batch_size"],
+            3,
+            32,
+            32
+        ).to(self.device)
 
     def _init_attack(self, attack_type, attack_parameters):
         """Initializes adversarial attack
@@ -92,7 +116,8 @@ class AdversarialTrainer(BaseTrainer):
                 data, target, eval_metrics=True)
             total_loss += loss
             total_adversarial_loss += adv_loss
-            total_metrics += metrics
+
+            # total_metrics += metrics
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
                                   "train",
@@ -135,36 +160,48 @@ class AdversarialTrainer(BaseTrainer):
         :param target: labels batch
         :return: loss value
         """
-        # generate adversarial data
-        original_data = data
-        with ctx_noparamgrad_and_eval(self.model):
-            adversarial_data = self.adversary.perturb(data, target)
-        self.optimizer.zero_grad()
-        # get adversarial output and normal+adversarial loss
-        if train is True:
-            output = self.model(original_data)
-            adv_output = self.model(adversarial_data)
-        else:
-            with torch.no_grad():
-                output = self.model(original_data)
-                adv_output = self.model(adversarial_data)
-
-        adv_loss = self.loss(adv_output, target)
-        loss = self.loss(output, target)
+        losses, metrics = [], []
 
         if train is True:
-            if self.worst_case_training is False:
+            for _ in range(self.batch_iterations):
+                pert = torch.autograd.Variable(
+                    self.get_perturbation()[0:data.size(0)],
+                    requires_grad=True).to(self.device)
+                inpt = data + pert
+                inpt.clamp_(0, 1.0)
+
+                output = self.model(inpt)
+
+                loss = self.loss(output, target)
+                losses.append(loss.item())
+
+                self.optimizer.zero_grad()
                 loss.backward()
-                self.optimizer.step()
-            adv_loss.backward()
-            self.optimizer.step()
 
-        if eval_metrics is True:
-            metrics = self.eval_metrics(output, adv_output, target)
-            return loss.item(), adv_loss.item(), metrics, \
-                self.get_metrics_dic(metrics)
+                self.set_perturbation(data.size(0), pert.grad)
+                self.optimizer.step()
+
+                if eval_metrics:
+                    m = self.eval_metrics(output, target)
+                    metrics.append(m)
+            return sum(losses)/float(len(losses)), 0, {}, {}
         else:
-            return loss.item(), adv_loss.item()
+            original_data = data
+            with ctx_noparamgrad_and_eval(self.model):
+                adversarial_data = self.adversary.perturb(data, target)
+            output = self.model(original_data)
+            adv_out = self.model(adversarial_data)
+
+            loss = self.loss(output, target)
+            adv_loss = self.loss(adv_out, target)
+
+            if eval_metrics is True:
+                metrics = self.eval_adv_metrics(output, adv_out, target)
+                return loss.item(), adv_loss.item(), metrics, self.get_metrics_dic(metrics)
+            else:
+                return loss.item()
+
+        self._init_perturbation()
 
     def _validate_and_test(self, epoch, log):
         """Run validation and testing"""
@@ -266,7 +303,7 @@ class AdversarialTrainer(BaseTrainer):
             "test_metrics": avg_metrics
         }
 
-    def eval_metrics(self, output, adversarial_output, target):
+    def eval_adv_metrics(self, output, adversarial_output, target):
         """Evaluate all metrics"""
         metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
@@ -275,3 +312,28 @@ class AdversarialTrainer(BaseTrainer):
             else:
                 metrics[i] = metric.forward(output, target)
         return metrics
+
+    def get_perturbation(self):
+        """Returns perturbation for each batch
+        In some cases the perturbation is new for each batch,
+        in others it is summed over all batches
+        """
+        if self.new_perturbation is True:
+            self._init_perturbation()
+        return self.perturbation
+
+    def set_perturbation(self, max_size, grad=None):
+        """Accumulates ascending gradients to perturbation
+        :max_size: maximum length of perturbation
+        :param grad: parameter gradients
+        """
+        if grad is not None:
+            pert = self.fgsm(grad, self.eps)
+            self.perturbation[0:max_size] += pert.data
+            self.perturbation.clamp_(-self.eps,
+                                     self.eps)
+        else:
+            self._init_perturbation()
+
+    def fgsm(self, gradz, step_size):
+        return step_size*torch.sign(gradz)
