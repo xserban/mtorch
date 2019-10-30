@@ -1,3 +1,4 @@
+
 import torch
 from .base import BaseMetric
 
@@ -14,7 +15,7 @@ class AdversarialAccuracy(BaseMetric):
             correct = 0
             correct += torch.sum(pred == target).item()
 
-        return correct / len(target)
+        return 100 * (correct / len(target))
 
     def get_name(self):
         return "AdversarialAccuracy"

@@ -1,5 +1,5 @@
 {
-  "name": "Cifar10_ResNet34_PGDMadry",
+  "name": "MNIST_Free_Adv",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -17,7 +17,7 @@
   },
   "data": {
     "loader": {
-      "type": "CIFAR10Loader",
+      "type": "MnistLoader",
       "args": {
         "data_dir": "downloaded-data/",
         "batch_size": 128,
@@ -32,9 +32,8 @@
   },
   "model": {
     "arch": {
-      "type": "ResNet34",
+      "type": "LeNet",
       "args": {
-        "num_channels": 3,
         "num_classes": 10
       }
     },
@@ -52,7 +51,7 @@
       "type": "SGD",
       "args": {
         "lr": 0.1,
-        "weight_decay": 0.0001,
+        "weight_decay": 0.0002,
         "momentum": 0.9
       }
     },
@@ -87,15 +86,15 @@
     "trainer": {
       "type": "FreeAdversarialTrainer",
       "args": {
-        "eps": 4.0,
-        "ratio": 255.0,
+        "eps": 3.0,
+        "ratio": 1.0,
         "batch_iterations": 4,
         "new_perturbation": false,
         "attack_type": "LinfPGDAttack",
         "attack_params": {
-          "ratio": 255.0,
+          "ratio": 255,
           "kwargs": {
-            "eps": 4.0,
+            "eps": 8.0,
             "nb_iter": 5,
             "eps_iter": 2.0,
             "rand_init": true,

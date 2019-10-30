@@ -14,10 +14,9 @@ from core.train.coach.base import BaseTrainer
 from core.utils import inf_loop
 
 
-class FreeAdversarialTrainer2(BaseTrainer):
-    """Performs adversarial training
-       using a given attack
-    """
+class FreeAdversarialTrainer(BaseTrainer):
+    """Performs free adversarial training,
+        tests and validates using a given attack"""
 
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
@@ -25,6 +24,7 @@ class FreeAdversarialTrainer2(BaseTrainer):
                  attack_type,
                  attack_params,
                  eps=4.0,
+                 ratio=1.0,
                  worst_case_training=False,
                  new_perturbation=False,
                  valid_data_loader=None,
@@ -51,27 +51,32 @@ class FreeAdversarialTrainer2(BaseTrainer):
 
         self.lrates = self.get_lrates()
 
-        # init adversarial attack
+        # free adversarial training
+        self.batch_iterations = batch_iterations
+        self.new_perturbation = new_perturbation
+        self.eps = eps/ratio
+        self._init_perturbation(self.train_data_loader)
+
+        # init adversarial attack for testing
         if attack_params["ratio"] is not None:
             attack_params["kwargs"]["eps"] /= attack_params["ratio"]
             attack_params["kwargs"]["eps_iter"] /= attack_params["ratio"]
         self._init_attack(attack_type, attack_params["kwargs"])
         self.worst_case_training = worst_case_training
 
-        # free adversarial
-        self.batch_iterations = batch_iterations
-        self.new_perturbation = new_perturbation
-        # TODO make this automatic
-        self.eps = eps/255.0
-        self._init_perturbation()
-
-    def _init_perturbation(self):
-        # TODO: automatically take the inputs, channels etc
+    def _init_perturbation(self, data_loader=None):
+        """Initializes an empty variable to hold the perturbation
+        :param data_loader: a dataloader which has the width and height
+          attributes from its dataset (see BaseDataLoader class for more
+          details)
+        """
+        if data_loader is None:
+            data_loader = self.train_data_loader
         self.perturbation = torch.zeros(
             self.config["data"]["loader"]["args"]["batch_size"],
-            3,
-            32,
-            32
+            data_loader.dchannels,
+            data_loader.dwidth,
+            data_loader.dheight
         ).to(self.device)
 
     def _init_attack(self, attack_type, attack_parameters):
@@ -112,12 +117,10 @@ class FreeAdversarialTrainer2(BaseTrainer):
                 enumerate(tqdm(self.train_data_loader)):
             data, target = data.to(self.device), target.to(self.device)
             # run batch and get loss
-            loss, adv_loss, metrics, _ = self._run_batch(
+            loss, _, metrics, _ = self._run_batch(
                 data, target, eval_metrics=True)
             total_loss += loss
-            total_adversarial_loss += adv_loss
-
-            # total_metrics += metrics
+            total_metrics += metrics
             # log info specific to this batch
             self.logger.log_batch((epoch - 1) * self.len_epoch + batch_idx,
                                   "train",
@@ -129,19 +132,16 @@ class FreeAdversarialTrainer2(BaseTrainer):
                 break
         # log info specific to the whole epoch
         avg_loss = total_loss / self.len_epoch
-        avg_loss_adv = total_adversarial_loss / self.len_epoch
         avg_metrics = (total_metrics /
                        len(self.train_data_loader)).tolist()
         # add adversarial loss to custom metrics
         metr = self.get_metrics_dic(avg_metrics)
-        metr["adversarial_loss"] = avg_loss_adv
         self.logger.log_epoch(epoch - 1, "train",
                               avg_loss,
                               metr,
                               self.lrates)
         log = {
             "loss": avg_loss,
-            "adversarial_loss": avg_loss_adv,
             "train_metrics": avg_metrics
         }
         # run validation and testing
@@ -184,7 +184,9 @@ class FreeAdversarialTrainer2(BaseTrainer):
                 if eval_metrics:
                     m = self.eval_metrics(output, target)
                     metrics.append(m)
-            return sum(losses)/float(len(losses)), 0, {}, {}
+            batch_avg_metrics = np.average(metrics, axis=0)
+            return sum(losses)/float(len(losses)), 0, batch_avg_metrics, \
+                self.get_metrics_dic(batch_avg_metrics)
         else:
             original_data = data
             with ctx_noparamgrad_and_eval(self.model):
@@ -196,8 +198,9 @@ class FreeAdversarialTrainer2(BaseTrainer):
             adv_loss = self.loss(adv_out, target)
 
             if eval_metrics is True:
-                metrics = self.eval_adv_metrics(output, adv_out, target)
-                return loss.item(), adv_loss.item(), metrics, self.get_metrics_dic(metrics)
+                metrics = self.eval_metrics(output, target, adv_out)
+                return loss.item(), adv_loss.item(), metrics, \
+                    self.get_metrics_dic(metrics)
             else:
                 return loss.item()
 
@@ -303,13 +306,14 @@ class FreeAdversarialTrainer2(BaseTrainer):
             "test_metrics": avg_metrics
         }
 
-    def eval_adv_metrics(self, output, adversarial_output, target):
+    def eval_metrics(self, output, target, adversarial_output=None):
         """Evaluate all metrics"""
         metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
-            if hasattr(metric, "adversarial") and metric.adversarial is True:
+            if hasattr(metric, "adversarial") and metric.adversarial is True \
+               and adversarial_output is not None:
                 metrics[i] = metric.forward(adversarial_output, target)
-            else:
+            elif not hasattr(metric, "adversarial"):
                 metrics[i] = metric.forward(output, target)
         return metrics
 

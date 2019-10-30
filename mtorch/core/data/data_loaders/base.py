@@ -1,6 +1,5 @@
-import numpy as np
-
 import core.data.transformations as transf
+import numpy as np
 
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
@@ -23,6 +22,8 @@ class BaseDataLoader(DataLoader):
         self.sampler, self.valid_sampler = self._split_sampler(
             self.validation_split)
 
+        self.init_sizes(dataset)
+
         self.default_kwargs = {
             "dataset": dataset,
             "batch_size": batch_size,
@@ -30,6 +31,15 @@ class BaseDataLoader(DataLoader):
             "collate_fn": default_collate,
         }
         super().__init__(sampler=self.sampler, **self.default_kwargs, **kwargs)
+
+    def init_sizes(self, dataset):
+        try:
+            self.dchannels = dataset.data[0].shape[2] if len(
+                dataset.data[0].shape) > 2 else 1
+            self.dwidth = dataset.data[0].shape[0]
+            self.dheight = dataset.data[0].shape[1]
+        except Exception as e:
+            print('[WARN] \t Could not determine the size of the data. {}', e)
 
     def _split_sampler(self, split):
         if split == 0.0:
