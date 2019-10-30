@@ -96,7 +96,7 @@
   ],
   "training": {
     "trainer": {
-      "type": "AdversarialTrainer",
+      "type": "AdvertorchAdversarialTrainer",
       "args": {
         "attack_type": "LinfPGDAttack",
         "attack_params": {

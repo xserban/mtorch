@@ -9,7 +9,7 @@ from core.train.coach.base import BaseTrainer
 from core.utils import inf_loop
 
 
-class AdversarialTrainer(BaseTrainer):
+class FoolboxAdversarialTrainer(BaseTrainer):
     """Performs adversarial training
        using a given attack
     """
