@@ -10,9 +10,7 @@ from core.utils import inf_loop
 
 
 class FoolboxAdversarialTrainer(BaseTrainer):
-    """Performs adversarial training
-       using a given attack
-    """
+    """Performs adversarial training using a given foolbox attack"""
 
     def __init__(self, model, loss, metrics, optimizer, config,
                  train_data_loader,
