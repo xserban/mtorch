@@ -1,5 +1,6 @@
 {
-  "name": "Transfer_CIFAR",
+  "project_name": "Transfer_CIFAR",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -126,6 +127,9 @@
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "sys"
       }
+    },
+    "wandb_logs": {
+      "do": true
     },
     "infrastructure_logs": {
       "do": false,

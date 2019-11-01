@@ -1,5 +1,6 @@
 {
-  "name": "MNIST_Standard",
+  "project_name": "MNIST_Standard",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -78,7 +79,7 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 10,
+    "epochs": 3,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
@@ -100,13 +101,16 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "sys"
       }
+    },
+    "wandb_logs": {
+      "do": true
     },
     "infrastructure_logs": {
       "do": false,

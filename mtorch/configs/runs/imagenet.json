@@ -1,5 +1,6 @@
 {
-  "name": "ImageNet_ResNet152",
+  "project_name": "ImageNet_ResNet152",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -107,6 +108,9 @@
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "sys"
       }
+    },
+    "wandb_logs": {
+      "do": true
     },
     "infrastructure_logs": {
       "do": false,
