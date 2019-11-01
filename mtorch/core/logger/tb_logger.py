@@ -24,7 +24,7 @@ class TBLogger(BaseLogger):
     def _log_info(self, step, env, loss, custom_metrics, images=None):
         """Private custom method to log info for a batch/end of epoch"""
         self.writer.set_step(step, env)
-        self.writer.add_scalar("loss", loss)
+        self.writer.add_scalar(env + "." + "loss", loss)
         self.log_custom_metrics(custom_metrics)
 
         if self.log_train_images and images is not None:
