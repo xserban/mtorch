@@ -1,6 +1,7 @@
 """Weights and Biases www.wandb.com Logger"""
-import wandb
+import torch
 import os
+import wandb
 
 from .base import BaseLogger
 
@@ -29,11 +30,12 @@ class WANDBLogger(BaseLogger):
             raise e
 
     def _log_info(self, step, env, loss, custom_metrics, images=None):
-        wandb.log({env + "." + "loss": loss}, step=step)
+        wandb.log({env + "." + "loss": loss})
         self.log_custom_metrics(step, env, custom_metrics)
         if self.log_train_images and images is not None:
             for img in images:
-                wandb.log({env + ".input": [wandb.Image(img)]})
+                with torch.no_grad():
+                    wandb.log({env + ".input": [wandb.Image(img.cpu())]})
 
     def log_batch(self, step, env, loss, custom_metrics, images=None):
         if self.log_index_batches:
@@ -42,17 +44,17 @@ class WANDBLogger(BaseLogger):
     def log_custom_metrics(self, step, env, metrics):
         for key, value in metrics.items():
             name = env + "." + key
-            wandb.log({name: value}, step=step)
+            wandb.log({name: value})
 
     def log_learning_rates(self, lrates, step):
         for index, rate in enumerate(lrates):
             name = "learning_rate" + str(index)
-            wandb.log({name: rate}, step=step)
+            wandb.log({name: rate})
 
     def log_epoch(self, step, env, loss, custom_metrics, lrates):
         if not self.log_index_batches:
             name = env + "." + "loss"
-            wandb.log({name: loss}, step=step)
+            wandb.log({name: loss})
             if lrates is not None:
                 self.log_learning_rates(lrates, step)
             self._log_info(step, env, loss, custom_metrics)
@@ -60,7 +62,9 @@ class WANDBLogger(BaseLogger):
     def log_parameters(self, step, env, params):
         if self.log_params:
             for name, param in params:
-                wandb.log(name, wandb.Histogram(param), step=step)
+                with torch.no_grad():
+                    wandb.log({name: wandb.Histogram(
+                        param.cpu())})
 
     def add_artifact(self, filename):
         try:
