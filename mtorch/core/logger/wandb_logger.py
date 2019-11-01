@@ -60,5 +60,11 @@ class WANDBLogger(BaseLogger):
             for name, param in params:
                 wandb.log(name, wandb.Histogram(param), step=step)
 
-    def add_artifact(self, filename, name, metadata=None):
-        wandb.save(filename)
+    def add_artifact(self, filename):
+        try:
+            wandb.save(filename)
+            print("[LOGGER] \t Saved artifact to WANDB database {}"
+                  .format(str(filename)))
+        except Exception as e:
+            print("[ERROR][LOGGER] \t Could not save "
+                  "artifact {} \t {}".format(filename, e))

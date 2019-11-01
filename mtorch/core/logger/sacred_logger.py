@@ -45,4 +45,10 @@ class SacredLogger(BaseLogger):
         pass
 
     def add_artifact(self, filename, name, metadata=None):
-        self.sacred_ex.add_artifact(filename, name, metadata)
+        try:
+            self.sacred_ex.add_artifact(filename, name, metadata)
+            print("[LOGGER] \t Saved artifact to Sacred database {}"
+                  .format(str(name)))
+        except Exception as e:
+            print("[ERROR][LOGGER] \t Could not save "
+                  "artifact {} \t {}".format(name, e))
