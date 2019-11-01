@@ -38,6 +38,7 @@ One of the goal of the project is to reduce the code needed to instrument, run t
 The logger classes handle the logic for saving the measurements and the code.
 Three options are available at the moment: Tensorboard for pytorch, [sacred](https://github.com/IDSIA/sacred),[py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) which gathers hardware metrics in elasticsearch or [weights and biases](https://wandb.com).
 All can be configured in the settings (see below).
+For [weights and biases](https://wandb.com) you have to login orr setup an environment variable as described on their website.
 
 Unfortunately weights and biases does not allow logging for each step (epoch) at different times, so their
 default graphs might look weird. You can experiment with a custom "x-axis" value and solve this issue.
