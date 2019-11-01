@@ -33,7 +33,7 @@ class ConfigParser:
         timestamp = datetime.now().strftime(r"%m%d_%H%M%S") \
             if timestamp else ""
 
-        exper_name = self.config["name"]
+        exper_name = self.config["project_name"]
         self._save_dir = save_dir / "models" / exper_name / timestamp
         self._log_dir = save_dir / "log" / exper_name / timestamp
 

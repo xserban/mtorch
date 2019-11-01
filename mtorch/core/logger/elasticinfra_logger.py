@@ -9,7 +9,7 @@ class InfraLogger:
         print("[INFO][LOGS] \t Initializing Infrastructure Logger ...")
 
         config["logging"]["infrastructure_logs"]["config"]["hostname"] = config["host"]["name"]
-        config["logging"]["infrastructure_logs"]["config"]["name"] = config["name"]
+        config["logging"]["infrastructure_logs"]["config"]["name"] = config["project_name"]
 
         self.elk_config = ConfigParser(
             config["logging"]["infrastructure_logs"]["config"])

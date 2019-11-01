@@ -1,5 +1,6 @@
 {
-  "name": "MNIST_Standard",
+  "project_name": "MNIST_Standard",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -108,6 +109,9 @@
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "sys"
       }
+    },
+    "wandb_logs": {
+      "do": false
     },
     "infrastructure_logs": {
       "do": false,

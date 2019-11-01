@@ -134,9 +134,7 @@ class DefaultTrainer(BaseTrainer):
                 total_val_loss += loss
                 total_val_metrics += metrics
                 # log results specific to batch
-                self.logger.log_batch((epoch - 1) *
-                                      len(self.valid_data_loader) +
-                                      batch_idx,
+                self.logger.log_batch((epoch - 1) * len(self.valid_data_loader) + batch_idx,
                                       "valid",
                                       loss,
                                       dic_metrics,

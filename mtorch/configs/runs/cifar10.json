@@ -1,5 +1,6 @@
 {
-  "name": "Cifar10_Resnet34",
+  "project_name": "Cifar10_Resnet34",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -112,7 +113,7 @@
   },
   "logging": {
     "_comment": "index_batches decides if we index the loss and the metrics at every batch size or after one epoch (all batches)",
-    "index_batches": true,
+    "index_batches": false,
     "log_params": false,
     "log_train_images": false,
     "log_test_images": false,
@@ -127,6 +128,9 @@
         "DISCOVER_SOURCES": "sys",
         "CAPTURE_MODE": "sys"
       }
+    },
+    "wandb_logs": {
+      "do": true
     },
     "infrastructure_logs": {
       "do": true,

@@ -40,7 +40,7 @@ class Runner:
             )
             self.config.init_logger(sacred_ex=sacred_exp.ex)
             ex.main_ = self.run
-            ex.run(options={'--name': self.config["name"]})
+            ex.run(options={'--name': self.config["project_name"]})
 
     def run(self):
         self.logger = self.config.get_logger("train")

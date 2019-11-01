@@ -1,5 +1,6 @@
 {
-  "name": "MNIST_Standard",
+  "project_name": "MNIST_Standard",
+  "run_name": "",
   "host": {
     "name": "x4",
     "gpu_settings": {
