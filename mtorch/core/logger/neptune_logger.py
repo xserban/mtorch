@@ -59,8 +59,6 @@ class NeptuneLogger(BaseLogger):
 
     def log_epoch(self, step, env, loss, custom_metrics, lrates):
         if not self.log_index_batches:
-            name = env + "." + "loss"
-            self.exp.log_metric(name, loss)
             if lrates is not None:
                 self.log_learning_rates(lrates, step)
             self._log_info(step, env, loss, custom_metrics)
