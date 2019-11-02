@@ -36,9 +36,15 @@ For special cases, new trainers can easily be implemented by creating a new clas
 
 One of the goal of the project is to reduce the code needed to instrument, run the experiments and save the measurements.
 The logger classes handle the logic for saving the measurements and the code.
-Three options are available at the moment: Tensorboard for pytorch, [sacred](https://github.com/IDSIA/sacred),[py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) which gathers hardware metrics in elasticsearch or [weights and biases](https://wandb.com).
-All can be configured in the settings (see below).
-For [weights and biases](https://wandb.com) you have to login orr setup an environment variable as described on their website.
+Several options are available at the moment: 
+* Tensorboard for pytorch
+* [sacred](https://github.com/IDSIA/sacred)
+* [py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) which gathers hardware metrics in elasticsearch
+* [weights and biases](https://wandb.com) - For [weights and biases](https://wandb.com) you have to login orr setup an environment variable as described on their website.
+* [neptune ml](https://neptune.ml) - For neptune you have to add a json witht the api key and other environment options to config. The neptune_helper will automatically set the environment variables when running an experiment.
+
+All loggers be configured in the settings (see below).
+
 
 Unfortunately weights and biases does not allow logging for each step (epoch) at different times, so their
 default graphs might look weird. You can experiment with a custom "x-axis" value and solve this issue.
