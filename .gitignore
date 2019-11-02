@@ -113,3 +113,6 @@ saved/
 .vscode/
 .idea/
 __MACOSX/
+
+# neptune logger
+mtorch/core/logger/neptune_key.json

@@ -1,6 +1,6 @@
 {
-  "project_name": "MNIST_Standard",
-  "run_name": "",
+  "project_name": "MNIST",
+  "run_name": null,
   "host": {
     "name": "x4",
     "gpu_settings": {

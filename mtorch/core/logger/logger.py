@@ -12,6 +12,7 @@ from core.utils import read_json
 from core.logger.tb_logger import TBLogger
 from core.logger.sacred_logger import SacredLogger
 from core.logger.wandb_logger import WANDBLogger
+from core.logger.neptune_logger import NeptuneLogger
 from core.logger.elasticinfra_logger import InfraLogger
 from core.logger.base import BaseLogger
 
@@ -34,6 +35,7 @@ class Logger(BaseLogger, metaclass=Singleton):
         self.init_tb_logger(config)
         self.init_sacred_logger(config, sacred_ex)
         self.init_wandb_logger(config)
+        self.init_neptune_logger(config)
         self.init_infrastructure_logger(config)
 
     def init_py_logger(self, save_dir,
@@ -71,6 +73,12 @@ class Logger(BaseLogger, metaclass=Singleton):
         else:
             self.wandb_logger = None
 
+    def init_neptune_logger(self, config):
+        if config["logging"]["neptune_logs"]["do"] is True:
+            self.neptune_logger = NeptuneLogger(config)
+        else:
+            self.neptune_logger = None
+
     def init_infrastructure_logger(self, config):
         elk_logger = self.get_py_logger("elk_logger", 3)
         if config["logging"]["infrastructure_logs"]["do"] is True:
@@ -100,6 +108,9 @@ class Logger(BaseLogger, metaclass=Singleton):
         if self.wandb_logger is not None:
             self.wandb_logger.log_batch(
                 step, env, loss, custom_metrics, images)
+        if self.neptune_logger is not None:
+            self.neptune_logger.log_batch(
+                step, env, loss, custom_metrics, images)
 
     def log_epoch(self, step, env, loss, custom_metrics, lrates=None):
         if self.tb_logger is not None:
@@ -110,12 +121,17 @@ class Logger(BaseLogger, metaclass=Singleton):
         if self.wandb_logger is not None:
             self.wandb_logger.log_epoch(
                 step, env, loss, custom_metrics, lrates)
+        if self.neptune_logger is not None:
+            self.neptune_logger.log_epoch(
+                step, env, loss, custom_metrics, lrates)
 
     def log_validation_params(self, step, env, parameters):
         if self.tb_logger is not None:
             self.tb_logger.log_parameters(step, env, parameters)
         if self.wandb_logger is not None:
             self.wandb_logger.log_parameters(step, env, parameters)
+        if self.neptune_logger is not None:
+            self.neptune_logger.log_parameters(step, env, parameters)
 
     def log_custom_metrics(self, metrics):
         super().log_custom_metrics(metrics)
@@ -129,6 +145,8 @@ class Logger(BaseLogger, metaclass=Singleton):
             self.sacred_logger.add_artifact(filename, name, metadata)
         if self.wandb_logger is not None:
             self.wandb_logger.add_artifact(filename)
+        if self.neptune_logger is not None:
+            self.neptune_logger.add_artifact(filename)
 
     def start_loops(self):
         """This method will start all loggers that
@@ -141,3 +159,9 @@ class Logger(BaseLogger, metaclass=Singleton):
           run in a loop, on a separate thread"""
         if self.infra_logger is not None:
             self.infra_logger.stop()
+
+    def stop_experiments(self):
+        self.stop_loops()
+
+        if self.neptune_logger is not None:
+            self.neptune_logger.stop()

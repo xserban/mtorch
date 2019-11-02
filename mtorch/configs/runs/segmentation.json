@@ -1,6 +1,6 @@
 {
-  "project_name": "Transfer_Segmentation",
-  "run_name": "",
+  "project_name": "Transfer",
+  "run_name": "Segmentation",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -130,7 +130,15 @@
       }
     },
     "wandb_logs": {
-      "do": true
+      "do": false
+    },
+    "neptune_logs": {
+      "do": false,
+      "args": {
+        "settings_file": "mtorch/core/logger/neptune_key.json",
+        "user_space": "nullconvergence"
+      },
+      "kwarrgs": {}
     },
     "infrastructure_logs": {
       "do": false,

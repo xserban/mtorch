@@ -1,6 +1,6 @@
 {
   "project_name": "MAML",
-  "run_name": "",
+  "run_name": null,
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -116,7 +116,15 @@
       }
     },
     "wandb_logs": {
-      "do": true
+      "do": false
+    },
+    "neptune_logs": {
+      "do": false,
+      "args": {
+        "settings_file": "mtorch/core/logger/neptune_key.json",
+        "user_space": "nullconvergence"
+      },
+      "kwarrgs": {}
     },
     "infrastructure_logs": {
       "do": false,
