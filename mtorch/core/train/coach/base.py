@@ -64,7 +64,7 @@ class BaseTrainer:
                 break
             self._save_checkpoint(epoch, save_best=best)
 
-        self.logger.stop_loops()
+        self.logger.stop_experiments()
         # save best model artifacts
         if self.monitor != "off":
             self.logger.log_artifact(

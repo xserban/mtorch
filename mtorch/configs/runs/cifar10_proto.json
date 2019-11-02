@@ -1,6 +1,6 @@
 {
-  "project_name": "Cifar10_Resnet34",
-  "run_name": "",
+  "project_name": "CIFAR10",
+  "run_name": "Resnet34_Proto",
   "host": {
     "name": "x4",
     "gpu_settings": {
@@ -125,7 +125,15 @@
       }
     },
     "wandb_logs": {
-      "do": true
+      "do": false
+    },
+    "neptune_logs": {
+      "do": false,
+      "args": {
+        "settings_file": "mtorch/core/logger/neptune_key.json",
+        "user_space": "nullconvergence"
+      },
+      "kwarrgs": {}
     },
     "infrastructure_logs": {
       "do": true,
