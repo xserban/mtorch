@@ -31,26 +31,28 @@ class WANDBLogger(BaseLogger):
             raise excpt
 
     def _log_info(self, step, env, loss, custom_metrics, images=None):
-        wandb.log({env + "." + "loss": loss})
+        wandb.log({env + "." + "loss": loss}, commit=False, step=step)
         self.log_custom_metrics(step, env, custom_metrics)
         if self.log_train_images and images is not None:
-            for img in images:
-                with torch.no_grad():
-                    wandb.log({env + ".input": [wandb.Image(img.cpu())]})
+            print("[WARN] \t WANDB logger currently does not allow image indexing")
+            # for img in images:
+            #     with torch.no_grad():
+            #         wandb.log({env + ".input": [wandb.Image(img.cpu())]})
 
     def log_batch(self, step, env, loss, custom_metrics, images=None):
         if self.log_index_batches:
-            self._log_info(step, env, loss, custom_metrics, images)
+            print('[WARN] \t WANDB logger does not allow batch indexing')
+        #     self._log_info(step, env, loss, custom_metrics, images)
 
     def log_custom_metrics(self, step, env, metrics):
         for key, value in metrics.items():
             name = env + "." + key
-            wandb.log({name: value})
+            wandb.log({name: value}, commit=False, step=step)
 
     def log_learning_rates(self, lrates, step):
         for index, rate in enumerate(lrates):
             name = "learning_rate" + str(index)
-            wandb.log({name: rate})
+            wandb.log({name: rate}, commit=False, step=step)
 
     def log_epoch(self, step, env, loss, custom_metrics, lrates):
         if not self.log_index_batches:
@@ -59,11 +61,7 @@ class WANDBLogger(BaseLogger):
             self._log_info(step, env, loss, custom_metrics)
 
     def log_parameters(self, step, env, params):
-        if self.log_params:
-            for name, param in params:
-                with torch.no_grad():
-                    wandb.log({name: wandb.Histogram(
-                        param.cpu())})
+        pass
 
     def add_artifact(self, filename):
         try:
