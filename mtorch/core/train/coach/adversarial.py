@@ -148,16 +148,18 @@ class AdversarialTrainer(BaseTrainer):
             with torch.no_grad():
                 output = self.model(original_data)
                 adv_output = self.model(adversarial_data)
-
-        adv_loss = self.loss(adv_output, target)
-        loss = self.loss(output, target)
-
+        loss, adv_loss = self.loss(output, target), 0
         if train is True:
             if self.worst_case_training is False:
                 loss.backward()
                 self.optimizer.step()
-            adv_loss.backward()
-            self.optimizer.step()
+                adv_loss = self.loss(adv_output, target)
+                adv_loss.backward()
+                self.optimizer.step()
+            else:
+                adv_loss = self.loss(adv_output, target)
+                adv_loss.backward()
+                self.optimizer.step()
 
         if eval_metrics is True:
             metrics = self.eval_metrics(output, adv_output, target)
