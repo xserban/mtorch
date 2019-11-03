@@ -120,14 +120,6 @@
       },
       "kwarrgs": {}
     },
-    "neptune_logs": {
-      "do": true,
-      "args": {
-        "settings_file": "mtorch/core/logger/neptune_key.json",
-        "user_space": "nullconvergence"
-      },
-      "kwarrgs": {}
-    },
     "infrastructure_logs": {
       "do": false,
       "config": {

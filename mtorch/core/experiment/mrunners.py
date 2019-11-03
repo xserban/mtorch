@@ -49,7 +49,6 @@ class MRunners:
 
     def run_custom_gpus(self):
         groups = self.group_runs()
-        max_gpu = torch.cuda.device_count()
         sgroups = sorted(groups, key=lambda g: g["len_ids"], reverse=True)
         # pair tasks on disjoing gpus
         tasks = []
@@ -88,10 +87,10 @@ class MRunners:
 
         if len(options) > 0:
             # merge tasks
-            task["str_ids"] += " " + options[0]["str_ids"]
-            task["ids"] += options[0]["ids"]
-            task["len_ids"] += options[0]["len_ids"]
             task["configs"] += options[0]["configs"]
+            task["str_ids"] += " " + options[0]["str_ids"]
+            # task["ids"] += options[0]["ids"]
+            task["len_ids"] += options[0]["len_ids"]
             sgroups.pop(sgroups.index(options[0]))
             # search for another concurrent task
             if ((task["len_ids"]) < max_gpu):

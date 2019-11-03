@@ -159,20 +159,19 @@ class BaseTrainer:
             n_gpu_use = 0
             device = torch.device("cpu")
         elif custom_gpu["do"] is True:
-
             if max(custom_gpu["ids"]) > n_gpu-1:
                 self.py_logger.warning("[WARN] \t Max GPU id is higher"
                                        " than the max. number of GPUs."
                                        " Trying to run on the max nr. of GPUs")
                 n_gpu_use = n_gpu
                 list_ids = list(range(n_gpu_use))
-                device = torch.device("cuda", 0)
+                device = torch.device("cuda")
             else:
                 ids = custom_gpu["ids"]
                 n_gpu_use = len(ids)
                 list_ids = ids
                 device = torch.device("cuda", custom_gpu["ids"][0]) if len(ids) == 1 else \
-                    torch.device("cuda", 0)
+                    torch.device("cuda")
         elif multiple_gpus["do"] is True:
             if multiple_gpus["nr_gpus"] > n_gpu:
                 self.py_logger.warning("[WARN] \t Warning: The number of "
@@ -183,7 +182,7 @@ class BaseTrainer:
                                                n_gpu))
             n_gpu_use = n_gpu
             list_ids = list(range(n_gpu_use))
-            device = torch.device("cuda", 0)
+            device = torch.device("cuda")
 
         return device, list_ids
 

@@ -69,7 +69,7 @@ class NeptuneLogger(BaseLogger):
     def add_artifact(self, filename):
         try:
             self.exp.log_artifact(os.path.join(filename))
-            print("[LOGGER] \t Saved artifact to WANDB database {}"
+            print("[LOGGER] \t Saved artifact to Neptune database {}"
                   .format(str(filename)))
         except Exception as e:
             print("[ERROR][LOGGER] \t Could not save "

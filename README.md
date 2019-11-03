@@ -36,7 +36,7 @@ For special cases, new trainers can easily be implemented by creating a new clas
 
 One of the goal of the project is to reduce the code needed to instrument, run the experiments and save the measurements.
 The logger classes handle the logic for saving the measurements and the code.
-Several options are available at the moment: 
+Several options are available at the moment:
 * Tensorboard for pytorch
 * [sacred](https://github.com/IDSIA/sacred)
 * [py-elasticinfrastructure](https://github.com/NullConvergence/py-elasticinfrastructure) which gathers hardware metrics in elasticsearch

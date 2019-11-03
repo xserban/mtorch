@@ -19,7 +19,6 @@ if __name__ == "__main__":
 
     fpath = Path(fargs.folder)
     files = read_dir_files(fargs.folder)
-    # jsons = [read_json(fpath / f) for f in files]
 
     configs = []
     for f in files:

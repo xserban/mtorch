@@ -79,7 +79,7 @@
       "type": "DefaultTrainer",
       "args": {}
     },
-    "epochs": 2,
+    "epochs": 1,
     "save_dir": "saved/",
     "save_period": 50,
     "log_verbosity": 2,
@@ -101,7 +101,7 @@
       "do": false
     },
     "sacred_logs": {
-      "do": true,
+      "do": false,
       "mongo_url": "mongodb://192.168.178.26:27017",
       "db_name": "sacred-db",
       "settings": {
@@ -111,6 +111,14 @@
     },
     "wandb_logs": {
       "do": false
+    },
+    "neptune_logs": {
+      "do": true,
+      "args": {
+        "settings_file": "mtorch/core/logger/neptune_key.json",
+        "user_space": "nullconvergence"
+      },
+      "kwarrgs": {}
     },
     "infrastructure_logs": {
       "do": false,

@@ -17,7 +17,7 @@ from core.logger.elasticinfra_logger import InfraLogger
 from core.logger.base import BaseLogger
 
 
-class Logger(BaseLogger, metaclass=Singleton):
+class Logger(BaseLogger):
     def __init__(self,
                  config,
                  log_dir,

@@ -3,12 +3,12 @@ import os
 from pathlib import Path
 from sacred import SETTINGS
 from sacred.observers import MongoObserver
-from core.utils import Singleton, read_json
+from core.utils import read_json
 
 
-class Sacred(metaclass=Singleton):
+class Sacred():
     def __init__(self, experiment, config, auto_config=False):
-        """Initializes Sacred Singleton used to configure all s
+        """Initializes Sacred Experiments
         Sacred related settings
         :param experiment: sacared Experiment object
         :param config: config dic
