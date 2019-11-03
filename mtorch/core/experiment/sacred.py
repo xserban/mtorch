@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 from sacred import SETTINGS
 from sacred.observers import MongoObserver
-from core.utils import read_json
+from core.utils import read_json, Singleton
 
 
-class Sacred():
+class Sacred(metaclass=Singleton):
     def __init__(self, experiment, config, auto_config=False):
         """Initializes Sacred Experiments
         Sacred related settings

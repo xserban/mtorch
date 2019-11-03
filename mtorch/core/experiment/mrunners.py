@@ -15,6 +15,7 @@ import torch
 from core.utils.util import read_json, remove_from_dic
 from core.experiment.runner import Runner
 from threading import Thread
+import time
 
 
 class MRunners:
@@ -114,3 +115,7 @@ class MRunners:
                 "configs": [cnf]
             })
         return grps
+
+    def delayed_thread(self, method, delay=3):
+        time.sleep(delay)
+        method()
